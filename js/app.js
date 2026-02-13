@@ -42,8 +42,15 @@ function setupEventListeners() {
         filterData();
     });
 
-    // Setup add entry button
-    document.getElementById('addEntryBtn').addEventListener('click', openAddEntryModal);
+    // Setup add entry button (toggle)
+    document.getElementById('addEntryBtn').addEventListener('click', () => {
+        if (document.getElementById('addEntryContainer').classList.contains('show')) {
+            closeAddEntryModal();
+        } else {
+            closeEditEntryModal();
+            openAddEntryModal();
+        }
+    });
 
     // Setup tag editor button
     document.getElementById('tagEditorBtn').addEventListener('click', openTagEditor);
@@ -87,24 +94,22 @@ function setupEventListeners() {
     const addEntryContent = document.getElementById('addEntryContent');
     if (addEntryContent) {
         addEntryContent.addEventListener('input', () => {
-            if (document.getElementById('addEntryModal').classList.contains('active')) {
+            if (document.getElementById('addEntryContainer').classList.contains('show')) {
                 updateAddEntrySuggestedTags();
             }
         });
     }
 
-    const addEntryModalElement = document.getElementById('addEntryModal');
-    if (addEntryModalElement) {
-        addEntryModalElement.addEventListener('click', (e) => {
-            if (e.target.id === 'addEntryModal') closeAddEntryModal();
-
+    const addEntryContainerEl = document.getElementById('addEntryContainer');
+    if (addEntryContainerEl) {
+        addEntryContainerEl.addEventListener('click', (e) => {
             if (e.target.classList.contains('tag__remove')) {
                 const tagIndex = parseInt(e.target.getAttribute('data-tag-index'), 10);
                 removeAddEntryTag(tagIndex);
                 e.stopPropagation();
             }
 
-            const addSuggestedTag = e.target.closest('#addEntryModal .tag--suggested');
+            const addSuggestedTag = e.target.closest('#addEntryContainer .tag--suggested');
             if (addSuggestedTag) {
                 const idx = parseInt(addSuggestedTag.getAttribute('data-suggested-index'), 10);
                 addSuggestedTagToAddEntry(idx);
@@ -139,11 +144,9 @@ function setupEventListeners() {
         });
     }
 
-    const editEntryModalElement = document.getElementById('editEntryModal');
-    if (editEntryModalElement) {
-        editEntryModalElement.addEventListener('click', (e) => {
-            if (e.target.id === 'editEntryModal') closeEditEntryModal();
-
+    const editEntryContainerEl = document.getElementById('editEntryContainer');
+    if (editEntryContainerEl) {
+        editEntryContainerEl.addEventListener('click', (e) => {
             if (e.target.classList.contains('tag__remove')) {
                 const tagIndex = parseInt(e.target.getAttribute('data-tag-index'), 10);
                 removeEditEntryTag(tagIndex);
@@ -237,9 +240,9 @@ function initializeApp() {
 // Close modals on Escape key
 document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    if (document.getElementById('addEntryModal')?.classList.contains('active')) {
+    if (document.getElementById('addEntryContainer')?.classList.contains('show')) {
         closeAddEntryModal();
-    } else if (document.getElementById('editEntryModal')?.classList.contains('active')) {
+    } else if (document.getElementById('editEntryContainer')?.classList.contains('show')) {
         closeEditEntryModal();
     } else if (document.getElementById('tagEditorModal')?.classList.contains('active')) {
         closeTagEditor();
@@ -253,7 +256,7 @@ document.addEventListener('click', (e) => {
     const tagEl = e.target.closest('.tag[data-name]');
     if (!tagEl) return;
     if (e.target.closest('.tag__remove')) return;
-    if (e.target.closest('#editEntryModal') || e.target.closest('#addEntryModal')) return;
+    if (e.target.closest('#editEntryContainer') || e.target.closest('#addEntryContainer')) return;
     if (e.target.closest('#tagFilter') || e.target.closest('#tagFilterContainer')) return;
 
     const tagName = tagEl.getAttribute('data-name');

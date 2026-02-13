@@ -113,6 +113,7 @@ function openEditEntryModal(entryNumber) {
     const entry = allData.find(e => e.Number === entryNumber);
     if (!entry) return;
 
+    closeAddEntryModal();
     currentEditingEntryNumber = entryNumber;
 
     // Existing tags: only from entry.Tags (explicitly saved)
@@ -136,7 +137,7 @@ function openEditEntryModal(entryNumber) {
     renderEditEntryTags();
     renderEditEntrySuggestedTags();
 
-    document.getElementById('editEntryModal').classList.add('active');
+    document.getElementById('editEntryContainer').classList.add('show');
 }
 
 function updateEditEntryColorSelector() {
@@ -146,7 +147,7 @@ function updateEditEntryColorSelector() {
 }
 
 function closeEditEntryModal() {
-    document.getElementById('editEntryModal').classList.remove('active');
+    document.getElementById('editEntryContainer').classList.remove('show');
     currentEditingEntryNumber = null;
 }
 
@@ -266,15 +267,17 @@ function openAddEntryModal() {
     updateAddEntryColorSelector();
     renderAddEntryTags();
     renderAddEntrySuggestedTags();
-    document.getElementById('addEntryModal').classList.add('active');
+    document.getElementById('addEntryContainer').classList.add('show');
+    document.getElementById('addEntryBtn')?.classList.add('active');
 }
 
 function closeAddEntryModal() {
-    document.getElementById('addEntryModal').classList.remove('active');
+    document.getElementById('addEntryContainer').classList.remove('show');
+    document.getElementById('addEntryBtn')?.classList.remove('active');
 }
 
 function updateAddEntryColorSelector() {
-    document.querySelectorAll('#addEntryModal .edit-entry-color-btn').forEach(btn => {
+    document.querySelectorAll('#addEntryContainer .edit-entry-color-btn').forEach(btn => {
         btn.classList.toggle('selected', btn.getAttribute('data-color') === addingEntrySelectedColor);
     });
 }

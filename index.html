@@ -65,6 +65,101 @@
             <div id="tagFilterContainer" class="tag-filter-container">
                 <div id="tagFilter" class="tag-filter"></div>
             </div>
+            <div id="addEntryContainer" class="controls-dropdown">
+                <div class="controls-dropdown-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Add Entry</h2>
+                        <button class="modal-close" onclick="closeAddEntryModal()">&times;</button>
+                    </div>
+                    <div class="edit-entry-section">
+                        <label class="edit-entry-label edit-entry-label-required">Entry #</label>
+                        <input type="number" id="addEntryNumber" class="edit-entry-input" step="any" min="0" placeholder="Entry number">
+                    </div>
+                    <div class="edit-entry-section">
+                        <label class="edit-entry-label edit-entry-label-required">Content</label>
+                        <textarea id="addEntryContent" class="edit-entry-textarea" placeholder="Entry content..."></textarea>
+                    </div>
+                    <div class="edit-entry-section">
+                        <label class="edit-entry-label">Tags</label>
+                        <div class="edit-entry-input-wrapper">
+                            <input type="text" id="addEntryTagInput" class="edit-entry-input" placeholder="Add tag...">
+                            <div class="edit-entry-color-selector" role="group" aria-label="Tag color">
+                                <button type="button" class="edit-entry-color-btn" data-color="purple" title="Purple"></button>
+                                <button type="button" class="edit-entry-color-btn" data-color="green" title="Green"></button>
+                                <button type="button" class="edit-entry-color-btn" data-color="blue" title="Blue"></button>
+                                <button type="button" class="edit-entry-color-btn" data-color="orange" title="Orange"></button>
+                                <button type="button" class="edit-entry-color-btn" data-color="teal" title="Teal"></button>
+                                <button type="button" class="edit-entry-color-btn" data-color="pink" title="Pink"></button>
+                                <button type="button" class="edit-entry-color-btn" data-color="amber" title="Amber"></button>
+                                <button type="button" class="edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
+                            </div>
+                            <button type="button" id="addEntryAddTagBtn" class="edit-entry-add-btn">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                        <div id="addEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
+                        <div id="addEntryTags" class="edit-entry-tags-container"></div>
+                        <div id="addEntrySuggestedTags" class="edit-entry-suggested-section">
+                            <div class="edit-entry-suggested-label">
+                                <span class="edit-entry-suggested-title">Suggested from content</span>
+                                <button type="button" class="edit-entry-suggested-add-all" id="addEntryAddAllSuggested" style="display: none;">Add all</button>
+                            </div>
+                            <div id="addEntrySuggestedTagsList" class="edit-entry-tags-container edit-entry-suggested-list"></div>
+                        </div>
+                    </div>
+                    <div class="edit-entry-button-row">
+                        <button data-action="cancel-add" class="edit-entry-btn-cancel">Cancel</button>
+                        <button data-action="submit-add" class="edit-entry-btn-submit">Add Entry</button>
+                    </div>
+                </div>
+            </div>
+            <div id="editEntryContainer" class="controls-dropdown">
+                <div class="controls-dropdown-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Edit Entry</h2>
+                        <button class="modal-close" onclick="closeEditEntryModal()">&times;</button>
+                    </div>
+                    <div class="edit-entry-section">
+                        <label class="edit-entry-label edit-entry-label-required">Content</label>
+                        <textarea id="editEntryContent" class="edit-entry-textarea"></textarea>
+                    </div>
+                    <div class="edit-entry-section">
+                        <label class="edit-entry-label">Tags</label>
+                        <div class="edit-entry-input-wrapper">
+                            <input type="text" id="editEntryTagInput" class="edit-entry-input" placeholder="Add tag...">
+                            <div class="edit-entry-color-selector" role="group" aria-label="Tag color">
+                                <button type="button" class="edit-entry-color-btn" data-color="purple" title="Purple"></button>
+                                <button type="button" class="edit-entry-color-btn" data-color="green" title="Green"></button>
+                                <button type="button" class="edit-entry-color-btn" data-color="blue" title="Blue"></button>
+                                <button type="button" class="edit-entry-color-btn" data-color="orange" title="Orange"></button>
+                                <button type="button" class="edit-entry-color-btn" data-color="teal" title="Teal"></button>
+                                <button type="button" class="edit-entry-color-btn" data-color="pink" title="Pink"></button>
+                                <button type="button" class="edit-entry-color-btn" data-color="amber" title="Amber"></button>
+                                <button type="button" class="edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
+                            </div>
+                            <button type="button" id="editEntryAddTagBtn" class="edit-entry-add-btn">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                        <div id="editEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
+                        <div id="editEntryTags" class="edit-entry-tags-container"></div>
+                        <div id="editEntrySuggestedTags" class="edit-entry-suggested-section">
+                            <div class="edit-entry-suggested-label">
+                                <span class="edit-entry-suggested-title">Suggested from content</span>
+                                <button type="button" class="edit-entry-suggested-add-all" id="editEntryAddAllSuggested" style="display: none;">Add all</button>
+                            </div>
+                            <div id="editEntrySuggestedTagsList" class="edit-entry-tags-container edit-entry-suggested-list"></div>
+                        </div>
+                    </div>
+                    <div class="edit-entry-button-row">
+                        <button data-action="cancel-edit" class="edit-entry-btn-cancel">Cancel</button>
+                        <button data-action="update-edit" class="edit-entry-btn-submit">Update Entry</button>
+                    </div>
+                    <div class="edit-entry-delete-row">
+                        <button data-action="delete-edit" class="edit-entry-btn-delete">Delete Entry</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="database" class="database-view"></div>
@@ -80,113 +175,6 @@
 
         <div class="stats">
             Showing <span id="resultCount">0</span> of <span id="totalCount">0</span> entries / <span id="dataSource">loading...</span>
-        </div>
-    </div>
-
-    <!-- Add Entry Modal -->
-    <div id="addEntryModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Add Entry</h2>
-                <button class="modal-close" onclick="closeAddEntryModal()">&times;</button>
-            </div>
-
-            <div class="edit-entry-section">
-                <label class="edit-entry-label edit-entry-label-required">Entry #</label>
-                <input type="number" id="addEntryNumber" class="edit-entry-input" step="any" min="0" placeholder="Entry number">
-            </div>
-
-            <div class="edit-entry-section">
-                <label class="edit-entry-label edit-entry-label-required">Content</label>
-                <textarea id="addEntryContent" class="edit-entry-textarea" placeholder="Entry content..."></textarea>
-            </div>
-
-            <div class="edit-entry-section">
-                <label class="edit-entry-label">Tags</label>
-                <div class="edit-entry-input-wrapper">
-                    <input type="text" id="addEntryTagInput" class="edit-entry-input" placeholder="Add tag...">
-                    <div class="edit-entry-color-selector" role="group" aria-label="Tag color">
-                        <button type="button" class="edit-entry-color-btn" data-color="purple" title="Purple"></button>
-                        <button type="button" class="edit-entry-color-btn" data-color="green" title="Green"></button>
-                        <button type="button" class="edit-entry-color-btn" data-color="blue" title="Blue"></button>
-                        <button type="button" class="edit-entry-color-btn" data-color="orange" title="Orange"></button>
-                        <button type="button" class="edit-entry-color-btn" data-color="teal" title="Teal"></button>
-                        <button type="button" class="edit-entry-color-btn" data-color="pink" title="Pink"></button>
-                        <button type="button" class="edit-entry-color-btn" data-color="amber" title="Amber"></button>
-                        <button type="button" class="edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
-                    </div>
-                    <button type="button" id="addEntryAddTagBtn" class="edit-entry-add-btn">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </div>
-                <div id="addEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
-                <div id="addEntryTags" class="edit-entry-tags-container"></div>
-                <div id="addEntrySuggestedTags" class="edit-entry-suggested-section">
-                    <div class="edit-entry-suggested-label">
-                        <span class="edit-entry-suggested-title">Suggested from content</span>
-                        <button type="button" class="edit-entry-suggested-add-all" id="addEntryAddAllSuggested" style="display: none;">Add all</button>
-                    </div>
-                    <div id="addEntrySuggestedTagsList" class="edit-entry-tags-container edit-entry-suggested-list"></div>
-                </div>
-            </div>
-
-            <div class="edit-entry-button-row">
-                <button data-action="cancel-add" class="edit-entry-btn-cancel">Cancel</button>
-                <button data-action="submit-add" class="edit-entry-btn-submit">Add Entry</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Entry Modal -->
-    <div id="editEntryModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Edit Entry</h2>
-                <button class="modal-close" onclick="closeEditEntryModal()">&times;</button>
-            </div>
-            
-
-            <div class="edit-entry-section">
-                <label class="edit-entry-label edit-entry-label-required">Content</label>
-                <textarea id="editEntryContent" class="edit-entry-textarea"></textarea>
-            </div>
-
-            <div class="edit-entry-section">
-                <label class="edit-entry-label">Tags</label>
-                <div class="edit-entry-input-wrapper">
-                    <input type="text" id="editEntryTagInput" class="edit-entry-input" placeholder="Add tag...">
-                    <div class="edit-entry-color-selector" role="group" aria-label="Tag color">
-                        <button type="button" class="edit-entry-color-btn" data-color="purple" title="Purple"></button>
-                        <button type="button" class="edit-entry-color-btn" data-color="green" title="Green"></button>
-                        <button type="button" class="edit-entry-color-btn" data-color="blue" title="Blue"></button>
-                        <button type="button" class="edit-entry-color-btn" data-color="orange" title="Orange"></button>
-                        <button type="button" class="edit-entry-color-btn" data-color="teal" title="Teal"></button>
-                        <button type="button" class="edit-entry-color-btn" data-color="pink" title="Pink"></button>
-                        <button type="button" class="edit-entry-color-btn" data-color="amber" title="Amber"></button>
-                        <button type="button" class="edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
-                    </div>
-                    <button type="button" id="editEntryAddTagBtn" class="edit-entry-add-btn">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </div>
-                <div id="editEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
-                <div id="editEntryTags" class="edit-entry-tags-container"></div>
-                <div id="editEntrySuggestedTags" class="edit-entry-suggested-section">
-                    <div class="edit-entry-suggested-label">
-                        <span class="edit-entry-suggested-title">Suggested from content</span>
-                        <button type="button" class="edit-entry-suggested-add-all" id="editEntryAddAllSuggested" style="display: none;">Add all</button>
-                    </div>
-                    <div id="editEntrySuggestedTagsList" class="edit-entry-tags-container edit-entry-suggested-list"></div>
-                </div>
-            </div>
-
-            <div class="edit-entry-button-row">
-                <button data-action="cancel-edit" class="edit-entry-btn-cancel">Cancel</button>
-                <button data-action="update-edit" class="edit-entry-btn-submit">Update Entry</button>
-            </div>
-            <div class="edit-entry-delete-row">
-                <button data-action="delete-edit" class="edit-entry-btn-delete">Delete Entry</button>
-            </div>
         </div>
     </div>
 
