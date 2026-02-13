@@ -10,9 +10,9 @@ Noxsyphone lore database with Firebase auth and Realtime Database.
    cd loredump
    ```
 
-2. **Firebase config**
-   - Copy `js/firebase-config.example.js` to `js/firebase-config.js`
-   - Add your Firebase project values from [Firebase Console](https://console.firebase.google.com) → Project Settings → Your apps
+2. **Firebase config** (for local dev or your own deploy)
+   - The repo includes config for the main loredump deployment
+   - For your own Firebase project: copy `js/firebase-config.example.js` to `js/firebase-config.js` and add your values
 
 3. **Run locally**
    ```bash
