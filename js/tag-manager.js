@@ -72,11 +72,28 @@ function addTag(name, color, terms) {
 
 function updateTag(id, updates) {
     const tag = allTags.find(t => t.id === id);
-    if (tag) {
-        Object.assign(tag, updates);
-        return tag;
+    if (!tag) return null;
+
+    const oldName = tag.name;
+    Object.assign(tag, updates);
+
+    if (updates.name && updates.name !== oldName) {
+        tag.id = updates.name.toLowerCase().replace(/\s+/g, '-');
+        replaceTagNameInEntries(oldName, updates.name);
     }
-    return null;
+    return tag;
+}
+
+function replaceTagNameInEntries(oldName, newName) {
+    if (!allData || !Array.isArray(allData)) return;
+    const oldLower = oldName.toLowerCase();
+    allData.forEach(entry => {
+        const tags = parseEntryTags(entry.Tags);
+        const updated = tags.map(t =>
+            t.name.toLowerCase() === oldLower ? { ...t, name: newName } : t
+        );
+        entry.Tags = serializeEntryTags(updated);
+    });
 }
 
 function deleteTag(id) {
