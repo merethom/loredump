@@ -181,7 +181,7 @@ function setupEventListeners() {
                 e.stopPropagation();
             }
 
-            if (e.target.id === 'editEntryAddTagBtn' || e.target.classList.contains('edit-entry-add-btn')) {
+            if (e.target.closest('#editEntryAddTagBtn')) {
                 addTagToEditEntry();
                 e.stopPropagation();
             }
