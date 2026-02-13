@@ -106,6 +106,24 @@ function setupEventListeners() {
         });
     }
 
+    const addEntryTagInput = document.getElementById('addEntryTagInput');
+    if (addEntryTagInput) {
+        addEntryTagInput.addEventListener('input', () => {
+            if (document.getElementById('addEntryModal').classList.contains('active')) {
+                updateAddEntryExistingTags();
+            }
+        });
+    }
+
+    const editEntryTagInput = document.getElementById('editEntryTagInput');
+    if (editEntryTagInput) {
+        editEntryTagInput.addEventListener('input', () => {
+            if (document.getElementById('editEntryModal').classList.contains('active')) {
+                updateEditEntryExistingTags();
+            }
+        });
+    }
+
     const addEntryModalElement = document.getElementById('addEntryModal');
     if (addEntryModalElement) {
         addEntryModalElement.addEventListener('click', (e) => {
@@ -121,6 +139,13 @@ function setupEventListeners() {
             if (addSuggestedTag) {
                 const idx = parseInt(addSuggestedTag.getAttribute('data-suggested-index'), 10);
                 addSuggestedTagToAddEntry(idx);
+                e.stopPropagation();
+            }
+
+            const addExistingTag = e.target.closest('#addEntryModal .tag--existing');
+            if (addExistingTag) {
+                const name = addExistingTag.getAttribute('data-tag-name');
+                if (name) addExistingTagToAddEntry(name);
                 e.stopPropagation();
             }
 
@@ -167,6 +192,13 @@ function setupEventListeners() {
             if (suggestedTag) {
                 const idx = parseInt(suggestedTag.getAttribute('data-suggested-index'), 10);
                 addSuggestedTagToEditEntry(idx);
+                e.stopPropagation();
+            }
+
+            const existingTag = e.target.closest('.tag--existing');
+            if (existingTag) {
+                const name = existingTag.getAttribute('data-tag-name');
+                if (name) addExistingTagToEditEntry(name);
                 e.stopPropagation();
             }
 

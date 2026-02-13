@@ -135,6 +135,7 @@ function openEditEntryModal(entryNumber) {
     // Render tags and suggested
     renderEditEntryTags();
     renderEditEntrySuggestedTags();
+    updateEditEntryExistingTags();
 
     document.getElementById('editEntryModal').classList.add('active');
 }
@@ -159,14 +160,21 @@ function renderEditEntryTags() {
     document.getElementById('editEntryTags').innerHTML = tagItems;
 }
 
+function getExistingTagColor(name) {
+    const tag = typeof allTags !== 'undefined' && allTags.find(t => t.name.toLowerCase() === name.toLowerCase());
+    return tag ? (tag.color || DEFAULT_TAG_COLOR) : null;
+}
+
 function addTagToEditEntry() {
     const inputElement = document.getElementById('editEntryTagInput');
     const value = inputElement.value.trim();
 
     if (value && !editingEntryTags.some(t => t.name === value)) {
-        editingEntryTags.push({ name: value, color: editingEntrySelectedColor });
+        const color = getExistingTagColor(value) || editingEntrySelectedColor;
+        editingEntryTags.push({ name: value, color });
         inputElement.value = '';
         renderEditEntryTags();
+        updateEditEntryExistingTags();
     }
 }
 
@@ -177,6 +185,46 @@ function addSuggestedTagToEditEntry(suggestedIndex) {
     editingEntrySuggestedTags.splice(suggestedIndex, 1);
     renderEditEntryTags();
     renderEditEntrySuggestedTags();
+}
+
+function getMatchingExistingTags(typed, currentTagNames) {
+    if (!typed || typeof allTags === 'undefined') return [];
+    const lower = typed.toLowerCase();
+    const existing = new Set(currentTagNames.map(n => n.toLowerCase()));
+    return allTags
+        .filter(t => t.name.toLowerCase().includes(lower) && !existing.has(t.name.toLowerCase()))
+        .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function updateEditEntryExistingTags() {
+    const input = document.getElementById('editEntryTagInput');
+    const container = document.getElementById('editEntryExistingTags');
+    const list = document.getElementById('editEntryExistingTagsList');
+    if (!container || !list) return;
+
+    const typed = input ? input.value.trim() : '';
+    const currentNames = editingEntryTags.map(t => t.name);
+    const matches = getMatchingExistingTags(typed, currentNames);
+
+    if (matches.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.style.display = 'block';
+    list.innerHTML = matches.map((tag, idx) =>
+        `<span class="${getTagClass(tag.color)} tag--existing" data-existing-index="${idx}" data-tag-name="${escapeHtml(tag.name)}" role="button">${escapeHtml(tag.name)}</span>`
+    ).join('');
+}
+
+function addExistingTagToEditEntry(tagName) {
+    const tag = allTags && allTags.find(t => t.name.toLowerCase() === tagName.toLowerCase());
+    if (!tag) return;
+    if (editingEntryTags.some(t => t.name === tag.name)) return;
+    editingEntryTags.push({ name: tag.name, color: tag.color || DEFAULT_TAG_COLOR });
+    document.getElementById('editEntryTagInput').value = '';
+    renderEditEntryTags();
+    updateEditEntryExistingTags();
 }
 
 function addAllSuggestedTagsToEditEntry() {
@@ -209,6 +257,7 @@ function removeEditEntryTag(index) {
     if (index >= 0 && index < editingEntryTags.length) {
         editingEntryTags.splice(index, 1);
         renderEditEntryTags();
+        updateEditEntryExistingTags();
     }
 }
 
@@ -264,6 +313,7 @@ function openAddEntryModal() {
     updateAddEntryColorSelector();
     renderAddEntryTags();
     renderAddEntrySuggestedTags();
+    updateAddEntryExistingTags();
     document.getElementById('addEntryModal').classList.add('active');
 }
 
@@ -291,10 +341,12 @@ function addTagToAddEntry() {
     const value = inputElement.value.trim();
 
     if (value && !addingEntryTags.some(t => t.name === value)) {
-        addingEntryTags.push({ name: value, color: addingEntrySelectedColor });
+        const color = getExistingTagColor(value) || addingEntrySelectedColor;
+        addingEntryTags.push({ name: value, color });
         inputElement.value = '';
         renderAddEntryTags();
         updateAddEntrySuggestedTags();
+        updateAddEntryExistingTags();
     }
 }
 
@@ -314,6 +366,38 @@ function addSuggestedTagToAddEntry(suggestedIndex) {
     addingEntrySuggestedTags.splice(suggestedIndex, 1);
     renderAddEntryTags();
     renderAddEntrySuggestedTags();
+}
+
+function updateAddEntryExistingTags() {
+    const input = document.getElementById('addEntryTagInput');
+    const container = document.getElementById('addEntryExistingTags');
+    const list = document.getElementById('addEntryExistingTagsList');
+    if (!container || !list) return;
+
+    const typed = input ? input.value.trim() : '';
+    const currentNames = addingEntryTags.map(t => t.name);
+    const matches = getMatchingExistingTags(typed, currentNames);
+
+    if (matches.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.style.display = 'block';
+    list.innerHTML = matches.map((tag, idx) =>
+        `<span class="${getTagClass(tag.color)} tag--existing" data-existing-index="${idx}" data-tag-name="${escapeHtml(tag.name)}" role="button">${escapeHtml(tag.name)}</span>`
+    ).join('');
+}
+
+function addExistingTagToAddEntry(tagName) {
+    const tag = allTags && allTags.find(t => t.name.toLowerCase() === tagName.toLowerCase());
+    if (!tag) return;
+    if (addingEntryTags.some(t => t.name === tag.name)) return;
+    addingEntryTags.push({ name: tag.name, color: tag.color || DEFAULT_TAG_COLOR });
+    document.getElementById('addEntryTagInput').value = '';
+    renderAddEntryTags();
+    updateAddEntryExistingTags();
+    updateAddEntrySuggestedTags();
 }
 
 function addAllSuggestedTagsToAddEntry() {
@@ -349,6 +433,7 @@ function removeAddEntryTag(index) {
         addingEntryTags.splice(index, 1);
         renderAddEntryTags();
         updateAddEntrySuggestedTags();
+        updateAddEntryExistingTags();
     }
 }
 
