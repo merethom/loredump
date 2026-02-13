@@ -587,7 +587,6 @@ header button {
     min-width: 0;
 }
 
-.edit-entry-existing-section,
 .edit-entry-suggested-section {
     margin-top: 12px;
     padding-top: 12px;
@@ -629,14 +628,6 @@ header button {
 
 .tag--suggested:hover {
     opacity: 1;
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.tag--existing {
-    cursor: pointer;
-}
-
-.tag--existing:hover {
     background: rgba(255, 255, 255, 0.08);
 }
 

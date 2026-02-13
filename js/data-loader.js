@@ -7,7 +7,7 @@ async function loadData() {
     if (window.firebaseDb) {
         try {
             const data = await window.firebaseDb.loadLoreData();
-            if (data && (data.entries.length > 0 || data.tags.length > 0)) {
+            if (data !== null) {
                 console.log('Loaded from Firebase');
                 document.getElementById('dataSource').textContent = 'loaded from Firebase';
                 document.getElementById('errorState').classList.remove('show');
