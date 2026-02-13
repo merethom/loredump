@@ -42,19 +42,6 @@ function setupEventListeners() {
         filterData();
     });
 
-    // Setup refresh button
-    document.getElementById('refreshData').addEventListener('click', () => {
-        document.getElementById('dataSource').textContent = 'loading...';
-        allData = [];
-        selectedTags.clear();
-        selectedCustomTags.clear();
-        searchTerm = '';
-        document.getElementById('searchInput').value = '';
-        document.getElementById('tagFilter').innerHTML = '';
-        document.querySelectorAll('#tagFilter .tag').forEach(el => el.classList.remove('active'));
-        loadData();
-    });
-
     // Setup add entry button
     document.getElementById('addEntryBtn').addEventListener('click', openAddEntryModal);
 

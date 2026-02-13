@@ -273,10 +273,6 @@ header button {
     color: #FBE6FD;
 }
 
-.control-btn-filters {
-    flex-shrink: 0;
-}
-
 .control-btn-icon {
     padding: 10px 12px;
 }
@@ -291,8 +287,12 @@ header button {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-left: auto;
     position: relative;
+}
+
+#addEntryBtn {
+    margin-left: auto;
+    border-color: var(--color-magenta);
 }
 
 .sort-dropdown {
