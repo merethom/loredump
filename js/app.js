@@ -245,7 +245,11 @@ function initializeApp() {
 // Close modals on Escape key
 document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    if (document.getElementById('addEntryContainer')?.classList.contains('show')) {
+    if (document.getElementById('tagContextMenu')?.classList.contains('show')) {
+        typeof hideTagContextMenu === 'function' && hideTagContextMenu();
+    } else if (document.getElementById('tagEditContainer')?.classList.contains('show')) {
+        typeof closeTagEditDropdown === 'function' && closeTagEditDropdown();
+    } else if (document.getElementById('addEntryContainer')?.classList.contains('show')) {
         closeAddEntryModal();
     } else if (document.getElementById('editEntryContainer')?.classList.contains('show')) {
         closeEditEntryModal();

@@ -103,12 +103,25 @@ function replaceTagInEntries(tagNameInEntries, newTag) {
 }
 
 function deleteTag(id) {
+    const tag = allTags.find(t => t.id === id);
+    if (!tag) return false;
+    removeTagFromEntries(tag.name);
     const index = allTags.findIndex(t => t.id === id);
     if (index > -1) {
         allTags.splice(index, 1);
         return true;
     }
     return false;
+}
+
+function removeTagFromEntries(tagName) {
+    if (!allData || !Array.isArray(allData)) return;
+    const nameLower = tagName.toLowerCase();
+    allData.forEach(entry => {
+        const tags = parseEntryTags(entry.Tags);
+        const updated = tags.filter(t => t.name.toLowerCase() !== nameLower);
+        entry.Tags = serializeEntryTags(updated);
+    });
 }
 
 function saveTags() {

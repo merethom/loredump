@@ -65,6 +65,41 @@
             <div id="tagFilterContainer" class="tag-filter-container">
                 <div id="tagFilter" class="tag-filter"></div>
             </div>
+            <div id="tagEditContainer" class="controls-dropdown">
+                <div class="controls-dropdown-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Edit Tag</h2>
+                        <button class="modal-close" onclick="closeTagEditDropdown()">&times;</button>
+                    </div>
+                    <div class="tag-form-section">
+                        <div style="margin: 15px 0;">
+                            <label class="tag-form-label">Tag Name:</label>
+                            <input type="text" id="tagEditName" class="tag-form-input">
+                        </div>
+                        <div style="margin: 15px 0;">
+                            <label class="tag-form-label">Color:</label>
+                            <div class="tag-form-color-selector">
+                                <button type="button" class="tag-form-color-btn" data-color="purple" title="Purple"></button>
+                                <button type="button" class="tag-form-color-btn" data-color="green" title="Green"></button>
+                                <button type="button" class="tag-form-color-btn" data-color="blue" title="Blue"></button>
+                                <button type="button" class="tag-form-color-btn" data-color="orange" title="Orange"></button>
+                                <button type="button" class="tag-form-color-btn" data-color="teal" title="Teal"></button>
+                                <button type="button" class="tag-form-color-btn" data-color="pink" title="Pink"></button>
+                                <button type="button" class="tag-form-color-btn" data-color="amber" title="Amber"></button>
+                                <button type="button" class="tag-form-color-btn selected" data-color="slate" title="Slate"></button>
+                            </div>
+                        </div>
+                        <div style="margin: 15px 0;">
+                            <label class="tag-form-label">Terms (one per line):</label>
+                            <textarea id="tagEditTerms" class="tag-form-textarea"></textarea>
+                        </div>
+                        <div class="tag-form-buttons">
+                            <button type="button" id="tagEditSubmit" class="tag-btn" style="flex: 1;">Update Tag</button>
+                            <button type="button" onclick="closeTagEditDropdown()" class="tag-btn" style="flex: 1;">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div id="addEntryContainer" class="controls-dropdown">
                 <div class="controls-dropdown-content">
                     <div class="modal-header">
@@ -171,6 +206,11 @@
         <div id="errorState" class="empty-state">
             <p>⚠️ Failed to load data from Google Sheets</p>
             <p>Please check that the sheet is published and try refreshing.</p>
+        </div>
+
+        <div id="tagContextMenu" class="tag-context-menu">
+            <button type="button" class="tag-context-menu-item" data-action="edit">Edit tag</button>
+            <button type="button" class="tag-context-menu-item" data-action="delete">Delete tag</button>
         </div>
 
         <div class="stats">

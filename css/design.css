@@ -364,6 +364,46 @@ header button {
     width: 100%;
 }
 
+/* Tag context menu (right-click / long-press) */
+.tag-context-menu {
+    display: none;
+    position: fixed;
+    z-index: 1100;
+    background: #1E1B31;
+    border: 1px solid #38304D;
+    border-radius: 8px;
+    padding: 4px 0;
+    min-width: 140px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.tag-context-menu.show {
+    display: block;
+}
+
+.tag-context-menu-item {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    border: none;
+    background: none;
+    color: #B0A8C9;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.tag-context-menu-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #FBE6FD;
+}
+
+.tag-context-menu-item[data-action="delete"]:hover {
+    color: var(--color-orange-red);
+}
+
 /* Modal (centered overlay) */
 .modal {
     display: none;
@@ -800,7 +840,8 @@ header button {
     color: #FBE6FD;
 }
 
-#tagEditorModal .tag-form-label {
+#tagEditorModal .tag-form-label,
+#tagEditContainer .tag-form-label {
     display: block;
     margin-bottom: 5px;
     color: #B0A8C9;
@@ -842,7 +883,8 @@ header button {
     box-shadow: 0 0 0 1px #1E1B31;
 }
 
-#tagEditorModal .tag-form-input {
+#tagEditorModal .tag-form-input,
+#tagEditContainer .tag-form-input {
     width: 100%;
     padding: 8px;
     background: #1E1B31;
@@ -866,16 +908,20 @@ header button {
 }
 
 #tagEditorModal .tag-form-input::placeholder,
-#tagEditorModal .tag-form-textarea::placeholder {
+#tagEditorModal .tag-form-textarea::placeholder,
+#tagEditContainer .tag-form-input::placeholder,
+#tagEditContainer .tag-form-textarea::placeholder {
     color: #6a6078;
 }
 
-#tagEditorModal .tag-form-buttons {
+#tagEditorModal .tag-form-buttons,
+#tagEditContainer .tag-form-buttons {
     display: flex;
     gap: 10px;
 }
 
-#tagEditorModal .tag-form-buttons button {
+#tagEditorModal .tag-form-buttons button,
+#tagEditContainer .tag-form-buttons button {
     flex: 1;
 }
 

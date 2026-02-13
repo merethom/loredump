@@ -2,6 +2,10 @@
 
 let tagEditorSelectedColor = 'slate';
 let tagEditorSearchTerm = '';
+let tagEditDropdownTargetTagId = null;
+let tagEditDropdownSelectedColor = 'slate';
+let tagContextMenuTargetTagName = null;
+let longPressTimer = null;
 
 function openTagEditor() {
     const modal = document.getElementById('tagEditorModal');
@@ -172,6 +176,164 @@ function deleteTagConfirm(tagId) {
         filterData();
     }
 }
+
+// Tag editor UI - context menu and dropdown edit
+
+function openTagEditDropdown(tagName) {
+    const tag = allTags.find(t => t.name.toLowerCase() === (tagName || '').toLowerCase());
+    if (!tag) return;
+    tagEditDropdownTargetTagId = tag.id;
+    tagEditDropdownSelectedColor = getTagColor(tag);
+    document.getElementById('tagEditName').value = tag.name;
+    document.getElementById('tagEditTerms').value = tag.terms.join('\n');
+    updateTagEditDropdownColorSelector();
+    document.getElementById('tagEditContainer').classList.add('show');
+}
+
+function closeTagEditDropdown() {
+    document.getElementById('tagEditContainer').classList.remove('show');
+    tagEditDropdownTargetTagId = null;
+}
+
+function updateTagEditDropdownColorSelector() {
+    document.querySelectorAll('#tagEditContainer .tag-form-color-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.getAttribute('data-color') === tagEditDropdownSelectedColor);
+    });
+}
+
+function submitTagEditDropdown() {
+    if (!tagEditDropdownTargetTagId) return;
+    const name = document.getElementById('tagEditName').value.trim();
+    const termsText = document.getElementById('tagEditTerms').value.trim();
+    const terms = termsText.split('\n').map(t => t.trim()).filter(t => t);
+    if (!name || terms.length === 0) {
+        alert('Please enter a name and at least one term');
+        return;
+    }
+    updateTag(tagEditDropdownTargetTagId, { name, color: tagEditDropdownSelectedColor, terms });
+    closeTagEditDropdown();
+    if (typeof saveLoreToFirebase === 'function') saveLoreToFirebase();
+    if (typeof refreshTagFilter === 'function') refreshTagFilter();
+    if (typeof filterData === 'function') filterData();
+}
+
+function getTagIdFromName(tagName) {
+    const tag = allTags.find(t => t.name.toLowerCase() === (tagName || '').toLowerCase());
+    return tag ? tag.id : null;
+}
+
+function deleteTagFromContext(tagName) {
+    const tagId = getTagIdFromName(tagName);
+    if (!tagId) return;
+    const tag = allTags.find(t => t.id === tagId);
+    if (!tag) return;
+    const entryCount = typeof countEntriesWithTag === 'function' ? countEntriesWithTag(tag.name) : 0;
+    const msg = entryCount > 0
+        ? `Delete "${tag.name}"? This will remove it from ${entryCount} entr${entryCount === 1 ? 'y' : 'ies'}.`
+        : `Delete "${tag.name}"?`;
+    if (confirm(msg)) {
+        deleteTag(tagId);
+        if (typeof saveLoreToFirebase === 'function') saveLoreToFirebase();
+        if (typeof refreshTagFilter === 'function') refreshTagFilter();
+        if (typeof filterData === 'function') filterData();
+    }
+}
+
+function countEntriesWithTag(tagName) {
+    if (!allData || !Array.isArray(allData)) return 0;
+    const nameLower = (tagName || '').toLowerCase();
+    return allData.filter(entry => {
+        const tags = parseEntryTags(entry.Tags || '');
+        return tags.some(t => t.name.toLowerCase() === nameLower);
+    }).length;
+}
+
+function showTagContextMenu(x, y, tagName) {
+    tagContextMenuTargetTagName = tagName;
+    const menu = document.getElementById('tagContextMenu');
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+    menu.classList.add('show');
+}
+
+function hideTagContextMenu() {
+    tagContextMenuTargetTagName = null;
+    document.getElementById('tagContextMenu').classList.remove('show');
+}
+
+function handleTagContextMenuAction(action) {
+    const tagName = tagContextMenuTargetTagName;
+    hideTagContextMenu();
+    if (!tagName) return;
+    if (action === 'edit') {
+        openTagEditDropdown(tagName);
+    } else if (action === 'delete') {
+        deleteTagFromContext(tagName);
+    }
+}
+
+(function initTagContextMenu() {
+    const menu = document.getElementById('tagContextMenu');
+    if (!menu) return;
+
+    document.addEventListener('contextmenu', (e) => {
+        const tagEl = e.target.closest('.tag[data-name]');
+        if (!tagEl) return;
+        if (tagEl.closest('.tag__remove')) return;
+        if (tagEl.closest('#editEntryContainer') || tagEl.closest('#addEntryContainer')) return;
+        const tagName = tagEl.getAttribute('data-name');
+        if (!tagName) return;
+        e.preventDefault();
+        showTagContextMenu(e.clientX, e.clientY, tagName);
+    });
+
+    menu.querySelectorAll('.tag-context-menu-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleTagContextMenuAction(btn.getAttribute('data-action'));
+        });
+    });
+
+    document.addEventListener('click', () => hideTagContextMenu());
+    document.addEventListener('scroll', () => hideTagContextMenu(), true);
+
+    document.getElementById('tagEditContainer')?.addEventListener('click', (e) => {
+        if (e.target.classList.contains('tag-form-color-btn')) {
+            tagEditDropdownSelectedColor = e.target.getAttribute('data-color');
+            updateTagEditDropdownColorSelector();
+        }
+    });
+
+    document.getElementById('tagEditSubmit')?.addEventListener('click', submitTagEditDropdown);
+
+    document.addEventListener('touchstart', (e) => {
+        const tagEl = e.target.closest('.tag[data-name]');
+        if (!tagEl || tagEl.closest('#editEntryContainer') || tagEl.closest('#addEntryContainer')) return;
+        if (tagEl.closest('.tag__remove')) return;
+        longPressTimer = setTimeout(() => {
+            longPressTimer = null;
+            const tagName = tagEl.getAttribute('data-name');
+            if (tagName) {
+                const rect = tagEl.getBoundingClientRect();
+                showTagContextMenu(rect.left + rect.width / 2, rect.bottom, tagName);
+            }
+        }, 500);
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', () => {
+        if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+        }
+    }, { passive: true });
+})();
 
 function downloadTags() {
     const json = saveTags();
