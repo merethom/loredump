@@ -141,9 +141,11 @@ function openEditEntryModal(entryNumber) {
 }
 
 function updateEditEntryColorSelector() {
-    document.querySelectorAll('.edit-entry-color-btn').forEach(btn => {
+    document.querySelectorAll('#editEntryContainer .edit-entry-color-btn').forEach(btn => {
         btn.classList.toggle('selected', btn.getAttribute('data-color') === editingEntrySelectedColor);
     });
+    const swatch = document.getElementById('editEntryColorSwatch');
+    if (swatch) swatch.setAttribute('data-color', editingEntrySelectedColor);
 }
 
 function closeEditEntryModal() {
@@ -203,7 +205,7 @@ function renderEditEntrySuggestedTags() {
     addAllBtn.style.display = editingEntrySuggestedTags.length >= 1 ? 'inline-block' : 'none';
 
     const tagItems = editingEntrySuggestedTags.map((tag, idx) =>
-        `<span class="${getTagClass(tag.color)} tag--suggested" data-suggested-index="${idx}" role="button">${escapeHtml(tag.name)}</span>`
+        `<span class="${getTagClass(tag.color)} tag--suggested" data-suggested-index="${idx}" role="button"><i class="fa-solid fa-plus edit-entry-suggested-add-icon"></i>${escapeHtml(tag.name)}</span>`
     ).join('');
     list.innerHTML = tagItems;
 }
@@ -280,6 +282,8 @@ function updateAddEntryColorSelector() {
     document.querySelectorAll('#addEntryContainer .edit-entry-color-btn').forEach(btn => {
         btn.classList.toggle('selected', btn.getAttribute('data-color') === addingEntrySelectedColor);
     });
+    const swatch = document.getElementById('addEntryColorSwatch');
+    if (swatch) swatch.setAttribute('data-color', addingEntrySelectedColor);
 }
 
 function renderAddEntryTags() {
@@ -346,7 +350,7 @@ function renderAddEntrySuggestedTags() {
     addAllBtn.style.display = addingEntrySuggestedTags.length >= 1 ? 'inline-block' : 'none';
 
     const tagItems = addingEntrySuggestedTags.map((tag, idx) =>
-        `<span class="${getTagClass(tag.color)} tag--suggested" data-suggested-index="${idx}" role="button">${escapeHtml(tag.name)}</span>`
+        `<span class="${getTagClass(tag.color)} tag--suggested" data-suggested-index="${idx}" role="button"><i class="fa-solid fa-plus edit-entry-suggested-add-icon"></i>${escapeHtml(tag.name)}</span>`
     ).join('');
     list.innerHTML = tagItems;
 }

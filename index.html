@@ -100,43 +100,43 @@
                     </div>
                 </div>
             </div>
-            <div id="addEntryContainer" class="controls-dropdown">
+            <div id="addEntryContainer" class="controls-dropdown lore-entry-tray">
                 <div class="controls-dropdown-content">
                     <div class="modal-header">
-                        <h2 class="modal-title">Add Entry</h2>
+                        <h2 class="modal-title">Add lore entry</h2>
                         <button class="modal-close" onclick="closeAddEntryModal()">&times;</button>
                     </div>
                     <div class="edit-entry-section">
-                        <label class="edit-entry-label edit-entry-label-required">Entry #</label>
+                        <label class="edit-entry-label edit-entry-label-section edit-entry-label-required">ENTRY #</label>
                         <input type="number" id="addEntryNumber" class="edit-entry-input" step="any" min="0" placeholder="Entry number">
                     </div>
                     <div class="edit-entry-section">
-                        <label class="edit-entry-label edit-entry-label-required">Content</label>
+                        <label class="edit-entry-label edit-entry-label-section edit-entry-label-required">CONTENT</label>
                         <textarea id="addEntryContent" class="edit-entry-textarea" placeholder="Entry content..."></textarea>
                     </div>
                     <div class="edit-entry-section">
-                        <label class="edit-entry-label">Tags</label>
-                        <div class="edit-entry-input-wrapper">
-                            <input type="text" id="addEntryTagInput" class="edit-entry-input" placeholder="Add tag...">
-                            <div class="edit-entry-color-selector" role="group" aria-label="Tag color">
-                                <button type="button" class="edit-entry-color-btn" data-color="purple" title="Purple"></button>
-                                <button type="button" class="edit-entry-color-btn" data-color="green" title="Green"></button>
-                                <button type="button" class="edit-entry-color-btn" data-color="blue" title="Blue"></button>
-                                <button type="button" class="edit-entry-color-btn" data-color="orange" title="Orange"></button>
-                                <button type="button" class="edit-entry-color-btn" data-color="teal" title="Teal"></button>
-                                <button type="button" class="edit-entry-color-btn" data-color="pink" title="Pink"></button>
-                                <button type="button" class="edit-entry-color-btn" data-color="amber" title="Amber"></button>
-                                <button type="button" class="edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
+                        <label class="edit-entry-label edit-entry-label-section">TAGS</label>
+                        <div class="edit-entry-tag-input-row">
+                            <input type="text" id="addEntryTagInput" class="edit-entry-input" placeholder="Type tag name and press enter...">
+                            <div class="edit-entry-color-wrapper" id="addEntryColorWrapper">
+                                <button type="button" class="edit-entry-color-swatch" id="addEntryColorSwatch" data-color="slate" aria-label="Tag color" title="Select color"></button>
+                                <div class="edit-entry-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
+                                    <button type="button" class="edit-entry-color-btn" data-color="purple" title="Purple"></button>
+                                    <button type="button" class="edit-entry-color-btn" data-color="green" title="Green"></button>
+                                    <button type="button" class="edit-entry-color-btn" data-color="blue" title="Blue"></button>
+                                    <button type="button" class="edit-entry-color-btn" data-color="orange" title="Orange"></button>
+                                    <button type="button" class="edit-entry-color-btn" data-color="teal" title="Teal"></button>
+                                    <button type="button" class="edit-entry-color-btn" data-color="pink" title="Pink"></button>
+                                    <button type="button" class="edit-entry-color-btn" data-color="amber" title="Amber"></button>
+                                    <button type="button" class="edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
+                                </div>
                             </div>
-                            <button type="button" id="addEntryAddTagBtn" class="edit-entry-add-btn">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
                         </div>
                         <div id="addEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
                         <div id="addEntryTags" class="edit-entry-tags-container"></div>
                         <div id="addEntrySuggestedTags" class="edit-entry-suggested-section">
                             <div class="edit-entry-suggested-label">
-                                <span class="edit-entry-suggested-title">Suggested from content</span>
+                                <span class="edit-entry-suggested-title">SUGGESTED TAGS</span>
                                 <button type="button" class="edit-entry-suggested-add-all" id="addEntryAddAllSuggested" style="display: none;">Add all</button>
                             </div>
                             <div id="addEntrySuggestedTagsList" class="edit-entry-tags-container edit-entry-suggested-list"></div>
@@ -148,50 +148,47 @@
                     </div>
                 </div>
             </div>
-            <div id="editEntryContainer" class="controls-dropdown">
+            <div id="editEntryContainer" class="controls-dropdown lore-entry-tray">
                 <div class="controls-dropdown-content">
                     <div class="modal-header">
-                        <h2 class="modal-title">Edit Entry</h2>
+                        <h2 class="modal-title">Lore entry</h2>
                         <button class="modal-close" onclick="closeEditEntryModal()">&times;</button>
                     </div>
                     <div class="edit-entry-section">
-                        <label class="edit-entry-label edit-entry-label-required">Content</label>
-                        <textarea id="editEntryContent" class="edit-entry-textarea"></textarea>
+                        <label class="edit-entry-label edit-entry-label-section">CONTENT</label>
+                        <textarea id="editEntryContent" class="edit-entry-textarea" placeholder="Entry content..."></textarea>
                     </div>
                     <div class="edit-entry-section">
-                        <label class="edit-entry-label">Tags</label>
-                        <div class="edit-entry-input-wrapper">
-                            <input type="text" id="editEntryTagInput" class="edit-entry-input" placeholder="Add tag...">
-                            <div class="edit-entry-color-selector" role="group" aria-label="Tag color">
-                                <button type="button" class="edit-entry-color-btn" data-color="purple" title="Purple"></button>
-                                <button type="button" class="edit-entry-color-btn" data-color="green" title="Green"></button>
-                                <button type="button" class="edit-entry-color-btn" data-color="blue" title="Blue"></button>
-                                <button type="button" class="edit-entry-color-btn" data-color="orange" title="Orange"></button>
-                                <button type="button" class="edit-entry-color-btn" data-color="teal" title="Teal"></button>
-                                <button type="button" class="edit-entry-color-btn" data-color="pink" title="Pink"></button>
-                                <button type="button" class="edit-entry-color-btn" data-color="amber" title="Amber"></button>
-                                <button type="button" class="edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
+                        <label class="edit-entry-label edit-entry-label-section">TAGS</label>
+                        <div class="edit-entry-tag-input-row">
+                            <input type="text" id="editEntryTagInput" class="edit-entry-input" placeholder="Type tag name and press enter...">
+                            <div class="edit-entry-color-wrapper" id="editEntryColorWrapper">
+                                <button type="button" class="edit-entry-color-swatch" id="editEntryColorSwatch" data-color="slate" aria-label="Tag color" title="Select color"></button>
+                                <div class="edit-entry-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
+                                    <button type="button" class="edit-entry-color-btn" data-color="purple" title="Purple"></button>
+                                    <button type="button" class="edit-entry-color-btn" data-color="green" title="Green"></button>
+                                    <button type="button" class="edit-entry-color-btn" data-color="blue" title="Blue"></button>
+                                    <button type="button" class="edit-entry-color-btn" data-color="orange" title="Orange"></button>
+                                    <button type="button" class="edit-entry-color-btn" data-color="teal" title="Teal"></button>
+                                    <button type="button" class="edit-entry-color-btn" data-color="pink" title="Pink"></button>
+                                    <button type="button" class="edit-entry-color-btn" data-color="amber" title="Amber"></button>
+                                    <button type="button" class="edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
+                                </div>
                             </div>
-                            <button type="button" id="editEntryAddTagBtn" class="edit-entry-add-btn">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
                         </div>
                         <div id="editEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
                         <div id="editEntryTags" class="edit-entry-tags-container"></div>
                         <div id="editEntrySuggestedTags" class="edit-entry-suggested-section">
                             <div class="edit-entry-suggested-label">
-                                <span class="edit-entry-suggested-title">Suggested from content</span>
+                                <span class="edit-entry-suggested-title">SUGGESTED TAGS</span>
                                 <button type="button" class="edit-entry-suggested-add-all" id="editEntryAddAllSuggested" style="display: none;">Add all</button>
                             </div>
                             <div id="editEntrySuggestedTagsList" class="edit-entry-tags-container edit-entry-suggested-list"></div>
                         </div>
                     </div>
                     <div class="edit-entry-button-row">
-                        <button data-action="cancel-edit" class="edit-entry-btn-cancel">Cancel</button>
-                        <button data-action="update-edit" class="edit-entry-btn-submit">Update Entry</button>
-                    </div>
-                    <div class="edit-entry-delete-row">
-                        <button data-action="delete-edit" class="edit-entry-btn-delete">Delete Entry</button>
+                        <button data-action="delete-edit" class="edit-entry-btn-delete" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                        <button data-action="update-edit" class="edit-entry-btn-submit">Done</button>
                     </div>
                 </div>
             </div>

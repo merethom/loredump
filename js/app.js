@@ -100,6 +100,13 @@ function setupEventListeners() {
         });
     }
 
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.edit-entry-color-wrapper')) {
+            document.getElementById('editEntryColorWrapper')?.classList.remove('open');
+            document.getElementById('addEntryColorWrapper')?.classList.remove('open');
+        }
+    });
+
     const addEntryContainerEl = document.getElementById('addEntryContainer');
     if (addEntryContainerEl) {
         addEntryContainerEl.addEventListener('click', (e) => {
@@ -124,11 +131,12 @@ function setupEventListeners() {
             if (e.target.classList.contains('edit-entry-color-btn')) {
                 addingEntrySelectedColor = e.target.getAttribute('data-color');
                 updateAddEntryColorSelector();
+                document.getElementById('addEntryColorWrapper')?.classList.remove('open');
                 e.stopPropagation();
             }
 
-            if (e.target.id === 'addEntryAddTagBtn' || (e.target.closest('#addEntryAddTagBtn'))) {
-                addTagToAddEntry();
+            if (e.target.classList.contains('edit-entry-color-swatch') || e.target.closest('.edit-entry-color-swatch')) {
+                document.getElementById('addEntryColorWrapper')?.classList.toggle('open');
                 e.stopPropagation();
             }
 
@@ -168,11 +176,12 @@ function setupEventListeners() {
             if (e.target.classList.contains('edit-entry-color-btn')) {
                 editingEntrySelectedColor = e.target.getAttribute('data-color');
                 updateEditEntryColorSelector();
+                document.getElementById('editEntryColorWrapper')?.classList.remove('open');
                 e.stopPropagation();
             }
 
-            if (e.target.closest('#editEntryAddTagBtn')) {
-                addTagToEditEntry();
+            if (e.target.classList.contains('edit-entry-color-swatch') || e.target.closest('.edit-entry-color-swatch')) {
+                document.getElementById('editEntryColorWrapper')?.classList.toggle('open');
                 e.stopPropagation();
             }
 

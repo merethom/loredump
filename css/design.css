@@ -75,7 +75,7 @@ body {
     max-width: 360px;
     padding: 40px 32px;
     background: rgba(30, 27, 49, 0.6);
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 12px;
 }
 
@@ -204,12 +204,12 @@ header button {
 .search-box {
     width: 100%;
     padding: 12px 40px 12px 44px;
-    background: #1E1B31;
-    border: 1px solid #38304D;
-    border-radius: 8px;
     color: #FBE6FD;
     font-family: var(--font-mono);
-    font-size: 14px;
+    font-size: 0.825rem;
+    border-radius: 5px;
+    border: 1.5px solid #3E3D5D;
+    background: linear-gradient(180deg, #191734 0%, #0D0927 100%);
 }
 
 .search-clear {
@@ -251,7 +251,7 @@ header button {
 .control-btn {
     padding: 10px 16px;
     background: #1E1B31;
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 8px;
     color: #B0A8C9;
     cursor: pointer;
@@ -298,7 +298,7 @@ header button {
 .sort-dropdown {
     padding: 10px 36px 10px 16px;
     background: #1E1B31;
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 8px;
     color: #B0A8C9;
     cursor: pointer;
@@ -325,7 +325,7 @@ header button {
     display: none;
     padding: 16px;
     background: rgba(30, 27, 49, 0.6);
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 8px;
     margin-top: 4px;
 }
@@ -337,11 +337,11 @@ header button {
 /* Controls dropdown panels (add entry, edit entry) */
 .controls-dropdown {
     display: none;
-    padding: 16px;
-    background: rgba(30, 27, 49, 0.6);
-    border: 1px solid #38304D;
-    border-radius: 8px;
+    padding: 24px 28px;
+    border: 1.5px solid #3E3D5C;
+    border-radius: 5px;
     margin-top: 4px;
+    background: linear-gradient(180deg, #191734 0%, #0D0927 100%);
 }
 
 .controls-dropdown.show {
@@ -349,12 +349,105 @@ header button {
 }
 
 .controls-dropdown-content {
-    background: #1E1B31;
-    border: 1px solid #38304D;
-    padding: 24px 28px;
-    border-radius: 8px;
     max-height: 70vh;
     overflow-y: auto;
+}
+
+/* Lore entry tray – Figma design */
+.lore-entry-tray .controls-dropdown-content {
+    min-width: 320px;
+}
+
+.edit-entry-label-section {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: #B0A8C9;
+    text-transform: uppercase;
+}
+
+.edit-entry-tag-input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    min-width: 0;
+}
+
+.edit-entry-tag-input-row .edit-entry-input {
+    flex: 1;
+}
+
+.edit-entry-color-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.edit-entry-color-swatch {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 2px solid #38304D;
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.edit-entry-color-swatch:hover {
+    border-color: #5a5169;
+}
+
+.edit-entry-color-swatch[data-color="purple"] { background: var(--color-purple); }
+.edit-entry-color-swatch[data-color="green"] { background: var(--color-lime); }
+.edit-entry-color-swatch[data-color="blue"] { background: var(--color-blue); }
+.edit-entry-color-swatch[data-color="orange"] { background: var(--color-orange); }
+.edit-entry-color-swatch[data-color="teal"] { background: var(--color-aqua); }
+.edit-entry-color-swatch[data-color="pink"] { background: var(--color-magenta); }
+.edit-entry-color-swatch[data-color="amber"] { background: var(--color-orange-red); }
+.edit-entry-color-swatch[data-color="slate"] { background: var(--color-slate); }
+
+.edit-entry-color-popover {
+    display: none;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 220px;
+    padding: 8px;
+    background: #1E1B31;
+    border: 1.5px solid #38304D;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    z-index: 50;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.edit-entry-color-wrapper.open .edit-entry-color-popover {
+    display: flex;
+}
+
+.edit-entry-suggested-add-icon {
+    margin-right: 6px;
+    font-size: 10px;
+    opacity: 0.9;
+}
+
+.edit-entry-suggested-list .tag--suggested {
+    border-style: dashed;
+    border-color: #E88942 !important;
+    color: #E88942 !important;
+    background: transparent;
+}
+
+.edit-entry-suggested-list .tag--suggested .edit-entry-suggested-add-icon {
+    color: #E88942;
+}
+
+.edit-entry-suggested-list .tag--suggested:hover {
+    background: rgba(232, 137, 66, 0.15);
+    border-color: #E88942 !important;
 }
 
 .tag-filter {
@@ -370,7 +463,7 @@ header button {
     position: fixed;
     z-index: 1100;
     background: #1E1B31;
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 8px;
     padding: 4px 0;
     min-width: 140px;
@@ -448,7 +541,7 @@ header button {
     max-width: 700px;
     max-height: 90vh;
     background: #1E1B31;
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     padding: 24px 28px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -533,8 +626,8 @@ header button {
 .tag-btn {
     padding: 8px 12px;
     background: #1E1B31;
-    border: 1px solid #38304D;
-    border-radius: 8px;
+    border: 1.5px solid #38304D;
+    border-radius: 5px;
     color: #B0A8C9;
     cursor: pointer;
     font-size: 12px;
@@ -565,9 +658,9 @@ header button {
     gap: 6px;
     padding: 6px 12px;
     font-size: 0.825rem;
-    border-radius: 8px;
+    border-radius: 20px;
     cursor: pointer;
-    border: 1px solid;
+    border: 1.5px solid;
     color: #FBE6FD;
 }
 
@@ -661,7 +754,7 @@ header button {
     margin-top: 4px;
     padding: 6px;
     background: #1E1B31;
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 6px;
     max-height: 200px;
     overflow-y: auto;
@@ -710,7 +803,7 @@ header button {
     padding: 4px 10px;
     font-size: 12px;
     background: none;
-    border: 1px solid #5a5169;
+    border: 1.5px solid #5a5169;
     border-radius: 4px;
     color: #B0A8C9;
     cursor: pointer;
@@ -722,21 +815,11 @@ header button {
     color: #FBE6FD;
 }
 
-.tag--suggested {
-    border-style: dashed;
-    opacity: 0.9;
-}
-
-.tag--suggested:hover {
-    opacity: 1;
-    background: rgba(255, 255, 255, 0.08);
-}
-
 /* Tag editor (list, form) */
 .tag-item {
     padding: 12px;
     background: rgba(30, 27, 49, 0.6);
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 8px;
     margin-bottom: 10px;
 }
@@ -762,7 +845,7 @@ header button {
 .tag-delete-btn {
     padding: 6px 12px;
     background: #1E1B31;
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 6px;
     color: #B0A8C9;
     cursor: pointer;
@@ -791,7 +874,7 @@ header button {
 #tagEditorModal .tag-form-section {
     padding: 20px;
     background: rgba(30, 27, 49, 0.6);
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 8px;
     margin-bottom: 20px;
     display: none;
@@ -816,7 +899,7 @@ header button {
     width: 100%;
     padding: 12px 16px 12px 44px;
     background: #1E1B31;
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 8px;
     color: #FBE6FD;
     font-family: var(--font-mono);
@@ -888,7 +971,7 @@ header button {
     width: 100%;
     padding: 8px;
     background: #1E1B31;
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 6px;
     color: #FBE6FD;
     margin: 15px 0;
@@ -899,7 +982,7 @@ header button {
     width: 100%;
     padding: 8px;
     background: #1E1B31;
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 6px;
     color: #FBE6FD;
     height: 80px;
@@ -966,7 +1049,7 @@ header button {
     break-inside: avoid;
     margin-bottom: 15px;
     border-radius: 5px;
-    border: 1px solid #3E3D5D;
+    border: 1.5px solid #3E3D5D;
     background: linear-gradient(180deg, #191734 0%, var(--dark-bg) 100%);
 }
 
@@ -1016,11 +1099,6 @@ header button {
     margin-top: 10px;
 }
 
-#addEntryContainer .controls-dropdown-content,
-#editEntryContainer .controls-dropdown-content {
-    max-width: 640px;
-    overflow-x: hidden;
-}
 
 #addEntryNumber {
     max-width: 120px;
@@ -1042,6 +1120,7 @@ header button {
 .edit-entry-section {
     margin: 20px 0;
     min-width: 0;
+    position: relative;
 }
 
 .edit-entry-label {
@@ -1068,7 +1147,7 @@ header button {
     min-width: 0;
     padding: 12px;
     background: #1E1B31;
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 6px;
     color: #FBE6FD;
     height: 160px;
@@ -1087,7 +1166,7 @@ header button {
     min-width: 0;
     padding: 10px;
     background: #1E1B31;
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     border-radius: 6px;
     color: #FBE6FD;
     font-size: 14px;
@@ -1116,6 +1195,8 @@ header button {
 
 .edit-entry-button-row {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: 15px;
     margin-top: 30px;
 }
@@ -1127,42 +1208,24 @@ header button {
 }
 
 .edit-entry-btn-delete {
-    padding: 10px 16px;
+    padding: 10px 12px;
     background: none;
-    border: 1px solid var(--color-orange-red);
+    border: none;
     border-radius: 6px;
-    color: var(--color-orange-red);
+    color: #B0A8C9;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 16px;
     font-family: var(--font-mono);
     transition: all 0.2s;
 }
 
 .edit-entry-btn-delete:hover {
-    background: rgba(237, 79, 40, 0.2);
-}
-
-.edit-entry-btn-cancel {
-    flex: 1;
-    padding: 12px;
-    background: #1E1B31;
-    border: 1px solid #38304D;
-    border-radius: 6px;
-    color: #B0A8C9;
-    cursor: pointer;
-    font-weight: 600;
-    font-family: var(--font-mono);
-    transition: all 0.2s;
-}
-
-.edit-entry-btn-cancel:hover {
-    border-color: #5a5169;
     color: #FBE6FD;
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .edit-entry-btn-submit {
-    flex: 1;
-    padding: 12px;
+    padding: 12px 36px;
     background: var(--color-purple);
     color: #FBE6FD;
     border: none;
@@ -1185,7 +1248,7 @@ header button {
 #tagEditorModal input,
 #tagEditorModal textarea {
     background: #1E1B31;
-    border: 1px solid #38304D;
+    border: 1.5px solid #38304D;
     color: #FBE6FD;
 }
 
