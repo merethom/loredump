@@ -199,6 +199,11 @@ function refreshTagFilter() {
     allData.forEach(entry => {
         getEntryTagNames(entry).forEach(name => tagsSet.add(name));
     });
+    if (typeof allTags !== 'undefined' && Array.isArray(allTags)) {
+        allTags.forEach(tag => {
+            if (tag && tag.name) tagsSet.add(tag.name);
+        });
+    }
     const sortedTags = Array.from(tagsSet).sort();
     const tagFilterDiv = document.getElementById('tagFilter');
     if (!tagFilterDiv) return;

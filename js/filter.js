@@ -17,6 +17,13 @@ function getEntryTagNames(entry) {
 
 function getTagColorMap() {
     const map = new Map();
+    if (typeof allTags !== 'undefined' && Array.isArray(allTags)) {
+        allTags.forEach(tag => {
+            if (tag && tag.name && !map.has(tag.name)) {
+                map.set(tag.name, tag.color || 'slate');
+            }
+        });
+    }
     allData.forEach(entry => {
         getEntryTagsForDisplay(entry).forEach(t => {
             if (!map.has(t.name)) map.set(t.name, t.color);
