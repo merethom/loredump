@@ -42,7 +42,13 @@ function saveLoreToFirebase() {
     window.firebaseDb.saveLoreData({
         entries: allData || [],
         tags: allTags || []
-    }).catch(err => console.warn('Firebase save failed:', err));
+    })
+        .then((ok) => {
+            if (ok && window.jsonbinBackup && typeof window.jsonbinBackup.saveBackup === 'function') {
+                window.jsonbinBackup.saveBackup(allData || [], allTags || []);
+            }
+        })
+        .catch(err => console.warn('Firebase save failed:', err));
 }
 
 function tryLoadURL(index, urls) {

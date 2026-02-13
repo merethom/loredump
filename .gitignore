@@ -3,6 +3,9 @@
 
 # OS
 .DS_Store
+js/firebase-config.js
+js/jsonbin-config.js
+js/jsonbin-backup.js
 
 # IDE
 .vscode/
