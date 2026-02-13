@@ -172,6 +172,11 @@ header button {
     flex-direction: column;
     gap: 12px;
     margin: 20px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--dark-bg);
+    padding-bottom: 24px;
 }
 
 .controls-row {
