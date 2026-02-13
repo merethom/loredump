@@ -204,23 +204,21 @@ function setupEventListeners() {
     }
 }
 
-function initializeApp() {
-    // Extract unique tag names from all entries (including detected)
+function refreshTagFilter() {
     const tagsSet = new Set();
     allData.forEach(entry => {
         getEntryTagNames(entry).forEach(name => tagsSet.add(name));
     });
-
     const sortedTags = Array.from(tagsSet).sort();
-
-    // Render tag buttons (styled like tags with colors)
     const tagFilterDiv = document.getElementById('tagFilter');
-    tagFilterDiv.innerHTML = ''; // Clear existing buttons
+    if (!tagFilterDiv) return;
+    tagFilterDiv.innerHTML = '';
     const tagColorMap = getTagColorMap();
     sortedTags.forEach(tagName => {
         const span = document.createElement('span');
         const color = tagColorMap.get(tagName) || DEFAULT_TAG_COLOR;
         span.className = `tag tag--${color}`;
+        if (selectedTags.has(tagName)) span.classList.add('active');
         span.setAttribute('data-name', tagName);
         span.textContent = tagName;
         span.setAttribute('role', 'button');
@@ -234,6 +232,10 @@ function initializeApp() {
         };
         tagFilterDiv.appendChild(span);
     });
+}
+
+function initializeApp() {
+    refreshTagFilter();
 
     // Hide tag filter container by default
     document.getElementById('tagFilterContainer').classList.remove('show');

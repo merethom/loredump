@@ -77,20 +77,26 @@ function updateTag(id, updates) {
     const oldName = tag.name;
     Object.assign(tag, updates);
 
-    if (updates.name && updates.name !== oldName) {
+    const nameChanged = updates.name && updates.name !== oldName;
+    const colorChanged = updates.color !== undefined;
+
+    if (nameChanged) {
         tag.id = updates.name.toLowerCase().replace(/\s+/g, '-');
-        replaceTagNameInEntries(oldName, updates.name);
+    }
+
+    if (nameChanged || colorChanged) {
+        replaceTagInEntries(nameChanged ? oldName : tag.name, { name: tag.name, color: tag.color });
     }
     return tag;
 }
 
-function replaceTagNameInEntries(oldName, newName) {
+function replaceTagInEntries(tagNameInEntries, newTag) {
     if (!allData || !Array.isArray(allData)) return;
-    const oldLower = oldName.toLowerCase();
+    const nameLower = tagNameInEntries.toLowerCase();
     allData.forEach(entry => {
         const tags = parseEntryTags(entry.Tags);
         const updated = tags.map(t =>
-            t.name.toLowerCase() === oldLower ? { ...t, name: newName } : t
+            t.name.toLowerCase() === nameLower ? { name: newTag.name, color: newTag.color } : t
         );
         entry.Tags = serializeEntryTags(updated);
     });

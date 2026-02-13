@@ -160,6 +160,7 @@ function submitTagForm() {
     cancelTagForm();
     renderTagList();
     if (typeof saveLoreToFirebase === 'function') saveLoreToFirebase();
+    if (typeof refreshTagFilter === 'function') refreshTagFilter();
     filterData();
 }
 
