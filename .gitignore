@@ -1,5 +1,5 @@
-# Firebase config (contains project keys)
-js/firebase-config.js
+# Firebase config is committed for GitHub Pages deployment.
+# Security is enforced by Firebase Auth rules (restricted to your emails).
 
 # OS
 .DS_Store
