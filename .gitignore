@@ -1,0 +1,10 @@
+# Firebase config (contains project keys)
+js/firebase-config.js
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+*.swp
+*.swo

@@ -1,0 +1,483 @@
+{
+    "tags": [{
+            "id": "aetherhollow",
+            "name": "Aetherhollow",
+            "type": "place",
+            "terms": ["Aetherhollow", "Aetherhollow's"]
+        },
+        {
+            "id": "alfion",
+            "name": "Alfion",
+            "type": "character",
+            "terms": ["Alfion", "Alfion's"]
+        },
+        {
+            "id": "alinx",
+            "name": "Alinx",
+            "type": "character",
+            "terms": ["Alinx", "Alinx's", "Allegra", "Allegra's"]
+        },
+        {
+            "id": "ambergris",
+            "name": "Ambergris",
+            "type": "place",
+            "terms": ["Ambergris", "Ambergris's"]
+        },
+        {
+            "id": "antico",
+            "name": "Antico",
+            "type": "character",
+            "terms": ["Antico", "Antico's"]
+        },
+        {
+            "id": "antigone",
+            "name": "Antigone",
+            "type": "character",
+            "terms": ["Antigone", "Antigone's"]
+        },
+        {
+            "id": "aris",
+            "name": "Aris",
+            "type": "character",
+            "terms": ["Aris", "Aris's"]
+        },
+        {
+            "id": "asmodeus",
+            "name": "Asmodeus",
+            "type": "character",
+            "terms": ["Asmodeus", "Asmodeus's"]
+        },
+        {
+            "id": "astralis",
+            "name": "Astralis",
+            "type": "place",
+            "terms": ["Astralis", "Astralis's"]
+        },
+        {
+            "id": "avenza",
+            "name": "Avenza",
+            "type": "character",
+            "terms": ["Avenza", "Avenza's"]
+        },
+        {
+            "id": "beckham",
+            "name": "Beckham",
+            "type": "character",
+            "terms": ["Beckham", "Beckham's"]
+        },
+        {
+            "id": "blackrazor",
+            "name": "Blackrazor",
+            "type": "character",
+            "terms": ["Blackrazor", "Blackrazor's"]
+        },
+        {
+            "id": "blooded",
+            "name": "Blooded",
+            "type": "character",
+            "terms": ["Blooded", "Blooded's"]
+        },
+        {
+            "id": "bloodedones",
+            "name": "Blooded Ones",
+            "type": "character",
+            "terms": ["Blooded Ones", "Blooded Ones's"]
+        },
+        {
+            "id": "caspian",
+            "name": "Caspian",
+            "type": "character",
+            "terms": ["Caspian", "Caspian's"]
+        },
+        {
+            "id": "cauldron",
+            "name": "Cauldron",
+            "type": "place",
+            "terms": ["Cauldron", "Cauldron's"]
+        },
+        {
+            "id": "collegium",
+            "name": "Collegium",
+            "type": "place",
+            "terms": ["Collegium", "Collegium's"]
+        },
+        {
+            "id": "cornelia",
+            "name": "Cornelia",
+            "type": "character",
+            "terms": ["Cornelia", "Cornelia's"]
+        },
+        {
+            "id": "cornelius",
+            "name": "Cornelius",
+            "type": "character",
+            "terms": ["Cornelius", "Cornelius's"]
+        },
+        {
+            "id": "diamanes",
+            "name": "Diamanes",
+            "type": "character",
+            "terms": ["Diamanes", "Diamanes's"]
+        },
+        {
+            "id": "dungeness",
+            "name": "Dungeness",
+            "type": "place",
+            "terms": ["Dungeness", "Dungeness's"]
+        },
+        {
+            "id": "duskhelm",
+            "name": "Duskhelm",
+            "type": "place",
+            "terms": ["Duskhelm", "Duskhelm's"]
+        },
+        {
+            "id": "eltabbar",
+            "name": "Eltabbar",
+            "type": "place",
+            "terms": ["Eltabbar", "Eltabbar's"]
+        },
+        {
+            "id": "eterniatatus",
+            "name": "Eterniatatus",
+            "type": "character",
+            "terms": ["Eterniatatus", "Eterniatatus's"]
+        },
+        {
+            "id": "forthwind",
+            "name": "Forthwind",
+            "type": "person",
+            "terms": ["Forthwind", "Forthwind's"]
+        },
+        {
+            "id": "gianna",
+            "name": "Gianna",
+            "type": "character",
+            "terms": ["Gianna", "Gianna's"]
+        },
+        {
+            "id": "grimlocke",
+            "name": "Grimlocke",
+            "type": "character",
+            "terms": ["Grimlocke", "Grimlocke's"]
+        },
+        {
+            "id": "helena",
+            "name": "Helena",
+            "type": "character",
+            "terms": ["Helena", "Helena's"]
+        },
+        {
+            "id": "infinitequill",
+            "name": "Infinite Quill",
+            "type": "character",
+            "terms": ["Infinite Quill", "Infinite Quill's"]
+        },
+        {
+            "id": "ironwing",
+            "name": "Ironwing",
+            "type": "character",
+            "terms": ["Ironwing", "Ironwing's"]
+        },
+        {
+            "id": "ithiriel",
+            "name": "Ithiriel",
+            "type": "character",
+            "terms": ["Ithiriel", "Ithiriel's"]
+        },
+        {
+            "id": "jammin",
+            "name": "Jammin",
+            "type": "character",
+            "terms": ["Jammin", "Jammin's"]
+        },
+        {
+            "id": "julianus",
+            "name": "Julianus",
+            "type": "character",
+            "terms": ["Julianus", "Julianus's"]
+        },
+        {
+            "id": "justiceironside",
+            "name": "Justice Ironside",
+            "type": "character",
+            "terms": ["Justice Ironside", "Justice Ironside's"]
+        },
+        {
+            "id": "labyrinth",
+            "name": "Labyrinth",
+            "type": "place",
+            "terms": ["Labyrinth", "Labyrinth's"]
+        },
+        {
+            "id": "lakynn",
+            "name": "Lakynn",
+            "type": "character",
+            "terms": ["Lakynn", "Lakynn's"]
+        },
+        {
+            "id": "lavender",
+            "name": "Lavender",
+            "type": "character",
+            "terms": ["Lavender", "Lavender's"]
+        },
+        {
+            "id": "lina",
+            "name": "Lina",
+            "type": "character",
+            "terms": ["Aralina", "Aralina's", "Lina", "Lina's"]
+        },
+        {
+            "id": "lucinda",
+            "name": "Lucinda",
+            "type": "character",
+            "terms": ["Lucinda", "Lucinda's"]
+        },
+        {
+            "id": "lyceum",
+            "name": "Lyceum",
+            "type": "place",
+            "terms": ["Lyceum", "Lyceum's"]
+        },
+        {
+            "id": "malocchio",
+            "name": "Malocchio",
+            "type": "character",
+            "terms": ["Malocchio", "Malocchio's"]
+        },
+        {
+            "id": "medici",
+            "name": "Medici",
+            "type": "character",
+            "terms": ["Medici", "Medici's"]
+        },
+        {
+            "id": "mesmodis",
+            "name": "Mesmodis",
+            "type": "character",
+            "terms": ["Mesmodis", "Mesmodis's"]
+        },
+        {
+            "id": "monastery",
+            "name": "Monastery",
+            "type": "place",
+            "terms": ["Monastery", "Monastery's"]
+        },
+        {
+            "id": "morrigan",
+            "name": "Morrigan",
+            "type": "character",
+            "terms": ["Morrigan", "Morrigan's"]
+        },
+        {
+            "id": "morwena",
+            "name": "Morwena",
+            "type": "character",
+            "terms": ["Morwena", "Morwena's"]
+        },
+        {
+            "id": "nox",
+            "name": "Nox",
+            "type": "character",
+            "terms": ["Nox", "Nox's"]
+        },
+        {
+            "id": "nyxanthius",
+            "name": "Nyxanthius",
+            "type": "character",
+            "terms": ["Nyxanthius", "Nyxanthius's"]
+        },
+        {
+            "id": "nyxthiset",
+            "name": "Nyxthiset",
+            "type": "place",
+            "terms": ["Nyxthiset", "Nyxthiset's"]
+        },
+        {
+            "id": "oakley",
+            "name": "Oakley",
+            "type": "character",
+            "terms": ["Oakley", "Oakley's"]
+        },
+        {
+            "id": "obsidian",
+            "name": "Obsidian",
+            "type": "character",
+            "terms": ["Obsidian", "Obsidian's"]
+        },
+        {
+            "id": "parker",
+            "name": "Parker",
+            "type": "character",
+            "terms": ["Parker", "Parker's"]
+        },
+        {
+            "id": "percival",
+            "name": "Percival",
+            "type": "character",
+            "terms": ["Percival", "Percival's"]
+        },
+        {
+            "id": "peterson",
+            "name": "Peterson",
+            "type": "character",
+            "terms": ["Peterson", "Peterson's"]
+        },
+        {
+            "id": "praefices",
+            "name": "Praefices",
+            "type": "place",
+            "terms": ["Praefices", "Praefices's"]
+        },
+        {
+            "id": "queennera",
+            "name": "Queen Nera",
+            "type": "character",
+            "terms": ["Queen Nera", "Queen Nera's"]
+        },
+        {
+            "id": "rallick",
+            "name": "Rallick",
+            "type": "character",
+            "terms": ["Rallick", "Rallick's"]
+        },
+        {
+            "id": "scryphius",
+            "name": "Scryphius",
+            "type": "character",
+            "terms": ["Scryphius", "Scryphius's"]
+        },
+        {
+            "id": "tearsOfSelune",
+            "name": "Tears of Selune",
+            "type": "place",
+            "terms": ["Selune", "Selune's", "Tears of Selune"]
+        },
+        {
+            "id": "shadowfell",
+            "name": "Shadowfell",
+            "type": "place",
+            "terms": ["Shadowfell", "Shadowfell's"]
+        },
+        {
+            "id": "silvio",
+            "name": "Silvio",
+            "type": "character",
+            "terms": ["Silvio", "Silvio's"]
+        },
+        {
+            "id": "sklarus",
+            "name": "Sklarus",
+            "type": "place",
+            "terms": ["Sklarus", "Sklarus's"]
+        },
+        {
+            "id": "starborn",
+            "name": "Starborn Logistics",
+            "type": "character",
+            "terms": ["Starborn", "Starborn's"]
+        },
+        {
+            "id": "stella",
+            "name": "Stella",
+            "type": "character",
+            "terms": ["Stella", "Stella's"]
+        },
+        {
+            "id": "stillwater",
+            "name": "Stillwater",
+            "type": "place",
+            "terms": ["Stillwater", "Stillwater's"]
+        },
+        {
+            "id": "stolas",
+            "name": "Stolas",
+            "type": "character",
+            "terms": ["Stolas", "Stolas's"]
+        },
+        {
+            "id": "styx",
+            "name": "Styx",
+            "type": "place",
+            "terms": ["Styx", "Styx's"]
+        },
+        {
+            "id": "eltabbar",
+            "name": "Eltabbar",
+            "type": "place",
+            "terms": ["Tabbar", "Tabbar's", "Eltabbar", "Eltabbar's"]
+        },
+        {
+            "id": "temple",
+            "name": "Temple",
+            "type": "place",
+            "terms": ["Temple", "Temple's"]
+        },
+        {
+            "id": "terenedes",
+            "name": "Terenedes",
+            "type": "place",
+            "terms": ["Terenedes", "Terenedes's", "Terry"]
+        },
+        {
+            "id": "thexadore",
+            "name": "Thexadore",
+            "type": "character",
+            "terms": ["Thexadore", "Thexadore's", "Thex"]
+        },
+        {
+            "id": "tisyphone",
+            "name": "Tisyphone",
+            "type": "character",
+            "terms": ["Tis", "Tis's", "Tispyhone", "Tisyphone", "Tisyphone's"]
+        },
+        {
+            "id": "tobias",
+            "name": "Tobias",
+            "type": "character",
+            "terms": ["Tobias", "Tobias's"]
+        },
+        {
+            "id": "vascari",
+            "name": "Vascari",
+            "type": "character",
+            "terms": ["Vascari", "Vascari's"]
+        },
+        {
+            "id": "vevanya",
+            "name": "Vevanya",
+            "type": "character",
+            "terms": ["Vevanya", "Vevanya's"]
+        },
+        {
+            "id": "voidlaw",
+            "name": "Voidlaw",
+            "type": "place",
+            "terms": ["Voidlaw", "Voidlaw's"]
+        },
+        {
+            "id": "wychlaran",
+            "name": "Wychlaran",
+            "type": "character",
+            "terms": ["Wychlaran", "Wychlaran's"]
+        },
+        {
+            "id": "xorbitol",
+            "name": "Xorbitol",
+            "type": "character",
+            "terms": ["Xorbitol", "Xorbitol's"]
+        },
+        {
+            "id": "zaffiro",
+            "name": "Zaffiro",
+            "type": "character",
+            "terms": ["Zaffiro", "Zaffiro's"]
+        },
+        {
+            "id": "zulkir",
+            "name": "Zulkir",
+            "type": "character",
+            "terms": ["Zulkir", "Zulkir's"]
+        }
+    ]
+}

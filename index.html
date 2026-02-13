@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noxsyphone Loredump</title>
+    <script src="https://kit.fontawesome.com/d0544f08d4.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="css/design.css">
+</head>
+
+<body>
+    <!-- Sign-in screen (shown when not authenticated) -->
+    <div id="signInScreen" class="sign-in-screen">
+        <div class="sign-in-card">
+            <img src="img/raygun.svg" alt="" class="sign-in-logo">
+            <h1 class="sign-in-title">Noxsyphone Lore Dump</h1>
+            <p class="sign-in-subtitle">Sign in with Google to continue</p>
+            <button type="button" id="signInBtn" class="sign-in-btn">
+                <i class="fa-brands fa-google"></i>
+                Sign in with Google
+            </button>
+        </div>
+    </div>
+
+    <!-- Main app (shown when authenticated) -->
+    <div id="appContent" class="container" style="display: none;">
+        <header>
+            <img src="img/raygun.svg" alt="raygun">
+            <h1>Noxsyphone Lore Dump</h1>
+            <div class="header-actions">
+                <span id="userEmail" class="user-email"></span>
+                <button id="signOutBtn" class="control-btn control-btn-icon" title="Sign out">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+                <button id="addEntryBtn">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="controls">
+            <div class="search-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchInput" class="search-box" placeholder="Search lore entries...">
+                <button type="button" class="search-clear" id="searchClear" title="Clear search" aria-label="Clear search">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="controls-row">
+                <button class="control-btn control-btn-filters" id="filtersBtn">
+                    <i class="fa-solid fa-filter"></i>
+                    <span>Filters</span>
+                </button>
+                <div class="sort-wrapper">
+                    <select id="sortBy" class="sort-dropdown">
+                        <option value="entry-asc">Oldest</option>
+                        <option value="entry-desc">Newest</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down sort-chevron"></i>
+                </div>
+                <button class="control-btn control-btn-icon" id="refreshData" title="Refresh">
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
+                <button class="control-btn control-btn-icon" id="tagEditorBtn" title="Edit Tags">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+            </div>
+            <div id="tagFilterContainer" class="tag-filter-container">
+                <div id="tagFilter" class="tag-filter"></div>
+            </div>
+        </div>
+
+        <div id="database" class="database-view"></div>
+
+        <div id="emptyState" class="empty-state">
+            <p>No entries match your filters</p>
+        </div>
+
+        <div id="errorState" class="empty-state">
+            <p>⚠️ Failed to load data from Google Sheets</p>
+            <p>Please check that the sheet is published and try refreshing.</p>
+        </div>
+
+        <div class="stats">
+            Showing <span id="resultCount">0</span> of <span id="totalCount">0</span> entries / <span id="dataSource">loading...</span>
+        </div>
+    </div>
+
+    <!-- Add Entry Modal -->
+    <div id="addEntryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Entry</h2>
+                <button class="modal-close" onclick="closeAddEntryModal()">&times;</button>
+            </div>
+
+            <div class="edit-entry-section">
+                <label class="edit-entry-label edit-entry-label-required">Entry #</label>
+                <input type="number" id="addEntryNumber" class="edit-entry-input" step="any" min="0" placeholder="Entry number">
+            </div>
+
+            <div class="edit-entry-section">
+                <label class="edit-entry-label edit-entry-label-required">Content</label>
+                <textarea id="addEntryContent" class="edit-entry-textarea" placeholder="Entry content..."></textarea>
+            </div>
+
+            <div class="edit-entry-section">
+                <label class="edit-entry-label">Tags</label>
+                <div class="edit-entry-input-wrapper">
+                    <input type="text" id="addEntryTagInput" class="edit-entry-input" placeholder="Add tag...">
+                    <div class="edit-entry-color-selector" role="group" aria-label="Tag color">
+                        <button type="button" class="edit-entry-color-btn" data-color="purple" title="Purple"></button>
+                        <button type="button" class="edit-entry-color-btn" data-color="green" title="Green"></button>
+                        <button type="button" class="edit-entry-color-btn" data-color="blue" title="Blue"></button>
+                        <button type="button" class="edit-entry-color-btn" data-color="orange" title="Orange"></button>
+                        <button type="button" class="edit-entry-color-btn" data-color="teal" title="Teal"></button>
+                        <button type="button" class="edit-entry-color-btn" data-color="pink" title="Pink"></button>
+                        <button type="button" class="edit-entry-color-btn" data-color="amber" title="Amber"></button>
+                        <button type="button" class="edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
+                    </div>
+                    <button type="button" id="addEntryAddTagBtn" class="edit-entry-add-btn">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+                <div id="addEntryTags" class="edit-entry-tags-container"></div>
+                <div id="addEntrySuggestedTags" class="edit-entry-suggested-section">
+                    <div class="edit-entry-suggested-label">
+                        <span class="edit-entry-suggested-title">Suggested from content</span>
+                        <button type="button" class="edit-entry-suggested-add-all" id="addEntryAddAllSuggested" style="display: none;">Add all</button>
+                    </div>
+                    <div id="addEntrySuggestedTagsList" class="edit-entry-tags-container edit-entry-suggested-list"></div>
+                </div>
+            </div>
+
+            <div class="edit-entry-button-row">
+                <button data-action="cancel-add" class="edit-entry-btn-cancel">Cancel</button>
+                <button data-action="submit-add" class="edit-entry-btn-submit">Add Entry</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Entry Modal -->
+    <div id="editEntryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Entry</h2>
+                <button class="modal-close" onclick="closeEditEntryModal()">&times;</button>
+            </div>
+            
+
+            <div class="edit-entry-section">
+                <label class="edit-entry-label edit-entry-label-required">Content</label>
+                <textarea id="editEntryContent" class="edit-entry-textarea"></textarea>
+            </div>
+
+            <div class="edit-entry-section">
+                <label class="edit-entry-label">Tags</label>
+                <div class="edit-entry-input-wrapper">
+                    <input type="text" id="editEntryTagInput" class="edit-entry-input" placeholder="Add tag...">
+                    <div class="edit-entry-color-selector" role="group" aria-label="Tag color">
+                        <button type="button" class="edit-entry-color-btn" data-color="purple" title="Purple"></button>
+                        <button type="button" class="edit-entry-color-btn" data-color="green" title="Green"></button>
+                        <button type="button" class="edit-entry-color-btn" data-color="blue" title="Blue"></button>
+                        <button type="button" class="edit-entry-color-btn" data-color="orange" title="Orange"></button>
+                        <button type="button" class="edit-entry-color-btn" data-color="teal" title="Teal"></button>
+                        <button type="button" class="edit-entry-color-btn" data-color="pink" title="Pink"></button>
+                        <button type="button" class="edit-entry-color-btn" data-color="amber" title="Amber"></button>
+                        <button type="button" class="edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
+                    </div>
+                    <button type="button" id="editEntryAddTagBtn" class="edit-entry-add-btn">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+                <div id="editEntryTags" class="edit-entry-tags-container"></div>
+                <div id="editEntrySuggestedTags" class="edit-entry-suggested-section">
+                    <div class="edit-entry-suggested-label">
+                        <span class="edit-entry-suggested-title">Suggested from content</span>
+                        <button type="button" class="edit-entry-suggested-add-all" id="editEntryAddAllSuggested" style="display: none;">Add all</button>
+                    </div>
+                    <div id="editEntrySuggestedTagsList" class="edit-entry-tags-container edit-entry-suggested-list"></div>
+                </div>
+            </div>
+
+            <div class="edit-entry-button-row">
+                <button data-action="cancel-edit" class="edit-entry-btn-cancel">Cancel</button>
+                <button data-action="update-edit" class="edit-entry-btn-submit">Update Entry</button>
+            </div>
+            <div class="edit-entry-delete-row">
+                <button data-action="delete-edit" class="edit-entry-btn-delete">Delete Entry</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-number" id="modalNumber"></div>
+                    <h2 class="modal-title" id="modalTitle"></h2>
+                </div>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-description" id="modalDescription"></div>
+            <div class="modal-tags" id="modalTags"></div>
+        </div>
+    </div>
+
+    <!-- Tag Editor Modal -->
+    <div id="tagEditorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Tag Editor</h2>
+                <button class="modal-close" onclick="closeTagEditor()">&times;</button>
+            </div>
+
+            <div class="tag-editor-search-wrapper">
+                <i class="fa-solid fa-magnifying-glass tag-editor-search-icon"></i>
+                <input type="text" id="tagEditorSearch" class="tag-editor-search-input" placeholder="Search tags...">
+            </div>
+
+            <div id="tagFormHome">
+            <div id="tagForm" class="tag-form-section">
+                <h3 id="tagFormTitle" class="tag-form-title"></h3>
+                <div style="margin: 15px 0;">
+                    <label class="tag-form-label">Tag Name:</label>
+                    <input type="text" id="tagName" class="tag-form-input">
+                </div>
+                <div style="margin: 15px 0;">
+                    <label class="tag-form-label">Color:</label>
+                    <div class="tag-form-color-selector">
+                        <button type="button" class="tag-form-color-btn" data-color="purple" title="Purple"></button>
+                        <button type="button" class="tag-form-color-btn" data-color="green" title="Green"></button>
+                        <button type="button" class="tag-form-color-btn" data-color="blue" title="Blue"></button>
+                        <button type="button" class="tag-form-color-btn" data-color="orange" title="Orange"></button>
+                        <button type="button" class="tag-form-color-btn" data-color="teal" title="Teal"></button>
+                        <button type="button" class="tag-form-color-btn" data-color="pink" title="Pink"></button>
+                        <button type="button" class="tag-form-color-btn" data-color="amber" title="Amber"></button>
+                        <button type="button" class="tag-form-color-btn selected" data-color="slate" title="Slate"></button>
+                    </div>
+                </div>
+                <div style="margin: 15px 0;">
+                    <label class="tag-form-label">Terms (one per line):</label>
+                    <textarea id="tagTerms" class="tag-form-textarea"></textarea>
+                </div>
+                <div class="tag-form-buttons">
+                    <button onclick="submitTagForm()" id="tagFormSubmit" class="tag-btn" style="flex: 1;">Create Tag</button>
+                    <button onclick="cancelTagForm()" class="tag-btn" style="flex: 1;">Cancel</button>
+                </div>
+            </div>
+            </div>
+
+            <button onclick="showNewTagForm()" class="tag-btn" style="margin-bottom: 20px;">+ New Tag</button>
+
+            <div id="tagList"></div>
+
+            <div class="tag-editor-divider">
+                <button onclick="downloadTags()" class="tag-btn">⬇️ Download tags.json</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global state -->
+    <script>
+        let allData = [];
+        let filteredData = [];
+        let selectedTags = new Set();
+        let selectedCustomTags = new Set();
+        let searchTerm = '';
+        let filtersVisible = false;
+    </script>
+
+    <!-- Firebase -->
+    <script src="js/firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+    <script src="js/firebase-db.js"></script>
+    <script src="js/auth.js"></script>
+
+    <!-- External scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/tag-manager.js"></script>
+    <script src="js/data-loader.js"></script>
+    <script src="js/filter.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/tag-editor.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
