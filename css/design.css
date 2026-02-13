@@ -587,6 +587,29 @@ header button {
     min-width: 0;
 }
 
+.tag-autocomplete {
+    position: absolute;
+    z-index: 100;
+    margin-top: 4px;
+    padding: 6px 0;
+    background: #1E1B31;
+    border: 1px solid #38304D;
+    border-radius: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.tag-autocomplete-item {
+    display: block;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.tag-autocomplete-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
 .edit-entry-suggested-section {
     margin-top: 12px;
     padding-top: 12px;

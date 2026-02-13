@@ -164,7 +164,9 @@ function addTagToEditEntry() {
     const value = inputElement.value.trim();
 
     if (value && !editingEntryTags.some(t => t.name === value)) {
-        editingEntryTags.push({ name: value, color: editingEntrySelectedColor });
+        const existing = typeof allTags !== 'undefined' && allTags.find(t => t.name.toLowerCase() === value.toLowerCase());
+        const color = existing ? (existing.color || 'slate') : editingEntrySelectedColor;
+        editingEntryTags.push({ name: value, color });
         inputElement.value = '';
         renderEditEntryTags();
     }
@@ -291,7 +293,9 @@ function addTagToAddEntry() {
     const value = inputElement.value.trim();
 
     if (value && !addingEntryTags.some(t => t.name === value)) {
-        addingEntryTags.push({ name: value, color: addingEntrySelectedColor });
+        const existing = typeof allTags !== 'undefined' && allTags.find(t => t.name.toLowerCase() === value.toLowerCase());
+        const color = existing ? (existing.color || 'slate') : addingEntrySelectedColor;
+        addingEntryTags.push({ name: value, color });
         inputElement.value = '';
         renderAddEntryTags();
         updateAddEntrySuggestedTags();
