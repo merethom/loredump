@@ -259,12 +259,13 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Setup tag click event delegation - filter by tag name
+// Setup tag click event delegation - filter by tag name (cards only, not filter panel)
 document.addEventListener('click', (e) => {
     const tagEl = e.target.closest('.tag[data-name]');
     if (!tagEl) return;
     if (e.target.closest('.tag__remove')) return;
     if (e.target.closest('#editEntryModal') || e.target.closest('#addEntryModal')) return;
+    if (e.target.closest('#tagFilter') || e.target.closest('#tagFilterContainer')) return;
 
     const tagName = tagEl.getAttribute('data-name');
     if (!tagName) return;
