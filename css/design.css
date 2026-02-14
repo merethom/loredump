@@ -367,20 +367,21 @@ header button {
 }
 
 .edit-entry-tag-input-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    position: relative;
     margin-bottom: 10px;
     min-width: 0;
 }
 
 .edit-entry-tag-input-row .edit-entry-input {
-    flex: 1;
+    width: 100%;
+    padding-right: 40px;
 }
 
 .edit-entry-color-wrapper {
-    position: relative;
-    flex-shrink: 0;
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-47%);
 }
 
 .edit-entry-color-swatch {
@@ -407,13 +408,20 @@ header button {
 .edit-entry-color-swatch[data-color="amber"] { background: var(--color-orange-red); }
 .edit-entry-color-swatch[data-color="slate"] { background: var(--color-slate); }
 
-.edit-entry-color-popover {
+.edit-entry-color-wrapper .edit-entry-color-popover {
     display: none;
+}
+
+.edit-entry-color-wrapper.open .edit-entry-color-popover {
+    display: flex;
+}
+
+.edit-entry-color-popover {
     position: absolute;
     top: 50%;
     right: 0;
     transform: translateY(-50%);
-    width: 220px;
+    width: 250px;
     padding: 8px;
     background: #1E1B31;
     border: 1.5px solid #38304D;
@@ -424,9 +432,6 @@ header button {
     gap: 6px;
 }
 
-.edit-entry-color-wrapper.open .edit-entry-color-popover {
-    display: flex;
-}
 
 .edit-entry-suggested-add-icon {
     margin-right: 6px;

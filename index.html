@@ -7,9 +7,73 @@
     <title>Noxsyphone Loredump</title>
     <script src="https://kit.fontawesome.com/d0544f08d4.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="css/design.css">
+    <link rel="stylesheet" href="css/handcode.css">
 </head>
 
 <body>
+
+
+    <div class="tray">
+        <div class="tray-header">
+            <h2>Lore entry</h2>
+            <i class="fa-solid fa-xmark"></i>
+        </div>
+        <div class="entry-content">
+            <h3>Content</h3>
+            <textarea placeholder="Add your lore entry here..."></textarea>
+        </div>
+        <div class="enter-tag">
+            <h3>Tags</h3>
+            <div class="tag-input-wrapper">
+                <input type="text" placeholder="Add a tag...">
+                <div class="lore-tag-current-color"></div>
+                <div class="lore-tag-color-selector">
+                    <div class="tag-color orange-red"></div>
+                    <div class="tag-color orange"></div>
+                    <div class="tag-color lime"></div>
+                    <div class="tag-color aqua"></div>
+                    <div class="tag-color blue"></div>
+                    <div class="tag-color purple"></div>
+                    <div class="tag-color magenta"></div>
+                    <div class="tag-color slate"></div>
+                </div>
+            </div>
+            <div class="tag-list">
+               <div class="lore-tag magenta">Tag 1</div>
+               <div class="lore-tag orange">Tag 2</div>
+               <div class="lore-tag lime">Tag 3</div>
+               <div class="lore-tag aqua">Tag 4</div>
+               <div class="lore-tag blue">Tag 5</div>
+               <div class="lore-tag purple">Tag 6</div>
+               <div class="lore-tag slate">Tag 7</div>
+            </div>
+        </div>
+        <div class="suggest-tag">
+            <div class="suggest-tag-header">
+                <h3>Suggested tags</h3>
+                <button class="add-all-tags-btn">+ Add all tags</button>
+            </div>
+            <div class="tag-list">
+                <div class="lore-tag magenta">Tag 1</div>
+                <div class="lore-tag orange">Tag 2</div>
+                <div class="lore-tag lime">Tag 3</div>
+                <div class="lore-tag aqua">Tag 4</div>
+                <div class="lore-tag blue">Tag 5</div>
+                <div class="lore-tag purple">Tag 6</div>
+                <div class="lore-tag slate">Tag 7</div>
+            </div>
+        </div>
+        <div class="tray-footer">
+            <button class="generic-ui-btn" id="deleteEntryBtn">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+            <button class="generic-ui-btn text purple-btn" id="addEntryDoneBtn">
+                Done
+            </button>
+        </div>
+
+    </div>
+
     <!-- Sign-in screen (shown when not authenticated) -->
     <div id="signInScreen" class="sign-in-screen">
         <div class="sign-in-card">
