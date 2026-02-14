@@ -379,8 +379,8 @@ header button {
 .edit-entry-color-wrapper {
     position: absolute;
     top: 50%;
-    right: 10px;
-    transform: translateY(-47%);
+    right: 8px;
+    transform: translateY(-50%);
 }
 
 .edit-entry-color-swatch {

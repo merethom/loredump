@@ -39,29 +39,39 @@ body {
     min-width: var(--btn-box-height);
     border-radius: var(--borer-radius);
     border: none;
-    color: var(--text-color);
-    background: #3E3D5C;
-    font-size: 1rem;
+    color: var(--lesser-text-color);
+    background: #1E1B31;
+    border: var(--border);
     font-family: 'PPSupply Mono Light', monospace;
     font-weight: 400;
     cursor: pointer;
-    transition: background 0.2s ease, filter 0.2s ease;
+    transition: 
+        border-color  0.2s ease, 
+        filter 0.2s ease, 
+        color 0.2s ease;
 }
 
 .generic-ui-btn:hover {
-    background: #4E4D6C;
+    border-color: var(--muted-text-color);
+    color: var(--text-color);
+
+}
+
+.generic-ui-btn i {
+    font-size: 0.8rem;
 }
 
 .generic-ui-btn.text {
     padding: 0 36px;
+    font-size: 0.9375rem;
 }
 
 .generic-ui-btn.purple-btn {
-    background: var(--color-purple);
+    border-color: var(--color-magenta);
 }
 
 .generic-ui-btn.purple-btn:hover {
-    filter: brightness(1.15);
+    border-color: color-mix(in srgb, var(--color-magenta) 80%, white);
 }
 
 .lore-tag {
@@ -119,7 +129,8 @@ body {
  }
 
 /* Autocomplete item hover - must come after lore-tag colors to override */
-.tag-autocomplete-item.lore-tag:hover {
+.tag-autocomplete-item.lore-tag:hover,
+.tag-autocomplete-item.lore-tag.highlighted {
     background: #3E3D5D !important;
 }
 
@@ -309,7 +320,7 @@ body {
     padding: 0;
     border-radius: 50%;
     background: var(--color-slate);
-    border: solid 1.5px var(--text-color);
+    border: var(--border);
     flex-shrink: 0;
     cursor: pointer;
     font: inherit;

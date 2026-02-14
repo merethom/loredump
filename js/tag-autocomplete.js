@@ -47,12 +47,59 @@
         var input = document.getElementById(inputId);
         var list = document.getElementById(listId);
         if (!input || !list) return;
+        var highlightedIndex = -1;
+
+        function getItems() {
+            return list.querySelectorAll('.tag-autocomplete-item');
+        }
+        function setHighlight(idx) {
+            var items = getItems();
+            items.forEach(function(item, i) { item.classList.toggle('highlighted', i === idx); });
+            highlightedIndex = idx;
+            if (idx >= 0 && items[idx]) {
+                items[idx].scrollIntoView({ block: 'nearest' });
+            }
+        }
+        function selectHighlighted() {
+            if (highlightedIndex < 0) return false;
+            var items = getItems();
+            var item = items[highlightedIndex];
+            if (!item || !onSelect) return false;
+            var name = item.getAttribute('data-tag-name');
+            var color = item.getAttribute('data-tag-color') || 'slate';
+            if (name) onSelect(name, color);
+            input.value = '';
+            hideAutocomplete(listId);
+            setHighlight(-1);
+            return true;
+        }
+
         input.addEventListener('input', function() {
+            highlightedIndex = -1;
             try { showAutocomplete(inputId, listId, getCurrentTags); } catch (e) { console.warn('Autocomplete error:', e); }
         });
         input.addEventListener('blur', function() {
-            setTimeout(function() { hideAutocomplete(listId); }, 150);
+            setTimeout(function() {
+                hideAutocomplete(listId);
+                setHighlight(-1);
+            }, 150);
         });
+        input.addEventListener('keydown', function(e) {
+            if (list.style.display === 'none') return;
+            var items = getItems();
+            if (items.length === 0) return;
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setHighlight((highlightedIndex + 1) % items.length);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setHighlight(highlightedIndex <= 0 ? items.length - 1 : highlightedIndex - 1);
+            } else if (e.key === 'Enter' && highlightedIndex >= 0) {
+                e.preventDefault();
+                e.stopPropagation();
+                selectHighlighted();
+            }
+        }, true);
         list.addEventListener('mousedown', function(e) {
             var item = e.target.closest('.tag-autocomplete-item');
             if (item && onSelect) {
@@ -62,6 +109,7 @@
                 if (name) onSelect(name, color);
                 input.value = '';
                 hideAutocomplete(listId);
+                setHighlight(-1);
             }
         });
     }

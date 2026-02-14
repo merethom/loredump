@@ -298,12 +298,28 @@ document.addEventListener('keydown', (e) => {
     } else if (document.getElementById('tagEditContainer')?.classList.contains('show')) {
         typeof closeTagEditDropdown === 'function' && closeTagEditDropdown();
     } else if (document.getElementById('addEntryContainer')?.classList.contains('active')) {
-        if (typeof hideTagAutocompleteIfVisible === 'function' && hideTagAutocompleteIfVisible('addEntryTagAutocomplete')) {
+        const addColorWrapper = document.getElementById('addEntryColorWrapper');
+        if (addColorWrapper?.classList.contains('open')) {
+            addColorWrapper.classList.remove('open');
+            return;
+        }
+        const addInput = document.getElementById('addEntryTagInput');
+        const addAutocompleteVisible = typeof hideTagAutocompleteIfVisible === 'function' && hideTagAutocompleteIfVisible('addEntryTagAutocomplete');
+        if (addAutocompleteVisible || (addInput && addInput.value.trim())) {
+            if (addInput) addInput.value = '';
             return;
         }
         closeAddEntryModal();
     } else if (document.getElementById('editEntryContainer')?.classList.contains('show')) {
-        if (typeof hideTagAutocompleteIfVisible === 'function' && hideTagAutocompleteIfVisible('editEntryTagAutocomplete')) {
+        const editColorWrapper = document.getElementById('editEntryColorWrapper');
+        if (editColorWrapper?.classList.contains('open')) {
+            editColorWrapper.classList.remove('open');
+            return;
+        }
+        const editInput = document.getElementById('editEntryTagInput');
+        const editAutocompleteVisible = typeof hideTagAutocompleteIfVisible === 'function' && hideTagAutocompleteIfVisible('editEntryTagAutocomplete');
+        if (editAutocompleteVisible || (editInput && editInput.value.trim())) {
+            if (editInput) editInput.value = '';
             return;
         }
         closeEditEntryModal();
