@@ -321,15 +321,11 @@ var tagFilterSearchTerm = '';
 var TAG_COLOR_ORDER = ['purple', 'green', 'blue', 'orange', 'teal', 'pink', 'amber', 'slate'];
 
 function refreshTagFilter() {
+    /* Only show tags that appear on at least one entry (hide unused tags) */
     const tagsSet = new Set();
     allData.forEach(entry => {
         getEntryTagNames(entry).forEach(name => tagsSet.add(name));
     });
-    if (typeof allTags !== 'undefined' && Array.isArray(allTags)) {
-        allTags.forEach(tag => {
-            if (tag && tag.name) tagsSet.add(tag.name);
-        });
-    }
     const tagColorMap = getTagColorMap();
     const allTagNames = Array.from(tagsSet).sort();
     const searchLower = tagFilterSearchTerm.toLowerCase().trim();

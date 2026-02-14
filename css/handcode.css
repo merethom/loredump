@@ -339,24 +339,12 @@ body.app-active {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.lore-tag {
-    font-family: 'PPSupply Mono Light', monospace;
-    font-size: 0.825rem;
-    color: var(--text-color);
-    padding: 6px 13px;
-    border: var(--border);
-    border-radius: 20px;
-    font-weight: 400;
-    cursor: pointer;
-}
-
 /* Autocomplete items use lore-tag - override design.css generic item background (2 classes so .lore-tag.magenta etc. can override) */
 .tag-autocomplete-item.lore-tag {
     background: var(--dark-bg) !important;
     margin-bottom: 0;
     border-radius: 0;
     border: none;
-    padding: 6px 12px;
     width: 100%;
 }
 
@@ -531,7 +519,6 @@ body.app-active {
 }
 
 .enter-tag .lore-tag .tag__remove {
-    margin-left: 8px;
     display: inline-block;
     width: 0.75em;
     height: 0.75em;
@@ -738,7 +725,6 @@ body.app-active {
     display: inline-block;
     width: 0.75em;
     height: 0.75em;
-    margin-right: 8px;
     vertical-align: middle;
     background-image: url('../img/plus-mark.svg');
     background-size: contain;
