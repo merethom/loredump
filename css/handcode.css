@@ -77,8 +77,12 @@ body {
 
 /* Autocomplete items use lore-tag - override design.css generic item background (2 classes so .lore-tag.magenta etc. can override) */
 .tag-autocomplete-item.lore-tag {
-    background: transparent;
+    background: var(--dark-bg) !important;
     margin-bottom: 0;
+    border-radius: 0;
+    border: none;
+    padding: 6px 12px;
+    width: 100%;
 }
 
  .lore-tag.magenta { 
@@ -113,6 +117,11 @@ body {
     border-color: var(--color-slate);
     background-color: color-mix(in srgb, var(--color-slate) 10%, transparent);
  }
+
+/* Autocomplete item hover - must come after lore-tag colors to override */
+.tag-autocomplete-item.lore-tag:hover {
+    background: #3E3D5D !important;
+}
 
 /* Add entry modal: transparent wrapper so tray looks identical to before, just centered */
 .add-entry-modal .modal-content {
@@ -215,6 +224,10 @@ body {
     caret-color: var(--text-color);
 }
 
+.enter-tag {
+    position: relative;
+}
+
 .entry-content, .enter-tag, .suggest-tag {
     display: grid;
     padding: 24px 28px 0px 28px;
@@ -280,6 +293,7 @@ body {
     display: grid;
     grid-template-columns: 1fr auto;
     grid-row: auto;
+    position: relative;
 }
 
 .tray .tag-input-wrapper input[type="text"] {

@@ -105,6 +105,21 @@ function setupEventListeners() {
             document.getElementById('editEntryColorWrapper')?.classList.remove('open');
             document.getElementById('addEntryColorWrapper')?.classList.remove('open');
         }
+        // Clear tag input when clicking outside of it
+        if (document.getElementById('addEntryContainer')?.classList.contains('active')) {
+            if (!e.target.closest('#addEntryContainer .tag-input-wrapper')) {
+                const addInput = document.getElementById('addEntryTagInput');
+                if (addInput) addInput.value = '';
+                typeof hideTagAutocompleteIfVisible === 'function' && hideTagAutocompleteIfVisible('addEntryTagAutocomplete');
+            }
+        }
+        if (document.getElementById('editEntryContainer')?.classList.contains('show')) {
+            if (!e.target.closest('#editEntryContainer .tag-input-wrapper')) {
+                const editInput = document.getElementById('editEntryTagInput');
+                if (editInput) editInput.value = '';
+                typeof hideTagAutocompleteIfVisible === 'function' && hideTagAutocompleteIfVisible('editEntryTagAutocomplete');
+            }
+        }
     });
 
     const addEntryContainerEl = document.getElementById('addEntryContainer');

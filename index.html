@@ -41,7 +41,7 @@
             </header>
             <div class="search-wrapper">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="searchInput" class="search-box" placeholder="Search lore entries...">
+                <input type="text" id="searchInput" class="search-box" placeholder="Search lore entries..." autocomplete="off">
                 <button type="button" class="search-clear" id="searchClear" title="Clear search" aria-label="Clear search">
                     <i class="fa-solid fa-times"></i>
                 </button>
@@ -118,6 +118,7 @@
                         <h3>Tags</h3>
                         <div class="tag-input-wrapper">
                             <input type="text" id="editEntryTagInput" placeholder="Add a tag and press Enter..." tabindex="0" autocomplete="off">
+                            <div id="editEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
                             <div class="edit-entry-color-wrapper" id="editEntryColorWrapper">
                                 <button type="button" class="lore-tag-current-color edit-entry-color-swatch" id="editEntryColorSwatch" data-color="slate" aria-label="Tag color" title="Select color" tabindex="0"></button>
                                 <div class="lore-tag-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
@@ -132,7 +133,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="editEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
                         <div id="editEntryTags" class="tag-list"></div>
                     </div>
                     <div id="editEntrySuggestedTags" class="suggest-tag">
@@ -194,6 +194,7 @@
                     <h3>Tags</h3>
                     <div class="tag-input-wrapper">
                         <input type="text" id="addEntryTagInput" placeholder="Add a tag..." tabindex="0" autocomplete="off">
+                        <div id="addEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
                         <div class="edit-entry-color-wrapper" id="addEntryColorWrapper">
                             <button type="button" class="lore-tag-current-color edit-entry-color-swatch" id="addEntryColorSwatch" data-color="slate" aria-label="Tag color" title="Select color" tabindex="0"></button>
                             <div class="lore-tag-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
@@ -208,7 +209,6 @@
                             </div>
                         </div>
                     </div>
-                    <div id="addEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
                     <div id="addEntryTags" class="tag-list"></div>
                 </div>
                 <div id="addEntrySuggestedTags" class="suggest-tag">

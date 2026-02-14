@@ -754,17 +754,22 @@ header button {
 
 .tag-autocomplete {
     position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    box-sizing: border-box;
     z-index: 100;
-    margin-top: 4px;
-    padding: 6px;
-    background: #1E1B31;
-    border: 1.5px solid #38304D;
-    border-radius: 6px;
-    max-height: 200px;
+    margin-top: -1.5px;
+    background: var(--dark-bg);
+    border: var(--border);
+    border-radius: var(--borer-radius);
+    max-height: 150px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding-top: 1.5px;
 }
 
 .tag-autocomplete-item {
@@ -781,9 +786,6 @@ header button {
     margin-bottom: 0;
 }
 
-.tag-autocomplete-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
 
 .edit-entry-suggested-section {
     margin-top: 12px;
@@ -1058,7 +1060,7 @@ header button {
 }
 
 .card:hover {
-    background: #1E1F2A;
+    background: linear-gradient(0deg, #191734 0%, var(--dark-bg) 100%);
 }
 
 .card-description {

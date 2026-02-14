@@ -241,7 +241,7 @@ function renderEditEntrySuggestedTags() {
     }
 
     container.style.display = 'grid';
-    addAllBtn.style.display = editingEntrySuggestedTags.length >= 1 ? 'inline-block' : 'none';
+    addAllBtn.style.display = editingEntrySuggestedTags.length > 1 ? 'inline-block' : 'none';
 
     const tagItems = editingEntrySuggestedTags.map((tag, idx) =>
         `<span class="${getTagClass(tag.color)} tag--suggested lore-tag ${getLoreTagColorClass(tag.color)}" data-suggested-index="${idx}" role="button" tabindex="0">${escapeHtml(tag.name)}</span>`
@@ -397,7 +397,7 @@ function renderAddEntrySuggestedTags() {
     }
 
     container.style.display = 'grid';
-    addAllBtn.style.display = addingEntrySuggestedTags.length >= 1 ? 'inline-block' : 'none';
+    addAllBtn.style.display = addingEntrySuggestedTags.length > 1 ? 'inline-block' : 'none';
 
     const tagItems = addingEntrySuggestedTags.map((tag, idx) =>
         `<span class="${getTagClass(tag.color)} tag--suggested lore-tag ${getLoreTagColorClass(tag.color)}" data-suggested-index="${idx}" role="button" tabindex="0">${escapeHtml(tag.name)}</span>`
