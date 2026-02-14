@@ -14,14 +14,17 @@
     }
 
     function showSignInScreen() {
+        document.body.classList.remove('app-active');
         document.getElementById('signInScreen').style.display = 'flex';
         document.getElementById('appContent').style.display = 'none';
         document.querySelectorAll('.modal.active').forEach(m => m.classList.remove('active'));
     }
 
     function showApp() {
+        document.body.classList.add('app-active');
         document.getElementById('signInScreen').style.display = 'none';
-        document.getElementById('appContent').style.display = 'block';
+        document.getElementById('appContent').style.display = 'grid';
+        if (typeof setupEventListeners === 'function') setupEventListeners();
     }
 
     function updateUserDisplay(user) {

@@ -68,12 +68,9 @@ function filterByTag(event, tag) {
 
     if (typeof refreshTagFilter === 'function') refreshTagFilter();
 
-    // Show filters panel when filtering by tag
+    // Open filter sidesheet when filtering by tag
     filtersVisible = true;
-    const tagFilterContainer = document.getElementById('tagFilterContainer');
-    const filtersBtn = document.getElementById('filtersBtn');
-    if (tagFilterContainer) tagFilterContainer.classList.add('show');
-    if (filtersBtn) filtersBtn.classList.add('active');
+    if (typeof openFilterSidesheet === 'function') openFilterSidesheet();
 
     filterData();
     if (typeof closeModal === 'function') closeModal();

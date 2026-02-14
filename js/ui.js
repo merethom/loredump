@@ -119,10 +119,8 @@ function openEditEntryModal(entryNumber) {
     const entry = allData.find(e => e.Number === entryNumber);
     if (!entry) return;
 
-    if (typeof filtersVisible !== 'undefined' && filtersVisible) {
-        filtersVisible = false;
-        document.getElementById('tagFilterContainer')?.classList.remove('show');
-        document.getElementById('filtersBtn')?.classList.remove('active');
+    if (typeof filtersVisible !== 'undefined' && filtersVisible && typeof closeFilterSidesheet === 'function') {
+        closeFilterSidesheet();
     }
     closeAddEntryModal();
     currentEditingEntryNumber = entryNumber;
@@ -327,10 +325,8 @@ function getNextEntryNumber() {
 }
 
 function openAddEntryModal() {
-    if (typeof filtersVisible !== 'undefined' && filtersVisible) {
-        filtersVisible = false;
-        document.getElementById('tagFilterContainer')?.classList.remove('show');
-        document.getElementById('filtersBtn')?.classList.remove('active');
+    if (typeof filtersVisible !== 'undefined' && filtersVisible && typeof closeFilterSidesheet === 'function') {
+        closeFilterSidesheet();
     }
     document.getElementById('addEntryNumber').value = getNextEntryNumber();
     document.getElementById('addEntryContent').value = '';

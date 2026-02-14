@@ -28,7 +28,8 @@
     </div>
 
     <!-- Main app (shown when authenticated) -->
-    <div id="appContent" class="container" style="display: none;">
+    <div id="appContent" class="container app-layout" style="display: none;">
+        <div class="app-main-content">
         <div class="controls">
             <header>
                 <img src="img/raygun.svg" alt="raygun">
@@ -51,40 +52,16 @@
                 <button class="generic-ui-btn" id="filtersBtn" title="Filters">
                     <i class="fa-solid fa-tag"></i>
                 </button>
-                <div class="sort-wrapper" id="sortWrapper">
-                    <button type="button" class="sort-dropdown-trigger" id="sortDropdownTrigger" aria-haspopup="listbox" aria-expanded="false">
-                        <span id="sortDropdownLabel">Oldest</span>
-                        <i class="fa-solid fa-chevron-down sort-chevron"></i>
-                    </button>
-                    <div class="sort-dropdown-panel" id="sortDropdownPanel" role="listbox" aria-hidden="true">
-                        <button type="button" class="sort-dropdown-option" role="option" data-value="entry-asc">Oldest</button>
-                        <button type="button" class="sort-dropdown-option" role="option" data-value="entry-desc">Newest</button>
-                    </div>
-                    <select id="sortBy" class="sort-dropdown-native" aria-hidden="true" tabindex="-1">
-                        <option value="entry-asc">Oldest</option>
-                        <option value="entry-desc">Newest</option>
-                    </select>
-                </div>
+                <select id="sortBy" class="sort-dropdown-native" aria-hidden="true" tabindex="-1" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
+                    <option value="entry-asc">Oldest</option>
+                    <option value="entry-desc">Newest</option>
+                </select>
                 <button class="generic-ui-btn purple-btn" id="addEntryBtn" title="Add entry">
                     <i class="fa-solid fa-plus"></i>
                 </button>
                 <button class="generic-ui-btn" id="tagEditorBtn" title="Edit Tags">
                     <i class="fa-solid fa-pen"></i>
                 </button>
-            </div>
-            <div id="tagFilterContainer" class="tag-filter-container">
-                <div class="tag-filter-search-wrapper">
-                    <i class="fa-solid fa-magnifying-glass tag-filter-search-icon"></i>
-                    <input type="text" id="tagFilterSearch" class="tag-filter-search" placeholder="Search tags..." autocomplete="off" aria-label="Search tags">
-                </div>
-                <div id="tagFilterActive" class="tag-filter-active">
-                    <span class="tag-filter-label">Active filters</span>
-                    <div id="tagFilterActiveList" class="tag-filter-list"></div>
-                </div>
-                <div id="tagFilterAvailable" class="tag-filter-available">
-                    <span class="tag-filter-label">All tags</span>
-                    <div id="tagFilter" class="tag-filter tag-filter-by-color"></div>
-                </div>
             </div>
             <div id="tagEditContainer" class="controls-dropdown">
                 <div class="controls-dropdown-content">
@@ -191,6 +168,49 @@
         <div class="stats">
             Showing <span id="resultCount">0</span> of <span id="totalCount">0</span> entries / <span id="dataSource">loading...</span>
         </div>
+        </div>
+
+    <!-- Filter Sidesheet -->
+    <div id="filterSidesheet" class="filter-sidesheet" aria-hidden="true">
+        <div class="filter-sidesheet-panel">
+            <div class="filter-sidesheet-header">
+                <h2 class="filter-sidesheet-title">Filters</h2>
+                <button type="button" class="filter-sidesheet-close" id="filterSidesheetClose" aria-label="Close">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="filter-sidesheet-content">
+                <div class="tag-filter-search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass tag-filter-search-icon"></i>
+                    <input type="text" id="tagFilterSearch" class="tag-filter-search" placeholder="Search tags..." autocomplete="off" aria-label="Search tags">
+                </div>
+                <div class="filter-sidesheet-section">
+                    <h3 class="filter-sidesheet-section-title">Sort by</h3>
+                    <div class="filter-sidesheet-sort-options">
+                        <label class="filter-sidesheet-sort-option">
+                            <input type="radio" name="sidesheetSort" value="entry-asc" checked>
+                            <span>Oldest first</span>
+                        </label>
+                        <label class="filter-sidesheet-sort-option">
+                            <input type="radio" name="sidesheetSort" value="entry-desc">
+                            <span>Newest first</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="filter-sidesheet-section">
+                    <h3 class="filter-sidesheet-section-title">Filter by tags</h3>
+                    <div id="tagFilterActive" class="tag-filter-active">
+                        <span class="tag-filter-label">Active filters</span>
+                        <div id="tagFilterActiveList" class="tag-filter-list"></div>
+                    </div>
+                    <div id="tagFilterAvailable" class="tag-filter-available">
+                        <span class="tag-filter-label">All tags</span>
+                        <div id="tagFilter" class="tag-filter tag-filter-by-color"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 
     <!-- Add Entry Modal -->

@@ -39,17 +39,14 @@ function setupEventListeners() {
         searchInput.focus();
     });
 
-    // Setup filters button
-    document.getElementById('filtersBtn').addEventListener('click', () => {
-        filtersVisible = !filtersVisible;
-        document.getElementById('tagFilterContainer').classList.toggle('show', filtersVisible);
-        document.getElementById('filtersBtn').classList.toggle('active', filtersVisible);
-        if (filtersVisible) {
-            const searchEl = document.getElementById('tagFilterSearch');
-            if (searchEl) {
-                searchEl.value = '';
-                tagFilterSearchTerm = '';
-                refreshTagFilter();
+    // Setup filters button - toggles sidesheet (use delegation so it works even if element isn't ready)
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('#filtersBtn')) {
+            const sidesheet = document.getElementById('filterSidesheet');
+            if (sidesheet?.classList.contains('open')) {
+                closeFilterSidesheet();
+            } else {
+                openFilterSidesheet();
             }
         }
     });
@@ -72,52 +69,52 @@ function setupEventListeners() {
         });
     }
 
-    // Setup sort by dropdown (custom UI, native select for value)
+    // Setup sort (sidesheet radio buttons)
     const sortBy = document.getElementById('sortBy');
-    const sortWrapper = document.getElementById('sortWrapper');
-    const sortTrigger = document.getElementById('sortDropdownTrigger');
-    const sortLabel = document.getElementById('sortDropdownLabel');
-    const sortPanel = document.getElementById('sortDropdownPanel');
-
-    function updateSortLabel() {
-        const selected = sortBy?.querySelector(`option[value="${sortBy.value}"]`);
-        if (sortLabel && selected) sortLabel.textContent = selected.textContent;
-        sortPanel?.querySelectorAll('.sort-dropdown-option').forEach(opt => {
-            opt.classList.toggle('selected', opt.getAttribute('data-value') === sortBy?.value);
-        });
-    }
-    function closeSortDropdown() {
-        sortWrapper?.classList.remove('open');
-        sortTrigger?.setAttribute('aria-expanded', 'false');
-        sortPanel?.setAttribute('aria-hidden', 'true');
-    }
-    updateSortLabel();
-
-    sortTrigger?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isOpen = sortWrapper?.classList.toggle('open');
-        sortTrigger?.setAttribute('aria-expanded', isOpen);
-        sortPanel?.setAttribute('aria-hidden', !isOpen);
-    });
-    sortPanel?.querySelectorAll('.sort-dropdown-option').forEach(opt => {
-        opt.addEventListener('click', (e) => {
-            const val = e.target.getAttribute('data-value');
-            if (val && sortBy) {
-                sortBy.value = val;
-                updateSortLabel();
-                sortBy.dispatchEvent(new Event('change'));
-                closeSortDropdown();
-            }
-        });
-    });
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('#sortWrapper')) closeSortDropdown();
-    });
-
     sortBy?.addEventListener('change', (e) => {
         currentSort = e.target.value;
         filterData();
     });
+
+    document.querySelectorAll('input[name="sidesheetSort"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (sortBy && val) {
+                sortBy.value = val;
+                sortBy.dispatchEvent(new Event('change'));
+            }
+        });
+    });
+
+    // Sync sidesheet sort with currentSort on open
+    function syncSidesheetSort() {
+        const radio = document.querySelector(`input[name="sidesheetSort"][value="${currentSort}"]`);
+        if (radio) radio.checked = true;
+    }
+
+    // Filter sidesheet open/close
+    window.openFilterSidesheet = function() {
+        filtersVisible = true;
+        document.getElementById('filterSidesheet').classList.add('open');
+        document.getElementById('filterSidesheet').setAttribute('aria-hidden', 'false');
+        document.getElementById('filtersBtn').classList.add('active');
+        const searchEl = document.getElementById('tagFilterSearch');
+        if (searchEl) {
+            searchEl.value = '';
+            tagFilterSearchTerm = '';
+        }
+        syncSidesheetSort();
+        if (typeof refreshTagFilter === 'function') refreshTagFilter();
+    };
+
+    window.closeFilterSidesheet = function() {
+        filtersVisible = false;
+        document.getElementById('filterSidesheet').classList.remove('open');
+        document.getElementById('filterSidesheet').setAttribute('aria-hidden', 'true');
+        document.getElementById('filtersBtn').classList.remove('active');
+    };
+
+    document.getElementById('filterSidesheetClose')?.addEventListener('click', closeFilterSidesheet);
 
     // Setup add entry button (toggle)
     document.getElementById('addEntryBtn').addEventListener('click', () => {
@@ -427,9 +424,6 @@ function refreshTagFilter() {
 
 function initializeApp() {
     refreshTagFilter();
-
-    // Hide tag filter container by default
-    document.getElementById('tagFilterContainer').classList.remove('show');
     filtersVisible = false;
 
     setupEventListeners();
@@ -471,6 +465,15 @@ document.addEventListener('keydown', (e) => {
             return;
         }
         closeEditEntryModal();
+    } else if (document.getElementById('filterSidesheet')?.classList.contains('open')) {
+        const searchEl = document.getElementById('tagFilterSearch');
+        if (searchEl && document.activeElement === searchEl && searchEl.value.trim()) {
+            searchEl.value = '';
+            tagFilterSearchTerm = '';
+            refreshTagFilter();
+            return;
+        }
+        typeof closeFilterSidesheet === 'function' && closeFilterSidesheet();
     } else if (document.getElementById('tagEditorModal')?.classList.contains('active')) {
         closeTagEditor();
     } else if (document.getElementById('modal')?.classList.contains('active')) {
@@ -484,7 +487,7 @@ document.addEventListener('click', (e) => {
     if (!tagEl) return;
     if (e.target.closest('.tag__remove')) return;
     if (e.target.closest('#editEntryContainer') || e.target.closest('#addEntryContainer')) return;
-    if (e.target.closest('#tagFilter') || e.target.closest('#tagFilterContainer')) return;
+    if (e.target.closest('#tagFilter') || e.target.closest('#filterSidesheet')) return;
 
     const tagName = tagEl.getAttribute('data-name');
     if (!tagName) return;
