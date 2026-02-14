@@ -36,8 +36,49 @@ function setupEventListeners() {
         document.getElementById('filtersBtn').classList.toggle('active', filtersVisible);
     });
 
-    // Setup sort by dropdown
-    document.getElementById('sortBy').addEventListener('change', (e) => {
+    // Setup sort by dropdown (custom UI, native select for value)
+    const sortBy = document.getElementById('sortBy');
+    const sortWrapper = document.getElementById('sortWrapper');
+    const sortTrigger = document.getElementById('sortDropdownTrigger');
+    const sortLabel = document.getElementById('sortDropdownLabel');
+    const sortPanel = document.getElementById('sortDropdownPanel');
+
+    function updateSortLabel() {
+        const selected = sortBy?.querySelector(`option[value="${sortBy.value}"]`);
+        if (sortLabel && selected) sortLabel.textContent = selected.textContent;
+        sortPanel?.querySelectorAll('.sort-dropdown-option').forEach(opt => {
+            opt.classList.toggle('selected', opt.getAttribute('data-value') === sortBy?.value);
+        });
+    }
+    function closeSortDropdown() {
+        sortWrapper?.classList.remove('open');
+        sortTrigger?.setAttribute('aria-expanded', 'false');
+        sortPanel?.setAttribute('aria-hidden', 'true');
+    }
+    updateSortLabel();
+
+    sortTrigger?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = sortWrapper?.classList.toggle('open');
+        sortTrigger?.setAttribute('aria-expanded', isOpen);
+        sortPanel?.setAttribute('aria-hidden', !isOpen);
+    });
+    sortPanel?.querySelectorAll('.sort-dropdown-option').forEach(opt => {
+        opt.addEventListener('click', (e) => {
+            const val = e.target.getAttribute('data-value');
+            if (val && sortBy) {
+                sortBy.value = val;
+                updateSortLabel();
+                sortBy.dispatchEvent(new Event('change'));
+                closeSortDropdown();
+            }
+        });
+    });
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#sortWrapper')) closeSortDropdown();
+    });
+
+    sortBy?.addEventListener('change', (e) => {
         currentSort = e.target.value;
         filterData();
     });

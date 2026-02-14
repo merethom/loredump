@@ -297,9 +297,9 @@ header button {
 
 .sort-dropdown {
     padding: 10px 36px 10px 16px;
-    background: #1E1B31;
-    border: 1.5px solid #38304D;
-    border-radius: 8px;
+    background: var(--bg-gradient);
+    border: var(--border);
+    border-radius: var(--borer-radius);
     color: #B0A8C9;
     cursor: pointer;
     font-size: 13px;
@@ -309,7 +309,6 @@ header button {
 
 .sort-dropdown:focus {
     outline: none;
-    border-color: #5a5169;
 }
 
 .sort-chevron {

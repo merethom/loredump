@@ -38,7 +38,6 @@ body {
     height: var(--btn-box-height);
     min-width: var(--btn-box-height);
     border-radius: var(--borer-radius);
-    border: none;
     color: var(--lesser-text-color);
     background: #1E1B31;
     border: var(--border);
@@ -72,6 +71,97 @@ body {
 
 .generic-ui-btn.purple-btn:hover {
     border-color: color-mix(in srgb, var(--color-magenta) 80%, white);
+}
+
+/* Sort dropdown - custom trigger + panel to match autocomplete */
+.sort-dropdown-native {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+}
+
+.sort-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    height: var(--btn-box-height);
+    padding: 0 12px;
+    min-width: 100px;
+    background: #1E1B31;
+    border: var(--border);
+    border-radius: var(--borer-radius);
+    color: var(--lesser-text-color);
+    font-family: 'PPSupply Mono Light', monospace;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.sort-dropdown-trigger:hover {
+    border-color: var(--muted-text-color);
+    color: var(--text-color);
+}
+
+.sort-dropdown-trigger .sort-chevron {
+    position: static;
+    color: inherit;
+    font-size: 0.75rem;
+    transition: transform 0.2s ease;
+}
+
+.sort-wrapper.open .sort-dropdown-trigger .sort-chevron {
+    transform: rotate(180deg);
+}
+
+.sort-dropdown-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    padding: 6px;
+    background: var(--dark-bg);
+    border: var(--border);
+    border-radius: var(--borer-radius);
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sort-wrapper.open .sort-dropdown-panel {
+    display: flex;
+}
+
+.sort-dropdown-option {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: none;
+    border-radius: var(--borer-radius);
+    color: var(--lesser-text-color);
+    font-family: 'PPSupply Mono Light', monospace;
+    font-size: 0.9375rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sort-dropdown-option:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-color);
+}
+
+.sort-dropdown-option.selected {
+    color: var(--text-color);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .lore-tag {
