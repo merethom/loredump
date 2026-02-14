@@ -20,6 +20,16 @@ function setupEventListeners() {
         updateSearchClearVisibility();
         filterData();
     });
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            searchInput.value = '';
+            searchTerm = '';
+            updateSearchClearVisibility();
+            filterData();
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
 
     searchClear.addEventListener('click', () => {
         searchInput.value = '';
