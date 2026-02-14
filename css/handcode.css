@@ -11,7 +11,10 @@ body {
 .controls {
     padding-top: 24px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    
+}
+
+.controls > header {
+    margin-top: 0;
 }
 
 :root {
@@ -98,6 +101,16 @@ body {
     border-color: var(--color-slate);
     background-color: color-mix(in srgb, var(--color-slate) 10%, transparent);
  }
+
+/* Add entry modal: transparent wrapper so tray looks identical to before, just centered */
+.add-entry-modal .modal-content {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    overflow: visible;
+    max-width: 1000px;
+}
 
 .tray {
     border-radius: var(--borer-radius);
@@ -213,7 +226,7 @@ body {
 
 #database #editEntryContainer.show {
     margin-bottom: 24px;
-    scroll-margin-top: 150px;
+    scroll-margin-top: 205px;
 }
 
 .enter-tag .tag-list {
@@ -384,7 +397,6 @@ body {
 }
 
 .suggest-tag {
-    border-bottom: var(--border);
     padding-bottom: 24px;
     display: grid;
     grid-template-columns: 1fr;
@@ -449,4 +461,10 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: var(--box-padding);
+    border-top: var(--border);
+    margin-top: 24px;
+}
+
+modal-content .tray-footer {
+    margin-top: 12px;
 }

@@ -44,7 +44,7 @@ function setupEventListeners() {
 
     // Setup add entry button (toggle)
     document.getElementById('addEntryBtn').addEventListener('click', () => {
-        if (document.getElementById('addEntryContainer').classList.contains('show')) {
+        if (document.getElementById('addEntryContainer').classList.contains('active')) {
             closeAddEntryModal();
         } else {
             closeEditEntryModal();
@@ -94,7 +94,7 @@ function setupEventListeners() {
     const addEntryContent = document.getElementById('addEntryContent');
     if (addEntryContent) {
         addEntryContent.addEventListener('input', () => {
-            if (document.getElementById('addEntryContainer').classList.contains('show')) {
+            if (document.getElementById('addEntryContainer').classList.contains('active')) {
                 updateAddEntrySuggestedTags();
             }
         });
@@ -110,6 +110,10 @@ function setupEventListeners() {
     const addEntryContainerEl = document.getElementById('addEntryContainer');
     if (addEntryContainerEl) {
         addEntryContainerEl.addEventListener('click', (e) => {
+            if (!e.target.closest('.modal-content')) {
+                closeAddEntryModal();
+                return;
+            }
             if (e.target.classList.contains('tag__remove')) {
                 const tagIndex = parseInt(e.target.getAttribute('data-tag-index'), 10);
                 removeAddEntryTag(tagIndex);
@@ -278,7 +282,7 @@ document.addEventListener('keydown', (e) => {
         typeof hideTagContextMenu === 'function' && hideTagContextMenu();
     } else if (document.getElementById('tagEditContainer')?.classList.contains('show')) {
         typeof closeTagEditDropdown === 'function' && closeTagEditDropdown();
-    } else if (document.getElementById('addEntryContainer')?.classList.contains('show')) {
+    } else if (document.getElementById('addEntryContainer')?.classList.contains('active')) {
         closeAddEntryModal();
     } else if (document.getElementById('editEntryContainer')?.classList.contains('show')) {
         closeEditEntryModal();

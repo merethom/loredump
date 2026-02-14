@@ -119,6 +119,11 @@ function openEditEntryModal(entryNumber) {
     const entry = allData.find(e => e.Number === entryNumber);
     if (!entry) return;
 
+    if (typeof filtersVisible !== 'undefined' && filtersVisible) {
+        filtersVisible = false;
+        document.getElementById('tagFilterContainer')?.classList.remove('show');
+        document.getElementById('filtersBtn')?.classList.remove('active');
+    }
     closeAddEntryModal();
     currentEditingEntryNumber = entryNumber;
 
@@ -287,6 +292,11 @@ function getNextEntryNumber() {
 }
 
 function openAddEntryModal() {
+    if (typeof filtersVisible !== 'undefined' && filtersVisible) {
+        filtersVisible = false;
+        document.getElementById('tagFilterContainer')?.classList.remove('show');
+        document.getElementById('filtersBtn')?.classList.remove('active');
+    }
     document.getElementById('addEntryNumber').value = getNextEntryNumber();
     document.getElementById('addEntryContent').value = '';
     document.getElementById('addEntryTagInput').value = '';
@@ -296,12 +306,12 @@ function openAddEntryModal() {
     updateAddEntryColorSelector();
     renderAddEntryTags();
     renderAddEntrySuggestedTags();
-    document.getElementById('addEntryContainer').classList.add('show');
+    document.getElementById('addEntryContainer').classList.add('active');
     document.getElementById('addEntryBtn')?.classList.add('active');
 }
 
 function closeAddEntryModal() {
-    document.getElementById('addEntryContainer').classList.remove('show');
+    document.getElementById('addEntryContainer').classList.remove('active');
     document.getElementById('addEntryBtn')?.classList.remove('active');
 }
 
