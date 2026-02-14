@@ -337,7 +337,7 @@ header button {
 /* Controls dropdown panels (add entry, edit entry) */
 .controls-dropdown {
     display: none;
-    border: 1.5px solid #3E3D5C; */
+    border: 1.5px solid #3E3D5C;
     border-radius: 5px;
     margin-top: 4px;
     background: linear-gradient(180deg, #191734 0%, #0D0927 100%);
