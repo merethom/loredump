@@ -453,6 +453,125 @@ header button {
     border-color: #E88942 !important;
 }
 
+.tag-filter-search-wrapper {
+    position: relative;
+    margin-bottom: 12px;
+}
+
+.tag-filter-search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted-text-color);
+    font-size: 0.8rem;
+    pointer-events: none;
+}
+
+.tag-filter-search {
+    width: 100%;
+    padding: 8px 10px 8px 32px;
+    font-size: 0.875rem;
+    font-family: var(--font-mono);
+    color: var(--text-color);
+    background: #1E1B31;
+    border: 1.5px solid #3E3D5D;
+    border-radius: 5px;
+    outline: none;
+}
+
+.tag-filter-search::placeholder {
+    color: var(--muted-text-color);
+}
+
+.tag-filter-search:focus {
+    border-color: var(--muted-text-color);
+}
+
+.tag-filter-active .tag-filter-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--muted-text-color);
+    text-transform: uppercase;
+}
+
+.tag-filter-active {
+    margin-bottom: 12px;
+}
+
+.tag-filter-active.hidden {
+    display: none;
+}
+
+.tag-filter-active .tag-filter-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.tag-filter-active .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding-right: 6px;
+}
+
+.tag-filter-active .tag-filter-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    opacity: 0.7;
+    cursor: pointer;
+    border-radius: 2px;
+    font-size: 0.7rem;
+}
+
+.tag-filter-active .tag-filter-remove:hover {
+    opacity: 1;
+    background: rgba(255,255,255,0.15);
+}
+
+.tag-filter-available {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.tag-filter-available .tag-filter-label {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.tag-filter-by-color {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tag-filter-color-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tag-filter-color-group-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--muted-text-color);
+    text-transform: uppercase;
+    width: 100%;
+    margin-bottom: 2px;
+}
+
 .tag-filter {
     display: flex;
     gap: 8px;

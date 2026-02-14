@@ -345,7 +345,7 @@ body {
 
 #database #editEntryContainer.show {
     margin-bottom: 24px;
-    scroll-margin-top: 250px;
+    scroll-margin-top: 220px;
 }
 
 .enter-tag .tag-list {

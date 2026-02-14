@@ -3,11 +3,10 @@
 function toggleTag(tag, element) {
     if (selectedTags.has(tag)) {
         selectedTags.delete(tag);
-        element.classList.remove('active');
     } else {
         selectedTags.add(tag);
-        element.classList.add('active');
     }
+    if (typeof refreshTagFilter === 'function') refreshTagFilter();
     filterData();
 }
 
@@ -67,9 +66,7 @@ function filterByTag(event, tag) {
     selectedTags.add(tag);
     if (typeof selectedCustomTags !== 'undefined') selectedCustomTags.clear();
 
-    document.querySelectorAll('#tagFilter .tag').forEach(btn => {
-        btn.classList.toggle('active', btn.textContent === tag);
-    });
+    if (typeof refreshTagFilter === 'function') refreshTagFilter();
 
     // Show filters panel when filtering by tag
     filtersVisible = true;

@@ -44,7 +44,33 @@ function setupEventListeners() {
         filtersVisible = !filtersVisible;
         document.getElementById('tagFilterContainer').classList.toggle('show', filtersVisible);
         document.getElementById('filtersBtn').classList.toggle('active', filtersVisible);
+        if (filtersVisible) {
+            const searchEl = document.getElementById('tagFilterSearch');
+            if (searchEl) {
+                searchEl.value = '';
+                tagFilterSearchTerm = '';
+                refreshTagFilter();
+            }
+        }
     });
+
+    // Tag filter search
+    const tagFilterSearch = document.getElementById('tagFilterSearch');
+    if (tagFilterSearch) {
+        tagFilterSearch.addEventListener('input', () => {
+            tagFilterSearchTerm = tagFilterSearch.value;
+            refreshTagFilter();
+        });
+        tagFilterSearch.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                tagFilterSearch.value = '';
+                tagFilterSearchTerm = '';
+                refreshTagFilter();
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    }
 
     // Setup sort by dropdown (custom UI, native select for value)
     const sortBy = document.getElementById('sortBy');
@@ -293,6 +319,10 @@ function setupEventListeners() {
     }
 }
 
+var tagFilterSearchTerm = '';
+
+var TAG_COLOR_ORDER = ['purple', 'green', 'blue', 'orange', 'teal', 'pink', 'amber', 'slate'];
+
 function refreshTagFilter() {
     const tagsSet = new Set();
     allData.forEach(entry => {
@@ -303,29 +333,96 @@ function refreshTagFilter() {
             if (tag && tag.name) tagsSet.add(tag.name);
         });
     }
-    const sortedTags = Array.from(tagsSet).sort();
+    const tagColorMap = getTagColorMap();
+    const allTagNames = Array.from(tagsSet).sort();
+    const searchLower = tagFilterSearchTerm.toLowerCase().trim();
+
+    // Active filters section
+    const activeSection = document.getElementById('tagFilterActive');
+    const activeList = document.getElementById('tagFilterActiveList');
+    if (activeSection && activeList) {
+        activeList.innerHTML = '';
+        if (selectedTags.size > 0) {
+            activeSection.classList.remove('hidden');
+            Array.from(selectedTags).sort().forEach(tagName => {
+                const color = tagColorMap.get(tagName) || DEFAULT_TAG_COLOR;
+                const span = document.createElement('span');
+                span.className = `tag tag--${color}`;
+                span.setAttribute('data-name', tagName);
+                span.setAttribute('role', 'button');
+                span.setAttribute('tabindex', '0');
+                const text = document.createTextNode(tagName);
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'tag-filter-remove';
+                removeBtn.setAttribute('aria-label', 'Remove filter');
+                removeBtn.innerHTML = '&times;';
+                removeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleTag(tagName, span);
+                };
+                span.appendChild(text);
+                span.appendChild(removeBtn);
+                span.onclick = (e) => {
+                    if (!e.target.classList.contains('tag-filter-remove')) toggleTag(tagName, span);
+                };
+                span.onkeydown = (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleTag(tagName, span);
+                    }
+                };
+                activeList.appendChild(span);
+            });
+        } else {
+            activeSection.classList.add('hidden');
+        }
+    }
+
+    // Available tags grouped by color
     const tagFilterDiv = document.getElementById('tagFilter');
     if (!tagFilterDiv) return;
     tagFilterDiv.innerHTML = '';
-    const tagColorMap = getTagColorMap();
-    sortedTags.forEach(tagName => {
-        const span = document.createElement('span');
+
+    const byColor = {};
+    allTagNames.forEach(tagName => {
+        if (selectedTags.has(tagName)) return;
+        const matchesSearch = !searchLower || tagName.toLowerCase().includes(searchLower);
+        if (!matchesSearch) return;
         const color = tagColorMap.get(tagName) || DEFAULT_TAG_COLOR;
-        span.className = `tag tag--${color}`;
-        if (selectedTags.has(tagName)) span.classList.add('active');
-        span.setAttribute('data-name', tagName);
-        span.textContent = tagName;
-        span.setAttribute('role', 'button');
-        span.setAttribute('tabindex', '0');
-        span.onclick = () => toggleTag(tagName, span);
-        span.onkeydown = (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                toggleTag(tagName, span);
-            }
-        };
-        tagFilterDiv.appendChild(span);
+        if (!byColor[color]) byColor[color] = [];
+        byColor[color].push(tagName);
     });
+
+    function addColorGroup(color, tags) {
+        if (!tags || tags.length === 0) return;
+        const group = document.createElement('div');
+        group.className = 'tag-filter-color-group';
+        const label = document.createElement('div');
+        label.className = 'tag-filter-color-group-label';
+        label.textContent = color;
+        group.appendChild(label);
+        tags.forEach(tagName => {
+            const span = document.createElement('span');
+            span.className = `tag tag--${color}`;
+            span.setAttribute('data-name', tagName);
+            span.textContent = tagName;
+            span.setAttribute('role', 'button');
+            span.setAttribute('tabindex', '0');
+            span.onclick = () => toggleTag(tagName, span);
+            span.onkeydown = (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleTag(tagName, span);
+                }
+            };
+            group.appendChild(span);
+        });
+        tagFilterDiv.appendChild(group);
+    }
+
+    TAG_COLOR_ORDER.forEach(color => addColorGroup(color, byColor[color]));
+    Object.keys(byColor).filter(c => !TAG_COLOR_ORDER.includes(c)).forEach(color => addColorGroup(color, byColor[color]));
 }
 
 function initializeApp() {

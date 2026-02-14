@@ -73,7 +73,18 @@
                 </button>
             </div>
             <div id="tagFilterContainer" class="tag-filter-container">
-                <div id="tagFilter" class="tag-filter"></div>
+                <div class="tag-filter-search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass tag-filter-search-icon"></i>
+                    <input type="text" id="tagFilterSearch" class="tag-filter-search" placeholder="Search tags..." autocomplete="off" aria-label="Search tags">
+                </div>
+                <div id="tagFilterActive" class="tag-filter-active">
+                    <span class="tag-filter-label">Active filters</span>
+                    <div id="tagFilterActiveList" class="tag-filter-list"></div>
+                </div>
+                <div id="tagFilterAvailable" class="tag-filter-available">
+                    <span class="tag-filter-label">All tags</span>
+                    <div id="tagFilter" class="tag-filter tag-filter-by-color"></div>
+                </div>
             </div>
             <div id="tagEditContainer" class="controls-dropdown">
                 <div class="controls-dropdown-content">
