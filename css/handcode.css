@@ -17,6 +17,12 @@ body {
     margin-top: 0;
 }
 
+/* Lore entry trays: remove outer controls-dropdown border so tray is the only visible box */
+.controls-dropdown.lore-entry-tray {
+    border: none;
+    background: transparent;
+}
+
 :root {
     --borer-radius: 5px;
     --box-padding: 24px 28px;
@@ -226,7 +232,7 @@ body {
 
 #database #editEntryContainer.show {
     margin-bottom: 24px;
-    scroll-margin-top: 205px;
+    scroll-margin-top: 250px;
 }
 
 .enter-tag .tag-list {
