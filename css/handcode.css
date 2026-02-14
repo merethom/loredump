@@ -120,7 +120,7 @@ body.app-active {
 
 .app-main-content::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera */
-}
+ }
 
 /* Filter sidesheet - grid column controls width */
 .filter-sidesheet {
@@ -239,6 +239,13 @@ body.app-active {
 
 .filter-sidesheet .tag-filter-available {
     max-height: none;
+}
+
+/* Available tags (not actively filtering) use suggested-tag appearance, minus ::before */
+.filter-sidesheet .tag-filter .tag,
+.filter-sidesheet .tag-filter-color-group .tag {
+    border-style: dashed;
+    color: #8F8FC9;
 }
 
 /* Sort dropdown - custom trigger + panel to match autocomplete */
