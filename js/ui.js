@@ -136,8 +136,9 @@ function openEditEntryModal(entryNumber) {
         .filter(tag => !existingNames.has(tag.name))
         .map(tag => ({ name: tag.name, color: tag.color || DEFAULT_TAG_COLOR }));
 
-    // Fill in content
+    // Fill in content and entry number
     document.getElementById('editEntryContent').value = entry.Description;
+    document.getElementById('editEntryNumber').value = entry.Number;
 
     // Clear input and set default color
     document.getElementById('editEntryTagInput').value = '';
@@ -156,6 +157,7 @@ function openEditEntryModal(entryNumber) {
         card.parentNode.insertBefore(editContainer, card);
         card.remove();
     }
+    document.getElementById('editTraySaveMessage').textContent = '';
     editContainer.classList.add('show');
 
     requestAnimationFrame(() => {
@@ -256,18 +258,44 @@ function removeEditEntryTag(index) {
     }
 }
 
+function showTraySaveMessage(tray) {
+    const id = tray === 'add' ? 'addTraySaveMessage' : 'editTraySaveMessage';
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = 'Saved';
+    clearTimeout(showTraySaveMessage._timer);
+    showTraySaveMessage._timer = setTimeout(() => {
+        el.textContent = '';
+    }, 2500);
+}
+
 function updateEditEntry() {
     if (!currentEditingEntryNumber) return;
 
     const entry = allData.find(e => e.Number === currentEditingEntryNumber);
     if (!entry) return;
 
+    const numberInput = document.getElementById('editEntryNumber');
+    const numberVal = numberInput.value.trim();
+    if (!numberVal) {
+        numberInput.focus();
+        return;
+    }
+    const num = parseFloat(numberVal);
+    if (isNaN(num) || num <= 0) {
+        numberInput.focus();
+        return;
+    }
+
+    entry.Number = numberVal;
     entry.Description = document.getElementById('editEntryContent').value.trim();
     entry.Tags = serializeEntryTags(editingEntryTags);
+    allData.sort((a, b) => parseFloat(a.Number) - parseFloat(b.Number));
     syncTagsFromDocument();
     if (typeof saveLoreToFirebase === 'function') saveLoreToFirebase();
     if (typeof refreshTagFilter === 'function') refreshTagFilter();
-    closeEditEntryModal();
+    showTraySaveMessage('edit');
+    setTimeout(closeEditEntryModal, 600);
 }
 
 function deleteEditEntry() {
@@ -281,7 +309,8 @@ function deleteEditEntry() {
     const index = allData.findIndex(e => e.Number === currentEditingEntryNumber);
     allData.splice(index, 1);
     if (typeof saveLoreToFirebase === 'function') saveLoreToFirebase();
-    closeEditEntryModal();
+    showTraySaveMessage('edit');
+    setTimeout(closeEditEntryModal, 600);
 }
 
 // Add entry modal functions
@@ -312,6 +341,7 @@ function openAddEntryModal() {
     updateAddEntryColorSelector();
     renderAddEntryTags();
     renderAddEntrySuggestedTags();
+    document.getElementById('addTraySaveMessage').textContent = '';
     document.getElementById('addEntryContainer').classList.add('active');
     document.getElementById('addEntryBtn')?.classList.add('active');
 }
@@ -443,5 +473,6 @@ function submitAddEntry() {
     if (typeof saveLoreToFirebase === 'function') saveLoreToFirebase();
     if (typeof refreshTagFilter === 'function') refreshTagFilter();
     filterData();
-    closeAddEntryModal();
+    showTraySaveMessage('add');
+    setTimeout(closeAddEntryModal, 600);
 }

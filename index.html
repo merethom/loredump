@@ -114,9 +114,12 @@
                 <div class="tray">
                     <div class="tray-header">
                         <h2>Lore entry</h2>
-                        <button type="button" class="tray-close" onclick="closeEditEntryModal()" aria-label="Close" tabindex="0">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <div class="tray-header-actions">
+                            <input type="number" id="editEntryNumber" class="tray-header-entry-num" step="any" min="0" placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
+                            <button type="button" class="generic-ui-btn" data-action="delete-edit" title="Delete entry" tabindex="0">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="entry-content">
                         <h3>Content</h3>
@@ -151,10 +154,8 @@
                         <div id="editEntrySuggestedTagsList" class="tag-list"></div>
                     </div>
                     <div class="tray-footer">
-                        <button type="button" class="generic-ui-btn" data-action="delete-edit" title="Delete entry" tabindex="0">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                        <button type="button" class="generic-ui-btn text purple-btn" data-action="update-edit" tabindex="0">Done</button>
+                        <span class="tray-save-message" id="editTraySaveMessage" aria-live="polite"></span>
+                        <button type="button" class="generic-ui-btn text purple-btn" data-action="update-edit" tabindex="0">Save</button>
                     </div>
                 </div>
             </div>
@@ -186,13 +187,8 @@
         <div class="modal-content lore-entry-tray">
             <div class="tray">
                 <div class="tray-header">
-                    <div class="tray-header-title">
-                        <h2>Lore entry</h2>
-                        <input type="number" id="addEntryNumber" class="tray-header-entry-num" step="any" min="0" placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
-                    </div>
-                    <button type="button" class="tray-close" onclick="closeAddEntryModal()" aria-label="Close" tabindex="0">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
+                    <h2>Lore entry</h2>
+                    <input type="number" id="addEntryNumber" class="tray-header-entry-num" step="any" min="0" placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
                 </div>
                 <div class="entry-content">
                     <h3>Content</h3>
@@ -227,8 +223,11 @@
                     <div id="addEntrySuggestedTagsList" class="tag-list"></div>
                 </div>
                 <div class="tray-footer">
-                    <button type="button" class="generic-ui-btn text" data-action="cancel-add" tabindex="0">Cancel</button>
-                    <button type="button" class="generic-ui-btn text purple-btn" data-action="submit-add" tabindex="0">Done</button>
+                    <span class="tray-save-message" id="addTraySaveMessage" aria-live="polite"></span>
+                    <div class="tray-footer-buttons">
+                        <!-- <button type="button" class="generic-ui-btn text" data-action="cancel-add" tabindex="0">Cancel</button> -->
+                        <button type="button" class="generic-ui-btn text purple-btn" data-action="submit-add" tabindex="0">Add Entry</button>
+                    </div>
                 </div>
             </div>
         </div>

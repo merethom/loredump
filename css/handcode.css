@@ -283,17 +283,10 @@ body {
     color: var(--text-color);
 }
 
-.tray-header .tray-close {
-    background: none;
-    border: none;
-    padding: 4px;
-    cursor: pointer;
-    color: inherit;
-}
-
-.tray-header .tray-close:focus-visible {
-    outline: 2px solid var(--text-color);
-    outline-offset: 2px;
+.tray-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .tray-header {
@@ -590,6 +583,17 @@ body {
     padding: var(--box-padding);
     border-top: var(--border);
     margin-top: 24px;
+}
+
+.tray-footer-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.tray-save-message {
+    font-size: 0.8125rem;
+    color: var(--lesser-text-color);
+    min-height: 1.25em;
 }
 
 modal-content .tray-footer {
