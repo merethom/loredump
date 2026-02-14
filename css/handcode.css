@@ -75,6 +75,12 @@ body {
     cursor: pointer;
 }
 
+/* Autocomplete items use lore-tag - override design.css generic item background (2 classes so .lore-tag.magenta etc. can override) */
+.tag-autocomplete-item.lore-tag {
+    background: transparent;
+    margin-bottom: 0;
+}
+
  .lore-tag.magenta { 
     border-color: var(--color-magenta);
     background-color: color-mix(in srgb, var(--color-magenta) 10%, transparent);

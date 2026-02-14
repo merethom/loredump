@@ -208,6 +208,12 @@ function addTagToEditEntry() {
     }
 }
 
+function addTagToEditEntryFromAutocomplete(name, color) {
+    if (!name || editingEntryTags.some(t => t.name.toLowerCase() === name.toLowerCase())) return;
+    editingEntryTags.push({ name: name, color: color || 'slate' });
+    renderEditEntryTags();
+}
+
 function addSuggestedTagToEditEntry(suggestedIndex) {
     if (suggestedIndex < 0 || suggestedIndex >= editingEntrySuggestedTags.length) return;
     const tag = editingEntrySuggestedTags[suggestedIndex];
@@ -344,6 +350,13 @@ function addTagToAddEntry() {
         renderAddEntryTags();
         updateAddEntrySuggestedTags();
     }
+}
+
+function addTagToAddEntryFromAutocomplete(name, color) {
+    if (!name || addingEntryTags.some(t => t.name.toLowerCase() === name.toLowerCase())) return;
+    addingEntryTags.push({ name: name, color: color || 'slate' });
+    renderAddEntryTags();
+    updateAddEntrySuggestedTags();
 }
 
 function updateAddEntrySuggestedTags() {

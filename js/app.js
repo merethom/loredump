@@ -283,8 +283,14 @@ document.addEventListener('keydown', (e) => {
     } else if (document.getElementById('tagEditContainer')?.classList.contains('show')) {
         typeof closeTagEditDropdown === 'function' && closeTagEditDropdown();
     } else if (document.getElementById('addEntryContainer')?.classList.contains('active')) {
+        if (typeof hideTagAutocompleteIfVisible === 'function' && hideTagAutocompleteIfVisible('addEntryTagAutocomplete')) {
+            return;
+        }
         closeAddEntryModal();
     } else if (document.getElementById('editEntryContainer')?.classList.contains('show')) {
+        if (typeof hideTagAutocompleteIfVisible === 'function' && hideTagAutocompleteIfVisible('editEntryTagAutocomplete')) {
+            return;
+        }
         closeEditEntryModal();
     } else if (document.getElementById('tagEditorModal')?.classList.contains('active')) {
         closeTagEditor();

@@ -25,11 +25,13 @@
             return;
         }
         list.innerHTML = matches.slice(0, 8).map(function(tag) {
-            var cls = (typeof getTagClass === 'function' ? getTagClass(tag.color) : 'tag');
+            var tagClass = typeof getTagClass === 'function' ? getTagClass(tag.color) : 'tag';
+            var loreClass = typeof getLoreTagColorClass === 'function' ? getLoreTagColorClass(tag.color || 'slate') : '';
+            var cls = tagClass + ' lore-tag tag-autocomplete-item' + (loreClass ? ' ' + loreClass : '');
             var name = tag.name || '';
             var safeName = name.replace(/"/g, '&quot;');
             var displayName = (typeof escapeHtml === 'function' ? escapeHtml(name) : name);
-            return '<span class="' + cls + ' tag-autocomplete-item" data-tag-name="' + safeName + '" data-tag-color="' + (tag.color || 'slate') + '">' + displayName + '</span>';
+            return '<span class="' + cls + '" data-tag-name="' + safeName + '" data-tag-color="' + (tag.color || 'slate') + '">' + displayName + '</span>';
         }).join('');
         list.style.display = 'block';
     }
@@ -65,7 +67,33 @@
     }
 
     function init() {
-        /* Tag autocomplete disabled per user preference */
+        setupAutocomplete(
+            'addEntryTagInput',
+            'addEntryTagAutocomplete',
+            function() { return typeof addingEntryTags !== 'undefined' ? addingEntryTags : []; },
+            function(name, color) {
+                if (typeof addTagToAddEntryFromAutocomplete === 'function') {
+                    addTagToAddEntryFromAutocomplete(name, color);
+                }
+            }
+        );
+        setupAutocomplete(
+            'editEntryTagInput',
+            'editEntryTagAutocomplete',
+            function() { return typeof editingEntryTags !== 'undefined' ? editingEntryTags : []; },
+            function(name, color) {
+                if (typeof addTagToEditEntryFromAutocomplete === 'function') {
+                    addTagToEditEntryFromAutocomplete(name, color);
+                }
+            }
+        );
+    }
+
+    function hideTagAutocompleteIfVisible(listId) {
+        var list = document.getElementById(listId);
+        if (!list || list.style.display === 'none') return false;
+        list.style.display = 'none';
+        return true;
     }
 
     if (document.readyState === 'loading') {
@@ -73,4 +101,6 @@
     } else {
         init();
     }
+
+    window.hideTagAutocompleteIfVisible = hideTagAutocompleteIfVisible;
 })();
