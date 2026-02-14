@@ -325,7 +325,7 @@ header button {
     display: none;
     padding: 16px;
     background: rgba(30, 27, 49, 0.6);
-    border: 1.5px solid #38304D;
+    /* border: 1.5px solid #38304D; */
     border-radius: 8px;
     margin-top: 4px;
 }
