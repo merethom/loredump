@@ -29,6 +29,12 @@ function getTagClass(color) {
     return `tag tag--${c}`;
 }
 
+const LORE_TAG_COLOR_MAP = { pink: 'magenta', green: 'lime', teal: 'aqua', amber: 'orange-red' };
+function getLoreTagColorClass(color) {
+    const c = TAG_COLORS[color] ? color : DEFAULT_TAG_COLOR;
+    return LORE_TAG_COLOR_MAP[c] || c;
+}
+
 function getEntryTagsForDisplay(entry) {
     // Only show tags explicitly saved on the entry (not auto-detected suggestions)
     return parseEntryTags(entry.Tags).map(t => ({ name: t.name, color: t.color }));
@@ -137,7 +143,19 @@ function openEditEntryModal(entryNumber) {
     renderEditEntryTags();
     renderEditEntrySuggestedTags();
 
-    document.getElementById('editEntryContainer').classList.add('show');
+    const editContainer = document.getElementById('editEntryContainer');
+    const card = document.querySelector(`.card[data-entry-number="${entryNumber}"]`);
+    const controls = document.querySelector('.controls');
+    if (card && editContainer && controls && card.parentNode) {
+        editContainer.remove();
+        card.parentNode.insertBefore(editContainer, card);
+        card.remove();
+    }
+    editContainer.classList.add('show');
+
+    requestAnimationFrame(() => {
+        editContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
 }
 
 function updateEditEntryColorSelector() {
@@ -149,15 +167,25 @@ function updateEditEntryColorSelector() {
 }
 
 function closeEditEntryModal() {
-    document.getElementById('editEntryContainer').classList.remove('show');
+    const editContainer = document.getElementById('editEntryContainer');
+    const controls = document.querySelector('.controls');
+    if (editContainer && controls) {
+        editContainer.classList.remove('show');
+        if (editContainer.parentNode !== controls) {
+            editContainer.remove();
+            controls.appendChild(editContainer);
+        }
+        if (typeof refreshTagFilter === 'function') refreshTagFilter();
+        filterData();
+    }
     currentEditingEntryNumber = null;
 }
 
 function renderEditEntryTags() {
     const tagItems = editingEntryTags.map((tag, idx) =>
-        `<span class="${getTagClass(tag.color)}" data-name="${escapeHtml(tag.name)}" data-index="${idx}">` +
+        `<span class="${getTagClass(tag.color)} lore-tag ${getLoreTagColorClass(tag.color)}" data-name="${escapeHtml(tag.name)}" data-index="${idx}">` +
         `${escapeHtml(tag.name)}` +
-        `<button class="tag__remove" data-tag-index="${idx}">×</button></span>`
+        `<button type="button" class="tag__remove" data-tag-index="${idx}" aria-label="Remove tag"></button></span>`
     ).join('');
     document.getElementById('editEntryTags').innerHTML = tagItems;
 }
@@ -201,11 +229,11 @@ function renderEditEntrySuggestedTags() {
         return;
     }
 
-    container.style.display = 'block';
+    container.style.display = 'grid';
     addAllBtn.style.display = editingEntrySuggestedTags.length >= 1 ? 'inline-block' : 'none';
 
     const tagItems = editingEntrySuggestedTags.map((tag, idx) =>
-        `<span class="${getTagClass(tag.color)} tag--suggested" data-suggested-index="${idx}" role="button"><i class="fa-solid fa-plus edit-entry-suggested-add-icon"></i>${escapeHtml(tag.name)}</span>`
+        `<span class="${getTagClass(tag.color)} tag--suggested lore-tag ${getLoreTagColorClass(tag.color)}" data-suggested-index="${idx}" role="button" tabindex="0">${escapeHtml(tag.name)}</span>`
     ).join('');
     list.innerHTML = tagItems;
 }
@@ -227,7 +255,7 @@ function updateEditEntry() {
     entry.Tags = serializeEntryTags(editingEntryTags);
     syncTagsFromDocument();
     if (typeof saveLoreToFirebase === 'function') saveLoreToFirebase();
-    filterData();
+    if (typeof refreshTagFilter === 'function') refreshTagFilter();
     closeEditEntryModal();
 }
 
@@ -242,7 +270,6 @@ function deleteEditEntry() {
     const index = allData.findIndex(e => e.Number === currentEditingEntryNumber);
     allData.splice(index, 1);
     if (typeof saveLoreToFirebase === 'function') saveLoreToFirebase();
-    filterData();
     closeEditEntryModal();
 }
 
@@ -288,9 +315,9 @@ function updateAddEntryColorSelector() {
 
 function renderAddEntryTags() {
     const tagItems = addingEntryTags.map((tag, idx) =>
-        `<span class="${getTagClass(tag.color)}" data-name="${escapeHtml(tag.name)}" data-index="${idx}">` +
+        `<span class="${getTagClass(tag.color)} lore-tag ${getLoreTagColorClass(tag.color)}" data-name="${escapeHtml(tag.name)}" data-index="${idx}">` +
         `${escapeHtml(tag.name)}` +
-        `<button class="tag__remove" data-tag-index="${idx}">×</button></span>`
+        `<button type="button" class="tag__remove" data-tag-index="${idx}" aria-label="Remove tag"></button></span>`
     ).join('');
     document.getElementById('addEntryTags').innerHTML = tagItems;
 }
@@ -346,11 +373,11 @@ function renderAddEntrySuggestedTags() {
         return;
     }
 
-    container.style.display = 'block';
+    container.style.display = 'grid';
     addAllBtn.style.display = addingEntrySuggestedTags.length >= 1 ? 'inline-block' : 'none';
 
     const tagItems = addingEntrySuggestedTags.map((tag, idx) =>
-        `<span class="${getTagClass(tag.color)} tag--suggested" data-suggested-index="${idx}" role="button"><i class="fa-solid fa-plus edit-entry-suggested-add-icon"></i>${escapeHtml(tag.name)}</span>`
+        `<span class="${getTagClass(tag.color)} tag--suggested lore-tag ${getLoreTagColorClass(tag.color)}" data-suggested-index="${idx}" role="button" tabindex="0">${escapeHtml(tag.name)}</span>`
     ).join('');
     list.innerHTML = tagItems;
 }
@@ -391,6 +418,7 @@ function submitAddEntry() {
     allData.sort((a, b) => parseFloat(a.Number) - parseFloat(b.Number));
     syncTagsFromDocument();
     if (typeof saveLoreToFirebase === 'function') saveLoreToFirebase();
+    if (typeof refreshTagFilter === 'function') refreshTagFilter();
     filterData();
     closeAddEntryModal();
 }

@@ -128,8 +128,9 @@ function setupEventListeners() {
                 e.stopPropagation();
             }
 
-            if (e.target.classList.contains('edit-entry-color-btn')) {
-                addingEntrySelectedColor = e.target.getAttribute('data-color');
+            const colorBtn = e.target.closest('.edit-entry-color-btn');
+            if (colorBtn) {
+                addingEntrySelectedColor = colorBtn.getAttribute('data-color') || 'slate';
                 updateAddEntryColorSelector();
                 document.getElementById('addEntryColorWrapper')?.classList.remove('open');
                 e.stopPropagation();
@@ -148,6 +149,15 @@ function setupEventListeners() {
             if (e.target.getAttribute('data-action') === 'submit-add') {
                 submitAddEntry();
                 e.stopPropagation();
+            }
+        });
+
+        addEntryContainerEl.addEventListener('keydown', (e) => {
+            const addSuggestedTag = e.target.closest('#addEntryContainer .tag--suggested');
+            if (addSuggestedTag && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                const idx = parseInt(addSuggestedTag.getAttribute('data-suggested-index'), 10);
+                addSuggestedTagToAddEntry(idx);
             }
         });
     }
@@ -173,8 +183,9 @@ function setupEventListeners() {
                 e.stopPropagation();
             }
 
-            if (e.target.classList.contains('edit-entry-color-btn')) {
-                editingEntrySelectedColor = e.target.getAttribute('data-color');
+            const colorBtn = e.target.closest('.edit-entry-color-btn');
+            if (colorBtn) {
+                editingEntrySelectedColor = colorBtn.getAttribute('data-color') || 'slate';
                 updateEditEntryColorSelector();
                 document.getElementById('editEntryColorWrapper')?.classList.remove('open');
                 e.stopPropagation();
@@ -198,6 +209,15 @@ function setupEventListeners() {
             if (e.target.getAttribute('data-action') === 'delete-edit') {
                 deleteEditEntry();
                 e.stopPropagation();
+            }
+        });
+
+        editEntryContainerEl.addEventListener('keydown', (e) => {
+            const suggestedTag = e.target.closest('.tag--suggested');
+            if (suggestedTag && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                const idx = parseInt(suggestedTag.getAttribute('data-suggested-index'), 10);
+                addSuggestedTagToEditEntry(idx);
             }
         });
     }

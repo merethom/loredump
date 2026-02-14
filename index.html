@@ -13,67 +13,6 @@
 <body>
 
 
-    <div class="tray">
-        <div class="tray-header">
-            <h2>Lore entry</h2>
-            <i class="fa-solid fa-xmark"></i>
-        </div>
-        <div class="entry-content">
-            <h3>Content</h3>
-            <textarea placeholder="Add your lore entry here..."></textarea>
-        </div>
-        <div class="enter-tag">
-            <h3>Tags</h3>
-            <div class="tag-input-wrapper">
-                <input type="text" placeholder="Add a tag...">
-                <div class="lore-tag-current-color"></div>
-                <div class="lore-tag-color-selector">
-                    <div class="tag-color orange-red"></div>
-                    <div class="tag-color orange"></div>
-                    <div class="tag-color lime"></div>
-                    <div class="tag-color aqua"></div>
-                    <div class="tag-color blue"></div>
-                    <div class="tag-color purple"></div>
-                    <div class="tag-color magenta"></div>
-                    <div class="tag-color slate"></div>
-                </div>
-            </div>
-            <div class="tag-list">
-               <div class="lore-tag magenta">Tag 1</div>
-               <div class="lore-tag orange">Tag 2</div>
-               <div class="lore-tag lime">Tag 3</div>
-               <div class="lore-tag aqua">Tag 4</div>
-               <div class="lore-tag blue">Tag 5</div>
-               <div class="lore-tag purple">Tag 6</div>
-               <div class="lore-tag slate">Tag 7</div>
-            </div>
-        </div>
-        <div class="suggest-tag">
-            <div class="suggest-tag-header">
-                <h3>Suggested tags</h3>
-                <button class="add-all-tags-btn">+ Add all tags</button>
-            </div>
-            <div class="tag-list">
-                <div class="lore-tag magenta">Tag 1</div>
-                <div class="lore-tag orange">Tag 2</div>
-                <div class="lore-tag lime">Tag 3</div>
-                <div class="lore-tag aqua">Tag 4</div>
-                <div class="lore-tag blue">Tag 5</div>
-                <div class="lore-tag purple">Tag 6</div>
-                <div class="lore-tag slate">Tag 7</div>
-            </div>
-        </div>
-        <div class="tray-footer">
-            <button class="generic-ui-btn" id="deleteEntryBtn">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-            <button class="generic-ui-btn text purple-btn" id="addEntryDoneBtn">
-                Done
-            </button>
-        </div>
-
-    </div>
-
     <!-- Sign-in screen (shown when not authenticated) -->
     <div id="signInScreen" class="sign-in-screen">
         <div class="sign-in-card">
@@ -165,94 +104,99 @@
                 </div>
             </div>
             <div id="addEntryContainer" class="controls-dropdown lore-entry-tray">
-                <div class="controls-dropdown-content">
-                    <div class="modal-header">
-                        <h2 class="modal-title">Add lore entry</h2>
-                        <button class="modal-close" onclick="closeAddEntryModal()">&times;</button>
+                <div class="tray">
+                    <div class="tray-header">
+                        <div class="tray-header-title">
+                            <h2>Lore entry</h2>
+                            <input type="number" id="addEntryNumber" class="tray-header-entry-num" step="any" min="0" placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
+                        </div>
+                        <button type="button" class="tray-close" onclick="closeAddEntryModal()" aria-label="Close" tabindex="0">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>
-                    <div class="edit-entry-section">
-                        <label class="edit-entry-label edit-entry-label-section edit-entry-label-required">ENTRY #</label>
-                        <input type="number" id="addEntryNumber" class="edit-entry-input" step="any" min="0" placeholder="Entry number">
+                    <div class="entry-content">
+                        <h3>Content</h3>
+                        <textarea id="addEntryContent" placeholder="Add your lore entry here..." tabindex="0" autocomplete="off"></textarea>
                     </div>
-                    <div class="edit-entry-section">
-                        <label class="edit-entry-label edit-entry-label-section edit-entry-label-required">CONTENT</label>
-                        <textarea id="addEntryContent" class="edit-entry-textarea" placeholder="Entry content..."></textarea>
-                    </div>
-                    <div class="edit-entry-section">
-                        <label class="edit-entry-label edit-entry-label-section">TAGS</label>
-                        <div class="edit-entry-tag-input-row">
-                            <input type="text" id="addEntryTagInput" class="edit-entry-input" placeholder="Type tag name and press enter...">
+                    <div class="enter-tag">
+                        <h3>Tags</h3>
+                        <div class="tag-input-wrapper">
+                            <input type="text" id="addEntryTagInput" placeholder="Add a tag..." tabindex="0" autocomplete="off">
                             <div class="edit-entry-color-wrapper" id="addEntryColorWrapper">
-                                <button type="button" class="edit-entry-color-swatch" id="addEntryColorSwatch" data-color="slate" aria-label="Tag color" title="Select color"></button>
-                                <div class="edit-entry-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
-                                    <button type="button" class="edit-entry-color-btn" data-color="purple" title="Purple"></button>
-                                    <button type="button" class="edit-entry-color-btn" data-color="green" title="Green"></button>
-                                    <button type="button" class="edit-entry-color-btn" data-color="blue" title="Blue"></button>
-                                    <button type="button" class="edit-entry-color-btn" data-color="orange" title="Orange"></button>
-                                    <button type="button" class="edit-entry-color-btn" data-color="teal" title="Teal"></button>
-                                    <button type="button" class="edit-entry-color-btn" data-color="pink" title="Pink"></button>
-                                    <button type="button" class="edit-entry-color-btn" data-color="amber" title="Amber"></button>
-                                    <button type="button" class="edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
+                                <button type="button" class="lore-tag-current-color edit-entry-color-swatch" id="addEntryColorSwatch" data-color="slate" aria-label="Tag color" title="Select color" tabindex="0"></button>
+                                <div class="lore-tag-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
+                                    <button type="button" class="tag-color orange-red edit-entry-color-btn" data-color="amber" title="Amber" tabindex="0"></button>
+                                    <button type="button" class="tag-color orange edit-entry-color-btn" data-color="orange" title="Orange" tabindex="0"></button>
+                                    <button type="button" class="tag-color lime edit-entry-color-btn" data-color="green" title="Green" tabindex="0"></button>
+                                    <button type="button" class="tag-color aqua edit-entry-color-btn" data-color="teal" title="Teal" tabindex="0"></button>
+                                    <button type="button" class="tag-color blue edit-entry-color-btn" data-color="blue" title="Blue" tabindex="0"></button>
+                                    <button type="button" class="tag-color purple edit-entry-color-btn" data-color="purple" title="Purple" tabindex="0"></button>
+                                    <button type="button" class="tag-color magenta edit-entry-color-btn" data-color="pink" title="Pink" tabindex="0"></button>
+                                    <button type="button" class="tag-color slate edit-entry-color-btn selected" data-color="slate" title="Slate" tabindex="0"></button>
                                 </div>
                             </div>
                         </div>
                         <div id="addEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
-                        <div id="addEntryTags" class="edit-entry-tags-container"></div>
-                        <div id="addEntrySuggestedTags" class="edit-entry-suggested-section">
-                            <div class="edit-entry-suggested-label">
-                                <span class="edit-entry-suggested-title">SUGGESTED TAGS</span>
-                                <button type="button" class="edit-entry-suggested-add-all" id="addEntryAddAllSuggested" style="display: none;">Add all</button>
-                            </div>
-                            <div id="addEntrySuggestedTagsList" class="edit-entry-tags-container edit-entry-suggested-list"></div>
-                        </div>
+                        <div id="addEntryTags" class="tag-list"></div>
                     </div>
-                    <div class="edit-entry-button-row">
-                        <button data-action="cancel-add" class="edit-entry-btn-cancel">Cancel</button>
-                        <button data-action="submit-add" class="edit-entry-btn-submit">Add Entry</button>
+                    <div id="addEntrySuggestedTags" class="suggest-tag">
+                        <div class="suggest-tag-header">
+                            <h3>Suggested tags</h3>
+                            <button type="button" class="add-all-tags-btn" id="addEntryAddAllSuggested" style="display: none;" tabindex="0">+ Add all tags</button>
+                        </div>
+                        <div id="addEntrySuggestedTagsList" class="tag-list"></div>
+                    </div>
+                    <div class="tray-footer">
+                        <button type="button" class="generic-ui-btn text" data-action="cancel-add" tabindex="0">Cancel</button>
+                        <button type="button" class="generic-ui-btn text purple-btn" data-action="submit-add" tabindex="0">Done</button>
                     </div>
                 </div>
             </div>
             <div id="editEntryContainer" class="controls-dropdown lore-entry-tray">
-                <div class="controls-dropdown-content">
-                    <div class="modal-header">
-                        <h2 class="modal-title">Lore entry</h2>
-                        <button class="modal-close" onclick="closeEditEntryModal()">&times;</button>
+                <div class="tray">
+                    <div class="tray-header">
+                        <h2>Lore entry</h2>
+                        <button type="button" class="tray-close" onclick="closeEditEntryModal()" aria-label="Close" tabindex="0">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>
-                    <div class="edit-entry-section">
-                        <label class="edit-entry-label edit-entry-label-section">CONTENT</label>
-                        <textarea id="editEntryContent" class="edit-entry-textarea" placeholder="Entry content..."></textarea>
+                    <div class="entry-content">
+                        <h3>Content</h3>
+                        <textarea id="editEntryContent" placeholder="Add your lore entry here..." tabindex="0" autocomplete="off"></textarea>
                     </div>
-                    <div class="edit-entry-section">
-                        <label class="edit-entry-label edit-entry-label-section">TAGS</label>
-                        <div class="edit-entry-tag-input-row">
-                            <input type="text" id="editEntryTagInput" class="edit-entry-input" placeholder="Type tag name and press enter...">
+                    <div class="enter-tag">
+                        <h3>Tags</h3>
+                        <div class="tag-input-wrapper">
+                            <input type="text" id="editEntryTagInput" placeholder="Add a tag and press Enter..." tabindex="0" autocomplete="off">
                             <div class="edit-entry-color-wrapper" id="editEntryColorWrapper">
-                                <button type="button" class="edit-entry-color-swatch" id="editEntryColorSwatch" data-color="slate" aria-label="Tag color" title="Select color"></button>
-                                <div class="edit-entry-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
-                                    <button type="button" class="edit-entry-color-btn" data-color="purple" title="Purple"></button>
-                                    <button type="button" class="edit-entry-color-btn" data-color="green" title="Green"></button>
-                                    <button type="button" class="edit-entry-color-btn" data-color="blue" title="Blue"></button>
-                                    <button type="button" class="edit-entry-color-btn" data-color="orange" title="Orange"></button>
-                                    <button type="button" class="edit-entry-color-btn" data-color="teal" title="Teal"></button>
-                                    <button type="button" class="edit-entry-color-btn" data-color="pink" title="Pink"></button>
-                                    <button type="button" class="edit-entry-color-btn" data-color="amber" title="Amber"></button>
-                                    <button type="button" class="edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
+                                <button type="button" class="lore-tag-current-color edit-entry-color-swatch" id="editEntryColorSwatch" data-color="slate" aria-label="Tag color" title="Select color" tabindex="0"></button>
+                                <div class="lore-tag-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
+                                    <button type="button" class="tag-color orange-red edit-entry-color-btn" data-color="amber" title="Amber" tabindex="0"></button>
+                                    <button type="button" class="tag-color orange edit-entry-color-btn" data-color="orange" title="Orange" tabindex="0"></button>
+                                    <button type="button" class="tag-color lime edit-entry-color-btn" data-color="green" title="Green" tabindex="0"></button>
+                                    <button type="button" class="tag-color aqua edit-entry-color-btn" data-color="teal" title="Teal" tabindex="0"></button>
+                                    <button type="button" class="tag-color blue edit-entry-color-btn" data-color="blue" title="Blue" tabindex="0"></button>
+                                    <button type="button" class="tag-color purple edit-entry-color-btn" data-color="purple" title="Purple" tabindex="0"></button>
+                                    <button type="button" class="tag-color magenta edit-entry-color-btn" data-color="pink" title="Pink" tabindex="0"></button>
+                                    <button type="button" class="tag-color slate edit-entry-color-btn selected" data-color="slate" title="Slate" tabindex="0"></button>
                                 </div>
                             </div>
                         </div>
                         <div id="editEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
-                        <div id="editEntryTags" class="edit-entry-tags-container"></div>
-                        <div id="editEntrySuggestedTags" class="edit-entry-suggested-section">
-                            <div class="edit-entry-suggested-label">
-                                <span class="edit-entry-suggested-title">SUGGESTED TAGS</span>
-                                <button type="button" class="edit-entry-suggested-add-all" id="editEntryAddAllSuggested" style="display: none;">Add all</button>
-                            </div>
-                            <div id="editEntrySuggestedTagsList" class="edit-entry-tags-container edit-entry-suggested-list"></div>
-                        </div>
+                        <div id="editEntryTags" class="tag-list"></div>
                     </div>
-                    <div class="edit-entry-button-row">
-                        <button data-action="delete-edit" class="edit-entry-btn-delete" title="Delete"><i class="fa-solid fa-trash"></i></button>
-                        <button data-action="update-edit" class="edit-entry-btn-submit">Done</button>
+                    <div id="editEntrySuggestedTags" class="suggest-tag">
+                        <div class="suggest-tag-header">
+                            <h3>Suggested tags</h3>
+                            <button type="button" class="add-all-tags-btn" id="editEntryAddAllSuggested" style="display: none;" tabindex="0">+ Add all tags</button>
+                        </div>
+                        <div id="editEntrySuggestedTagsList" class="tag-list"></div>
+                    </div>
+                    <div class="tray-footer">
+                        <button type="button" class="generic-ui-btn" data-action="delete-edit" title="Delete entry" tabindex="0">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                        <button type="button" class="generic-ui-btn text purple-btn" data-action="update-edit" tabindex="0">Done</button>
                     </div>
                 </div>
             </div>

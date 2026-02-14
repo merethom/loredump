@@ -1,7 +1,17 @@
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     width: 1200px;
     margin: 0 auto;
+}
+
+.controls {
+    padding-top: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    
 }
 
 :root {
@@ -25,6 +35,12 @@ body {
     font-size: 1rem;
     font-family: 'PPSupply Mono Light', monospace;
     font-weight: 400;
+    cursor: pointer;
+    transition: background 0.2s ease, filter 0.2s ease;
+}
+
+.generic-ui-btn:hover {
+    background: #4E4D6C;
 }
 
 .generic-ui-btn.text {
@@ -33,6 +49,10 @@ body {
 
 .generic-ui-btn.purple-btn {
     background: var(--color-purple);
+}
+
+.generic-ui-btn.purple-btn:hover {
+    filter: brightness(1.15);
 }
 
 .lore-tag {
@@ -128,6 +148,19 @@ body {
     color: var(--text-color);
 }
 
+.tray-header .tray-close {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: inherit;
+}
+
+.tray-header .tray-close:focus-visible {
+    outline: 2px solid var(--text-color);
+    outline-offset: 2px;
+}
+
 .tray-header {
     display: flex;
     flex-direction: row;
@@ -135,6 +168,26 @@ body {
     align-items: center;
     padding: var(--box-padding);
     border-bottom: 1.5px solid #3E3D5D;
+}
+
+.tray-header .tray-header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tray-header .tray-header-entry-num {
+    width: 80px;
+    height: var(--btn-box-height);
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    border: var(--border);
+    border-radius: var(--borer-radius);
+    background: var(--dark-bg);
+    color: var(--text-color);
+    padding: 0 12px;
+    outline: none;
+    caret-color: var(--text-color);
 }
 
 .entry-content, .enter-tag, .suggest-tag {
@@ -153,6 +206,16 @@ body {
     padding: 12px;
 }
 
+#addEntryContainer .entry-content textarea,
+#editEntryContainer .entry-content textarea {
+    line-height: 1.8;
+}
+
+#database #editEntryContainer.show {
+    margin-bottom: 24px;
+    scroll-margin-top: 150px;
+}
+
 .enter-tag .tag-list {
     display: flex;
     flex-direction: row;
@@ -160,13 +223,28 @@ body {
     gap: 6px;
 }
 
-.enter-tag .lore-tag::after {
-    content: '';
+.enter-tag .lore-tag .tag__remove {
+    margin-left: 8px;
     display: inline-block;
     width: 0.75em;
     height: 0.75em;
-    margin-left: 8px;
+    min-width: 0.75em;
+    min-height: 0.75em;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+    font-size: 1em;
+    line-height: 1;
     vertical-align: middle;
+}
+
+.enter-tag .lore-tag .tag__remove::after {
+    content: '';
+    display: block;
+    width: 0.75em;
+    height: 0.75em;
     background-image: url('../img/x-mark.svg');
     background-size: contain;
     background-repeat: no-repeat;
@@ -185,35 +263,90 @@ body {
 }
 
 .tray .tag-input-wrapper .lore-tag-current-color {
-    grid-column: 2 / 3;
-    grid-row: 1 / 2;
     width: 24px;
     height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    padding: 0;
     border-radius: 50%;
-    background: var(--muted-text-color);
+    background: var(--color-slate);
     border: solid 1.5px var(--text-color);
-    align-self: center;
-    margin-right: 6px;
+    flex-shrink: 0;
     cursor: pointer;
+    font: inherit;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
+.tray .tag-input-wrapper .lore-tag-current-color[data-color="purple"] { background: var(--color-purple); }
+.tray .tag-input-wrapper .lore-tag-current-color[data-color="green"] { background: var(--color-lime); }
+.tray .tag-input-wrapper .lore-tag-current-color[data-color="blue"] { background: var(--color-blue); }
+.tray .tag-input-wrapper .lore-tag-current-color[data-color="orange"] { background: var(--color-orange); }
+.tray .tag-input-wrapper .lore-tag-current-color[data-color="teal"] { background: var(--color-aqua); }
+.tray .tag-input-wrapper .lore-tag-current-color[data-color="pink"] { background: var(--color-magenta); }
+.tray .tag-input-wrapper .lore-tag-current-color[data-color="amber"] { background: var(--color-orange-red); }
+.tray .tag-input-wrapper .lore-tag-current-color[data-color="slate"] { background: var(--color-slate); }
+
 .tray .tag-input-wrapper .lore-tag-color-selector {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 6px;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    width: auto !important;
+}
+
+.tray .edit-entry-color-wrapper .lore-tag-color-selector {
+    display: flex;
+    flex-wrap: nowrap;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%) translateX(12px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.tray .edit-entry-color-wrapper.open .lore-tag-color-selector {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(-50%) translateX(0);
+}
+
+.tray .tag-input-wrapper .edit-entry-color-wrapper {
     grid-column: 2 / 3;
     grid-row: 1 / 2;
     display: flex;
-    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
     gap: 6px;
-    align-self: center;
-    margin-right: 6px;
+    position: relative;
+}
+
+.tray .edit-entry-color-wrapper.open .lore-tag-current-color {
+    display: none;
 }
 
 .tray .tag-input-wrapper .lore-tag-color-selector .tag-color {
     width: 24px;
     height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    padding: 0;
     border-radius: 50%;
-    border: solid 1.5px var(--bg-dark);
+    border: solid 1.5px var(--dark-bg);
     background: var(--lesser-text-color);
     cursor: pointer;
+    font: inherit;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .tray .tag-input-wrapper .lore-tag-color-selector .magenta { 
@@ -253,6 +386,10 @@ body {
 .suggest-tag {
     border-bottom: var(--border);
     padding-bottom: 24px;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 12px;
 }
 
 .suggest-tag .suggest-tag-header {

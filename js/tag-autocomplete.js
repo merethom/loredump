@@ -65,26 +65,7 @@
     }
 
     function init() {
-        setupAutocomplete('addEntryTagInput', 'addEntryTagAutocomplete',
-            function() { return typeof addingEntryTags !== 'undefined' ? addingEntryTags : []; },
-            function(name, color) {
-                if (typeof addingEntryTags !== 'undefined' && !addingEntryTags.some(function(t) { return t.name === name; })) {
-                    addingEntryTags.push({ name: name, color: color });
-                    if (typeof renderAddEntryTags === 'function') renderAddEntryTags();
-                    if (typeof updateAddEntrySuggestedTags === 'function') updateAddEntrySuggestedTags();
-                }
-            }
-        );
-        setupAutocomplete('editEntryTagInput', 'editEntryTagAutocomplete',
-            function() { return typeof editingEntryTags !== 'undefined' ? editingEntryTags : []; },
-            function(name, color) {
-                if (typeof editingEntryTags !== 'undefined' && !editingEntryTags.some(function(t) { return t.name === name; })) {
-                    editingEntryTags.push({ name: name, color: color });
-                    if (typeof renderEditEntryTags === 'function') renderEditEntryTags();
-                    if (typeof renderEditEntrySuggestedTags === 'function') renderEditEntrySuggestedTags();
-                }
-            }
-        );
+        /* Tag autocomplete disabled per user preference */
     }
 
     if (document.readyState === 'loading') {
