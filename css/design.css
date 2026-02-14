@@ -337,7 +337,6 @@ header button {
 /* Controls dropdown panels (add entry, edit entry) */
 .controls-dropdown {
     display: none;
-    /* padding: 24px 28px;
     border: 1.5px solid #3E3D5C; */
     border-radius: 5px;
     margin-top: 4px;
