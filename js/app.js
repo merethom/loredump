@@ -394,13 +394,27 @@ var tagFilterSearchTerm = '';
 var TAG_COLOR_ORDER = ['purple', 'green', 'blue', 'orange', 'teal', 'pink', 'amber', 'slate'];
 
 function refreshTagFilter() {
-    /* Only show tags that appear on at least one entry (hide unused tags) */
+    /* Only show tags that appear on entries matching the current selection (dynamic filtering) */
     const tagsSet = new Set();
-    allData.forEach(entry => {
+
+    // Determine which entries match the current selected tags
+    let matchingEntries = allData;
+    if (selectedTags.size > 0) {
+        matchingEntries = allData.filter(entry => {
+            const entryTags = getEntryTagNames(entry);
+            return Array.from(selectedTags).every(tag => entryTags.has(tag));
+        });
+    }
+
+    matchingEntries.forEach(entry => {
         getEntryTagNames(entry).forEach(name => tagsSet.add(name));
     });
+
+    // Always include selected tags so they can be deselected
+    selectedTags.forEach(tag => tagsSet.add(tag));
+
     const tagColorMap = getTagColorMap();
-    const allTagNames = Array.from(tagsSet).sort();
+    const allTagNames = Array.from(tagsSet);
     const searchLower = tagFilterSearchTerm.toLowerCase().trim();
 
     // Update count and clear button
@@ -429,19 +443,23 @@ function refreshTagFilter() {
     tagFilterDiv.innerHTML = '';
 
     // Filter and collect all tags
-    const allTags = [];
+    const displayTags = [];
     allTagNames.forEach(tagName => {
         const matchesSearch = !searchLower || tagName.toLowerCase().includes(searchLower);
         if (!matchesSearch) return;
-        const color = tagColorMap.get(tagName) || DEFAULT_TAG_COLOR;
+        const color = tagColorMap.get(tagName) || 'slate';
         const isSelected = selectedTags.has(tagName);
-        allTags.push({ name: tagName, color: color, selected: isSelected });
+        displayTags.push({ name: tagName, color: color, selected: isSelected });
     });
 
-    // Sort alphabetically and render
-    allTags.sort((a, b) => a.name.localeCompare(b.name));
+    // Sort: Selected first, then alphabetical
+    displayTags.sort((a, b) => {
+        if (a.selected && !b.selected) return -1;
+        if (!a.selected && b.selected) return 1;
+        return a.name.localeCompare(b.name);
+    });
 
-    allTags.forEach(({ name, color, selected }) => {
+    displayTags.forEach(({ name, color, selected }) => {
         const span = document.createElement('span');
         span.className = `tag tag--${color}${selected ? ' active' : ''}`;
         span.setAttribute('data-name', name);
