@@ -4,6 +4,15 @@ const TAG_COLORS = { purple: 1, green: 1, blue: 1, orange: 1, teal: 1, pink: 1, 
 
 const DEFAULT_TAG_COLOR = 'slate';
 
+const ADD_ENTRY_PLACEHOLDER_OPTIONS = [
+    'Once upon a time there was a silly little rat...',
+    'Who slept with Ethak this time?',
+    'Fool! The void awaits your words...',
+    'Corvy the best, write of his greatness.',
+    'LIIIIIINNNNNAAAAA',
+    'You know, Nox, I\'m sure Cylene would be happy to help you write our histories.'
+];
+
 function parseEntryTags(tagsStr) {
     if (!tagsStr || !tagsStr.trim()) return [];
     return tagsStr.split(',').map(part => {
@@ -329,7 +338,11 @@ function openAddEntryModal() {
         closeFilterSidesheet();
     }
     document.getElementById('addEntryNumber').value = getNextEntryNumber();
-    document.getElementById('addEntryContent').value = '';
+    const addContent = document.getElementById('addEntryContent');
+    addContent.value = '';
+    if (addContent && ADD_ENTRY_PLACEHOLDER_OPTIONS.length) {
+        addContent.placeholder = ADD_ENTRY_PLACEHOLDER_OPTIONS[Math.floor(Math.random() * ADD_ENTRY_PLACEHOLDER_OPTIONS.length)];
+    }
     document.getElementById('addEntryTagInput').value = '';
     addingEntryTags = [];
     addingEntrySuggestedTags = [];

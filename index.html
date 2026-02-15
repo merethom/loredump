@@ -5,10 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noxsyphone Loredump</title>
-    <script src="https://kit.fontawesome.com/d0544f08d4.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
-    <link rel="stylesheet" href="css/design.css">
-    <link rel="stylesheet" href="css/handcode.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
@@ -18,10 +16,10 @@
     <div id="signInScreen" class="sign-in-screen">
         <div class="sign-in-card">
             <img src="img/raygun.svg" alt="" class="sign-in-logo">
-            <h1 class="sign-in-title">Noxsyphone Lore Dump</h1>
-            <p class="sign-in-subtitle">Sign in with Google to continue</p>
+            <!-- <h1 class="sign-in-title">Noxsyphone Lore Dump</h1> -->
+            <p class="sign-in-subtitle">Identity verification required.</p>
             <button type="button" id="signInBtn" class="sign-in-btn">
-                <i class="fa-brands fa-google"></i>
+                <svg class="icon" aria-hidden="true"><use href="img/sprites/brands.svg#google"></use></svg>
                 Sign in with Google
             </button>
         </div>
@@ -37,30 +35,33 @@
                 <div class="header-actions">
                     <span id="userEmail" class="user-email"></span>
                     <button id="signOutBtn" class="generic-ui-btn" title="Sign out">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <svg class="icon" aria-hidden="true"><use href="img/sprites/duotone.svg#arrow-right-from-bracket"></use></svg>
                     </button>
                 </div>
             </header>
-            <div class="search-wrapper">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="searchInput" class="search-box" placeholder="Search lore entries..." autocomplete="off">
-                <button type="button" class="search-clear" id="searchClear" title="Clear search" aria-label="Clear search">
-                    <i class="fa-solid fa-times"></i>
+            <div class="search-add-row">
+                <div class="search-wrapper">
+                    <svg class="icon search-icon" aria-hidden="true"><use href="img/sprites/regular.svg#magnifying-glass"></use></svg>
+                    <input type="text" id="searchInput" class="search-box" placeholder="Search lore entries..." autocomplete="off">
+                    <button type="button" class="search-clear" id="searchClear" title="Clear search" aria-label="Clear search">
+                        <svg class="icon" aria-hidden="true"><use href="img/sprites/duotone.svg#xmark"></use></svg>
+                    </button>
+                </div>
+                <button class="generic-ui-btn purple-btn" id="addEntryBtn" title="Add entry">
+                    <i class="fa-solid fa-plus"></i>
+                    <svg class="icon" aria-hidden="true"><use href="img/sprites/solid.svg#plus"></use></svg>
                 </button>
             </div>
             <div class="controls-row">
                 <button class="generic-ui-btn" id="filtersBtn" title="Filters">
-                    <i class="fa-solid fa-tag"></i>
+                    <svg class="icon" aria-hidden="true"><use href="img/sprites/regular.svg#filter"></use></svg>
                 </button>
                 <select id="sortBy" class="sort-dropdown-native" aria-hidden="true" tabindex="-1" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
                     <option value="entry-asc">Oldest</option>
                     <option value="entry-desc">Newest</option>
                 </select>
-                <button class="generic-ui-btn purple-btn" id="addEntryBtn" title="Add entry">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
                 <button class="generic-ui-btn" id="tagEditorBtn" title="Edit Tags">
-                    <i class="fa-solid fa-pen"></i>
+                    <svg class="icon" aria-hidden="true"><use href="img/sprites/duotone.svg#pen"></use></svg>
                 </button>
             </div>
             <div id="tagEditContainer" class="controls-dropdown">
@@ -105,7 +106,7 @@
                         <div class="tray-header-actions">
                             <input type="number" id="editEntryNumber" class="tray-header-entry-num" step="any" min="0" placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
                             <button type="button" class="generic-ui-btn" data-action="delete-edit" title="Delete entry" tabindex="0">
-                                <i class="fa-solid fa-trash"></i>
+                                <svg class="icon" aria-hidden="true"><use href="img/sprites/duotone.svg#trash"></use></svg>
                             </button>
                         </div>
                     </div>
@@ -176,13 +177,16 @@
             <div class="filter-sidesheet-header">
                 <h2 class="filter-sidesheet-title">Filters</h2>
                 <button type="button" class="filter-sidesheet-close" id="filterSidesheetClose" aria-label="Close">
-                    <i class="fa-solid fa-xmark"></i>
+                    <svg class="icon" aria-hidden="true"><use href="img/sprites/duotone.svg#xmark"></use></svg>
                 </button>
             </div>
             <div class="filter-sidesheet-content">
                 <div class="tag-filter-search-wrapper">
-                    <i class="fa-solid fa-magnifying-glass tag-filter-search-icon"></i>
+                    <svg class="icon tag-filter-search-icon" aria-hidden="true"><use href="img/sprites/regular.svg#magnifying-glass"></use></svg>
                     <input type="text" id="tagFilterSearch" class="tag-filter-search" placeholder="Search tags..." autocomplete="off" aria-label="Search tags">
+                    <button type="button" class="search-clear" id="tagFilterSearchClear" title="Clear search" aria-label="Clear search">
+                        <svg class="icon" aria-hidden="true"><use href="img/sprites/duotone.svg#xmark"></use></svg>
+                    </button>
                 </div>
                 <div class="filter-sidesheet-section">
                     <h3 class="filter-sidesheet-section-title">Sort by</h3>
@@ -288,7 +292,7 @@
             </div>
 
             <div class="tag-editor-search-wrapper">
-                <i class="fa-solid fa-magnifying-glass tag-editor-search-icon"></i>
+                <svg class="icon tag-editor-search-icon" aria-hidden="true"><use href="img/sprites/regular.svg#magnifying-glass"></use></svg>
                 <input type="text" id="tagEditorSearch" class="tag-editor-search-input" placeholder="Search tags...">
             </div>
 

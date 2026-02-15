@@ -62,7 +62,7 @@ function filterByTag(event, tag) {
     event.stopPropagation();
     searchTerm = '';
     document.getElementById('searchInput').value = '';
-    selectedTags.clear();
+    /* Add tag to current selection (supports multi-tag filter) instead of replacing */
     selectedTags.add(tag);
     if (typeof selectedCustomTags !== 'undefined') selectedCustomTags.clear();
 

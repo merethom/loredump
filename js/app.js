@@ -53,20 +53,35 @@ function setupEventListeners() {
 
     // Tag filter search
     const tagFilterSearch = document.getElementById('tagFilterSearch');
+    const tagFilterSearchClear = document.getElementById('tagFilterSearchClear');
     if (tagFilterSearch) {
+        function updateTagFilterSearchClearVisibility() {
+            if (tagFilterSearchClear) tagFilterSearchClear.classList.toggle('show', tagFilterSearch.value.length > 0);
+        }
         tagFilterSearch.addEventListener('input', () => {
             tagFilterSearchTerm = tagFilterSearch.value;
+            updateTagFilterSearchClearVisibility();
             refreshTagFilter();
         });
         tagFilterSearch.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 tagFilterSearch.value = '';
                 tagFilterSearchTerm = '';
+                updateTagFilterSearchClearVisibility();
                 refreshTagFilter();
                 e.preventDefault();
                 e.stopPropagation();
             }
         });
+        if (tagFilterSearchClear) {
+            tagFilterSearchClear.addEventListener('click', () => {
+                tagFilterSearch.value = '';
+                tagFilterSearchTerm = '';
+                updateTagFilterSearchClearVisibility();
+                refreshTagFilter();
+                tagFilterSearch.focus();
+            });
+        }
     }
 
     // Setup sort (sidesheet radio buttons)
@@ -103,6 +118,7 @@ function setupEventListeners() {
             searchEl.value = '';
             tagFilterSearchTerm = '';
         }
+        document.getElementById('tagFilterSearchClear')?.classList.remove('show');
         syncSidesheetSort();
         if (typeof refreshTagFilter === 'function') refreshTagFilter();
     };
@@ -463,11 +479,12 @@ document.addEventListener('keydown', (e) => {
         closeEditEntryModal();
     } else if (document.getElementById('filterSidesheet')?.classList.contains('open')) {
         const searchEl = document.getElementById('tagFilterSearch');
-        if (searchEl && document.activeElement === searchEl && searchEl.value.trim()) {
+        if (searchEl && document.activeElement === searchEl) {
             searchEl.value = '';
             tagFilterSearchTerm = '';
+            document.getElementById('tagFilterSearchClear')?.classList.remove('show');
             refreshTagFilter();
-            return;
+            return; /* clear input, don't close sidesheet */
         }
         typeof closeFilterSidesheet === 'function' && closeFilterSidesheet();
     } else if (document.getElementById('tagEditorModal')?.classList.contains('active')) {
