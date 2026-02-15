@@ -108,7 +108,7 @@ function setupEventListeners() {
     }
 
     // Filter sidesheet open/close
-    window.openFilterSidesheet = function() {
+    window.openFilterSidesheet = function () {
         filtersVisible = true;
         document.getElementById('filterSidesheet').classList.add('open');
         document.getElementById('filterSidesheet').setAttribute('aria-hidden', 'false');
@@ -123,7 +123,7 @@ function setupEventListeners() {
         if (typeof refreshTagFilter === 'function') refreshTagFilter();
     };
 
-    window.closeFilterSidesheet = function() {
+    window.closeFilterSidesheet = function () {
         filtersVisible = false;
         document.getElementById('filterSidesheet').classList.remove('open');
         document.getElementById('filterSidesheet').setAttribute('aria-hidden', 'true');
@@ -131,6 +131,13 @@ function setupEventListeners() {
     };
 
     document.getElementById('filterSidesheetClose')?.addEventListener('click', closeFilterSidesheet);
+
+    // Clear all tags button
+    document.getElementById('tagFilterClearAll')?.addEventListener('click', () => {
+        selectedTags.clear();
+        refreshTagFilter();
+        filterData();
+    });
 
     // Setup add entry button (toggle)
     document.getElementById('addEntryBtn').addEventListener('click', () => {
@@ -346,92 +353,79 @@ function refreshTagFilter() {
     const allTagNames = Array.from(tagsSet).sort();
     const searchLower = tagFilterSearchTerm.toLowerCase().trim();
 
-    // Active filters section
-    const activeSection = document.getElementById('tagFilterActive');
-    const activeList = document.getElementById('tagFilterActiveList');
-    if (activeSection && activeList) {
-        activeList.innerHTML = '';
+    // Update count and clear button
+    const countEl = document.getElementById('tagFilterCount');
+    const clearBtn = document.getElementById('tagFilterClearAll');
+    if (countEl && clearBtn) {
         if (selectedTags.size > 0) {
-            activeSection.classList.remove('hidden');
-            Array.from(selectedTags).sort().forEach(tagName => {
-                const color = tagColorMap.get(tagName) || DEFAULT_TAG_COLOR;
-                const span = document.createElement('span');
-                span.className = `tag tag--${color}`;
-                span.setAttribute('data-name', tagName);
-                span.setAttribute('role', 'button');
-                span.setAttribute('tabindex', '0');
-                const text = document.createTextNode(tagName);
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.className = 'tag-filter-remove';
-                removeBtn.setAttribute('aria-label', 'Remove filter');
-                removeBtn.innerHTML = '&times;';
-                removeBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    toggleTag(tagName, span);
-                };
-                span.appendChild(text);
-                span.appendChild(removeBtn);
-                span.onclick = (e) => {
-                    if (!e.target.classList.contains('tag-filter-remove')) toggleTag(tagName, span);
-                };
-                span.onkeydown = (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        toggleTag(tagName, span);
-                    }
-                };
-                activeList.appendChild(span);
-            });
+            countEl.textContent = selectedTags.size.toString();
+            countEl.style.display = 'inline';
+            clearBtn.style.display = 'inline-block';
         } else {
-            activeSection.classList.add('hidden');
+            countEl.style.display = 'none';
+            clearBtn.style.display = 'none';
         }
     }
 
-    // Available tags grouped by color
+    // Hide the active filters section (we're keeping tags in place now)
+    const activeSection = document.getElementById('tagFilterActive');
+    if (activeSection) {
+        activeSection.style.display = 'none';
+    }
+
+    // All tags in alphabetical order (including selected ones)
     const tagFilterDiv = document.getElementById('tagFilter');
     if (!tagFilterDiv) return;
     tagFilterDiv.innerHTML = '';
 
-    const byColor = {};
+    // Filter and collect all tags
+    const allTags = [];
     allTagNames.forEach(tagName => {
-        if (selectedTags.has(tagName)) return;
         const matchesSearch = !searchLower || tagName.toLowerCase().includes(searchLower);
         if (!matchesSearch) return;
         const color = tagColorMap.get(tagName) || DEFAULT_TAG_COLOR;
-        if (!byColor[color]) byColor[color] = [];
-        byColor[color].push(tagName);
+        const isSelected = selectedTags.has(tagName);
+        allTags.push({ name: tagName, color: color, selected: isSelected });
     });
 
-    function addColorGroup(color, tags) {
-        if (!tags || tags.length === 0) return;
-        const group = document.createElement('div');
-        group.className = 'tag-filter-color-group';
-        const label = document.createElement('div');
-        label.className = 'tag-filter-color-group-label';
-        label.textContent = color;
-        group.appendChild(label);
-        tags.forEach(tagName => {
-            const span = document.createElement('span');
-            span.className = `tag tag--${color}`;
-            span.setAttribute('data-name', tagName);
-            span.textContent = tagName;
-            span.setAttribute('role', 'button');
-            span.setAttribute('tabindex', '0');
-            span.onclick = () => toggleTag(tagName, span);
-            span.onkeydown = (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    toggleTag(tagName, span);
-                }
-            };
-            group.appendChild(span);
-        });
-        tagFilterDiv.appendChild(group);
-    }
+    // Sort alphabetically and render
+    allTags.sort((a, b) => a.name.localeCompare(b.name));
 
-    TAG_COLOR_ORDER.forEach(color => addColorGroup(color, byColor[color]));
-    Object.keys(byColor).filter(c => !TAG_COLOR_ORDER.includes(c)).forEach(color => addColorGroup(color, byColor[color]));
+    allTags.forEach(({ name, color, selected }) => {
+        const span = document.createElement('span');
+        span.className = `tag tag--${color}${selected ? ' active' : ''}`;
+        span.setAttribute('data-name', name);
+        span.textContent = name;
+        span.setAttribute('role', 'button');
+        span.setAttribute('tabindex', '0');
+        tagFilterDiv.appendChild(span);
+    });
+
+    if (!tagFilterDiv._hasDelegator) {
+        tagFilterDiv.addEventListener('click', (e) => {
+            const tagEl = e.target.closest('.tag[data-name]');
+            if (!tagEl) return;
+            const tagName = tagEl.getAttribute('data-name');
+            if (tagName) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleTag(tagName, tagEl);
+            }
+        });
+        tagFilterDiv.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const tagEl = e.target.closest('.tag[data-name]');
+                if (!tagEl) return;
+                const tagName = tagEl.getAttribute('data-name');
+                if (tagName) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleTag(tagName, tagEl);
+                }
+            }
+        });
+        tagFilterDiv._hasDelegator = true;
+    }
 }
 
 function initializeApp() {

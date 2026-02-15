@@ -48,14 +48,14 @@
     --text-color: #FBE6FD;
     --lesser-text-color: #B0A8C9;
     --muted-text-color: #57568E;
-    --color-orange-red: #ED4F28;
-    --color-lime: #dfff00;
-    --color-orange: #E88942;
-    --color-magenta: #E040E0;
-    --color-blue: #6495ED;
-    --color-purple: #6A00FF;
-    --color-aqua: #50FDD0;
-    --color-slate: #6F7A9B;
+    --color-orange-red: #F7768E;
+    --color-lime: #B7CA57;
+    --color-orange: #FF9F64;
+    --color-magenta: #D440C0;
+    --color-blue: #628FF2;
+    --color-purple: #924DF5;
+    --color-aqua: #12B9D8;
+    --color-slate: #C0CAF6;
     /* Typography */
     --font-mono: 'PPSupply Mono', ui-monospace, monospace;
     /* Layout */
@@ -120,7 +120,7 @@ body.app-active {
 .app-main-content {
     grid-area: entries;
     min-width: 0;
-    max-width: min(1200px, 100%);
+    width: min(1200px, 100%);
     margin: 0 auto;
     min-height: 0;
     overflow-y: auto;
@@ -1154,11 +1154,50 @@ h1 {
 }
 
 .filter-sidesheet-section-title {
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
     color: var(--muted-text-color);
+    font-family: 'PPSupply Mono Medium', monospace;
+    font-size: 0.9375rem;
     text-transform: uppercase;
+    font-weight: 600;
+    line-height: 100%;
+    letter-spacing: 0.08em;
+    margin: 0;
+}
+
+.filter-sidesheet-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.filter-sidesheet-section-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tag-filter-count {
+    color: var(--text-color);
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+.tag-filter-clear-all {
+    background: none;
+    border: none;
+    color: var(--lesser-text-color);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--border-radius);
+    transition: color 0.2s, background 0.2s;
+}
+
+.tag-filter-clear-all:hover {
+    color: var(--text-color);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .filter-sidesheet-sort-options {
@@ -1208,6 +1247,11 @@ h1 {
 .filter-sidesheet .tag-filter-color-group .tag {
     border-style: dashed;
     color: #8F8FC9;
+}
+
+.filter-sidesheet .tag-filter .tag.active,
+.filter-sidesheet .tag-filter-color-group .tag.active {
+    border-style: solid;
 }
 
 /* --------------------------------------------------------------------------
@@ -1474,28 +1518,6 @@ h1 {
     margin-bottom: 6px;
 }
 
-.tag-filter-by-color {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.tag-filter-color-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-.tag-filter-color-group-label {
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    color: var(--muted-text-color);
-    text-transform: uppercase;
-    width: 100%;
-    margin-bottom: 2px;
-}
-
 .tag-filter {
     display: flex;
     gap: 8px;
@@ -1586,6 +1608,24 @@ h1 {
 .tag.active,
 .lore-tag.active {
     background: rgba(255, 255, 255, 0.12);
+    border-style: solid;
+}
+
+.tag.active::after {
+    content: '';
+    display: inline-block;
+    width: 0.7em;
+    height: 0.7em;
+    margin-left: 4px;
+    background-color: var(--text-color);
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath d='M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z'/%3E%3C/svg%3E");
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
 }
 
 .tag__remove {
@@ -1635,7 +1675,7 @@ h1 {
 }
 
 .tag--slate {
-    border-color: var(--color-blue);
+    border-color: var(--color-slate);
 }
 
 .lore-tag.magenta,
