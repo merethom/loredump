@@ -43,19 +43,32 @@
 }
 
 :root {
-    /* Colors */
+    /* neutral colours */
     --dark-bg: #0D0927;
     --text-color: #FBE6FD;
     --lesser-text-color: #B0A8C9;
     --muted-text-color: #57568E;
-    --color-orange-red: #F7768E;
+
+    /* bright colours */
+    --color-orange-red: #E7577D;
+    --color-orange: #EC924C;
     --color-lime: #B7CA57;
-    --color-orange: #FF9F64;
-    --color-magenta: #D440C0;
-    --color-blue: #628FF2;
+    --color-aqua: #51D4DB;
+    --color-blue: #5481E9;
     --color-purple: #924DF5;
-    --color-aqua: #12B9D8;
+    --color-magenta: #F554D7;
     --color-slate: #C0CAF6;
+
+    /* muted colours */
+    --color-orange-red-33: #552343;
+    --color-orange-33: #573633;
+    --color-lime-33: #454937;
+    --color-aqua-33: #224C62;
+    --color-blue-33: #243166;
+    --color-purple-33: #391F6B;
+    --color-magenta-33: #5A2261;
+    --color-slate-33: #48496C;
+
     /* Typography */
     --font-mono: 'PPSupply Mono', ui-monospace, monospace;
     /* Layout */
@@ -898,8 +911,6 @@ h1 {
     min-height: 24px;
     padding: 0;
     border-radius: 50%;
-    background: var(--color-slate);
-    border: var(--border);
     flex-shrink: 0;
     cursor: pointer;
     font: inherit;
@@ -1000,43 +1011,44 @@ h1 {
 }
 
 .tray .tag-input-wrapper .lore-tag-color-selector .magenta {
-    border: solid 1.5px var(--color-magenta);
-    background-color: color-mix(in srgb, var(--color-magenta) 80%, transparent);
+    border: solid 3px var(--color-magenta-33);
+    background-color: var(--color-magenta);
 }
 
 .tray .tag-input-wrapper .lore-tag-color-selector .orange {
-    border: solid 1.5px var(--color-orange);
-    background-color: color-mix(in srgb, var(--color-orange) 80%, transparent);
+    border: solid 3px var(--color-orange-33);
+    background-color: var(--color-orange);
 }
 
 .tray .tag-input-wrapper .lore-tag-color-selector .lime {
-    border: solid 1.5px var(--color-lime);
-    background-color: color-mix(in srgb, var(--color-lime) 80%, transparent);
+    border: solid 3px var(--color-lime-33);
+    background-color: var(--color-lime);
 }
 
 .tray .tag-input-wrapper .lore-tag-color-selector .aqua {
-    border: solid 1.5px var(--color-aqua);
-    background-color: color-mix(in srgb, var(--color-aqua) 80%, transparent);
+    border: solid 3px var(--color-aqua-33);
+    background-color: var(--color-aqua);
 }
 
 .tray .tag-input-wrapper .lore-tag-color-selector .blue {
-    border: solid 1.5px var(--color-blue);
-    background-color: color-mix(in srgb, var(--color-blue) 80%, transparent);
+    border: solid 3px var(--color-blue-33);
+    background-color: var(--color-blue);
 }
 
 .tray .tag-input-wrapper .lore-tag-color-selector .purple {
-    border: solid 1.5px var(--color-purple);
-    background-color: color-mix(in srgb, var(--color-purple) 80%, transparent);
+    border: solid 3px var(--color-purple-33);
+    background-color: var(--color-purple);
 }
 
 .tray .tag-input-wrapper .lore-tag-color-selector .orange-red {
-    border: solid 1.5px var(--color-orange-red);
-    background-color: color-mix(in srgb, var(--color-orange-red) 80%, transparent);
+    border: solid 3px var(--color-orange-red-33);
+    background-color: var(--color-orange-red);
 }
 
-.tray .tag-input-wrapper .lore-tag-color-selector .slate {
-    border: solid 1.5px var(--color-slate);
-    background-color: color-mix(in srgb, var(--color-slate) 80%, transparent);
+.tray .tag-input-wrapper .lore-tag-color-selector .slate,
+.lore-tag-current-color {
+    border: solid 3px var(--color-slate-33);
+    background-color: var(--color-slate);
 }
 
 .edit-entry-section {
