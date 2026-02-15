@@ -73,8 +73,8 @@ function renderTagList() {
                     <span class="${tagClass}">${escapeHtml(tag.name)}</span>
                 </div>
                 <div class="tag-item-actions">
-                    <button onclick="editTag('${escapeHtml(tag.id)}')" class="tag-edit-btn">Edit</button>
-                    <button onclick="deleteTagConfirm('${escapeHtml(tag.id)}')" class="tag-delete-btn">Delete</button>
+                    <button class="tag-edit-btn" data-action="edit">Edit</button>
+                    <button class="tag-delete-btn" data-action="delete">Delete</button>
                 </div>
             </div>
             <div class="tag-item-terms">
@@ -83,6 +83,23 @@ function renderTagList() {
         </div>
     `;
     }).join('');
+
+    if (!container._hasDelegator) {
+        container.addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-action]');
+            if (!btn) return;
+            const item = btn.closest('.tag-item');
+            if (!item) return;
+            const tagId = item.dataset.tagId;
+            const action = btn.dataset.action;
+            if (tagId && action === 'edit') {
+                editTag(tagId);
+            } else if (tagId && action === 'delete') {
+                deleteTagConfirm(tagId);
+            }
+        });
+        container._hasDelegator = true;
+    }
 }
 
 function getTagColor(tag) {

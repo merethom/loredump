@@ -14,6 +14,12 @@ async function loadTags() {
             } else if (!tag.color) {
                 tag.color = 'slate';
             }
+            // Sanitize ID: remove apostrophes and ensure safe characters
+            if (tag.id) {
+                tag.id = tag.id.toLowerCase().replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+            } else if (tag.name) {
+                tag.id = tag.name.toLowerCase().replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+            }
             return tag;
         });
     } catch (error) {
@@ -59,7 +65,7 @@ function findTagsInText(text) {
 }
 
 function addTag(name, color, terms) {
-    const id = name.toLowerCase().replace(/\s+/g, '-');
+    const id = name.toLowerCase().replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     const tag = {
         id,
         name,
@@ -81,7 +87,7 @@ function updateTag(id, updates) {
     const colorChanged = updates.color !== undefined;
 
     if (nameChanged) {
-        tag.id = updates.name.toLowerCase().replace(/\s+/g, '-');
+        tag.id = updates.name.toLowerCase().replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     }
 
     if (nameChanged || colorChanged) {
