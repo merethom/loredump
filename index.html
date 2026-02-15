@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noxsyphone Loredump</title>
+    <link rel="icon" href="img/favicon.ico">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
     <link rel="stylesheet" href="css/styles.css">
+
 </head>
 
 <body>
@@ -80,6 +82,21 @@
                             <use href="img/sprites/duotone.svg#pen"></use>
                         </svg>
                     </button>
+                    <div class="sort-control-wrapper">
+                        <button class="generic-ui-btn text-btn dropdown-btn" id="sortBtn" title="Change Sort Order">
+                            <span id="sortBtnText">Oldest First</span>
+                            <svg class="icon" aria-hidden="true">
+                                <use href="img/sprites/solid.svg#caret-down"></use>
+                            </svg>
+                        </button>
+                        <!-- Sort Dropdown Menu -->
+                        <div id="sortDropdown" class="controls-dropdown">
+                            <div class="controls-dropdown-content sort-dropdown-content">
+                                <button class="sort-option" data-value="entry-asc">Oldest First</button>
+                                <button class="sort-option" data-value="entry-desc">Newest First</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div id="tagEditContainer" class="controls-dropdown">
                     <div class="controls-dropdown-content">
@@ -243,7 +260,7 @@
                             </svg>
                         </button>
                     </div>
-                    <div class="filter-sidesheet-section">
+                    <!-- <div class="filter-sidesheet-section">
                         <h3 class="filter-sidesheet-section-title">Sort by</h3>
                         <div class="filter-sidesheet-sort-options">
                             <label class="filter-sidesheet-sort-option">
@@ -255,7 +272,7 @@
                                 <span>Newest first</span>
                             </label>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="filter-sidesheet-section">
                         <div class="filter-sidesheet-section-header">
                             <h3 class="filter-sidesheet-section-title">Filter by tags</h3>

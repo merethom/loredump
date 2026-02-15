@@ -384,6 +384,10 @@ h1 {
     font-size: 0.9375rem;
 }
 
+.generic-ui-btn.dropdown-btn span {
+    padding-right: 12px;
+}
+
 .generic-ui-btn.purple-btn {
     border-color: var(--color-magenta);
 }
@@ -410,10 +414,10 @@ h1 {
 
 .controls-dropdown {
     display: none;
-    border: 1.5px solid #3E3D5C;
+    border: var(--border);
     border-radius: var(--border-radius);
-    margin-top: 4px;
-    background: var(--bg-gradient);
+    background: var(--dark-bg);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .controls-dropdown.show {
@@ -428,6 +432,68 @@ h1 {
 .controls-dropdown.lore-entry-tray {
     border: none;
     background: transparent;
+}
+
+.generic-ui-btn.text-btn {
+    padding: 0 16px;
+    font-size: 0.8125rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    min-width: 140px;
+}
+
+.sort-control-wrapper {
+    position: relative;
+}
+
+#sortDropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: -1px;
+    z-index: 200;
+    width: 100%;
+}
+
+.sort-dropdown-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.sort-option {
+    background: none;
+    border: none;
+    color: var(--lesser-text-color);
+    padding: 10px 16px;
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.sort-option:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-color);
+}
+
+.sort-option.active {
+    color: var(--text-color);
+}
+
+.sort-option.active::before {
+    content: '';
+    display: inline-block;
+    position: relative;
+    transform: translateY(-4px);
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--text-color);
+    margin-right: 8px;
 }
 
 .lore-entry-tray .controls-dropdown-content {
@@ -1141,7 +1207,7 @@ h1 {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: 20px 24px;
+    padding: var(--box-padding);
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -1169,17 +1235,18 @@ h1 {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
+    min-height: 22px;
 }
 
 .filter-sidesheet-section-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
 }
 
 .tag-filter-count {
-    color: var(--text-color);
-    font-size: 0.9375rem;
+    color: var(--color-slate);
+    font-size: 0.75rem;
     font-weight: 500;
 }
 
@@ -1188,9 +1255,9 @@ h1 {
     border: none;
     color: var(--lesser-text-color);
     font-family: var(--font-mono);
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     cursor: pointer;
-    padding: 4px 8px;
+    padding: 4px;
     border-radius: var(--border-radius);
     transition: color 0.2s, background 0.2s;
 }
@@ -1369,7 +1436,6 @@ h1 {
 
 .database-view {
     column-count: 1;
-    margin-top: 20px;
 }
 
 .card {

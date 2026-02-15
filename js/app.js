@@ -40,7 +40,9 @@ function setupEventListeners() {
     });
 
     // Setup filters button - toggles sidesheet (use delegation so it works even if element isn't ready)
+    // Setup global clicks for dropdowns and sidesheet
     document.addEventListener('click', (e) => {
+        // Toggle filters sidesheet
         if (e.target.closest('#filtersBtn')) {
             const sidesheet = document.getElementById('filterSidesheet');
             if (sidesheet?.classList.contains('open')) {
@@ -48,6 +50,12 @@ function setupEventListeners() {
             } else {
                 openFilterSidesheet();
             }
+            return;
+        }
+
+        // Close dropdowns if clicking outside
+        if (!e.target.closest('.generic-ui-btn') && !e.target.closest('.controls-dropdown')) {
+            document.querySelectorAll('.controls-dropdown').forEach(d => d.classList.remove('show'));
         }
     });
 
@@ -84,10 +92,48 @@ function setupEventListeners() {
         }
     }
 
-    // Setup sort (sidesheet radio buttons)
+    // Setup sort logic
     const sortBy = document.getElementById('sortBy');
+    const sortBtn = document.getElementById('sortBtn');
+    const sortBtnText = document.getElementById('sortBtnText');
+    const sortDropdown = document.getElementById('sortDropdown');
+
+    function updateSortUI(val) {
+        if (!sortBtnText) return;
+        sortBtnText.textContent = val === 'entry-desc' ? 'Newest First' : 'Oldest First';
+
+        // Update active class in dropdown
+        document.querySelectorAll('.sort-option').forEach(opt => {
+            opt.classList.toggle('active', opt.dataset.value === val);
+        });
+    }
+
+    sortBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = sortDropdown.classList.contains('show');
+        // Close other dropdowns
+        document.querySelectorAll('.controls-dropdown').forEach(d => d.classList.remove('show'));
+        if (!isOpen) sortDropdown.classList.add('show');
+    });
+
+    document.querySelectorAll('.sort-option').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const val = btn.dataset.value;
+            if (sortBy && val) {
+                sortBy.value = val;
+                sortBy.dispatchEvent(new Event('change'));
+
+                // Sync sidesheet radio
+                const radio = document.querySelector(`input[name="sidesheetSort"][value="${val}"]`);
+                if (radio) radio.checked = true;
+            }
+            sortDropdown.classList.remove('show');
+        });
+    });
+
     sortBy?.addEventListener('change', (e) => {
         currentSort = e.target.value;
+        updateSortUI(currentSort);
         filterData();
     });
 
@@ -101,10 +147,14 @@ function setupEventListeners() {
         });
     });
 
+    // Initialize sort UI
+    updateSortUI(currentSort);
+
     // Sync sidesheet sort with currentSort on open
     function syncSidesheetSort() {
         const radio = document.querySelector(`input[name="sidesheetSort"][value="${currentSort}"]`);
         if (radio) radio.checked = true;
+        updateSortUI(currentSort);
     }
 
     // Filter sidesheet open/close
