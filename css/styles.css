@@ -2039,8 +2039,14 @@ h1 {
     display: none;
 }
 
-.tag-editor-search-wrapper {
-    position: relative;
+#tagEditorModal .tag-editor-search-wrapper {
+    position: sticky;
+    top: -24px;
+    background: #1E1B31;
+    z-index: 10;
+    margin-top: 0;
+    padding-top: 24px;
+    padding-bottom: 16px;
     margin-bottom: 20px;
 }
 
