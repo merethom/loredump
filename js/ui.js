@@ -118,7 +118,149 @@ function closeModal() {
     document.getElementById('modal').classList.remove('active');
 }
 
-// Edit entry modal functions
+// ============================================================================
+// SHARED TAG MANAGEMENT FUNCTIONS
+// These functions work for both Add and Edit entry modals
+// ============================================================================
+
+/**
+ * Renders tags in a container
+ * @param {Array} tagArray - Array of tag objects {name, color}
+ * @param {string} containerId - ID of the container element
+ */
+function renderTags(tagArray, containerId) {
+    const tagItems = tagArray.map((tag, idx) =>
+        `<span class="${getTagClass(tag.color)} lore-tag ${getLoreTagColorClass(tag.color)}" data-name="${escapeHtml(tag.name)}" data-index="${idx}">` +
+        `${escapeHtml(tag.name)}` +
+        `<button type="button" class="tag__remove" data-tag-index="${idx}" aria-label="Remove tag"></button></span>`
+    ).join('');
+    document.getElementById(containerId).innerHTML = tagItems;
+}
+
+/**
+ * Adds a tag from input to the tag array
+ * @param {string} inputId - ID of the input element
+ * @param {Array} tagArray - Tag array to add to
+ * @param {string} selectedColor - Currently selected color
+ * @param {Function} renderCallback - Function to call after adding
+ */
+function addTagFromInput(inputId, tagArray, selectedColor, renderCallback) {
+    const inputElement = document.getElementById(inputId);
+    const value = inputElement.value.trim();
+
+    if (value && !tagArray.some(t => t.name === value)) {
+        const existing = typeof allTags !== 'undefined' && allTags.find(t => t.name.toLowerCase() === value.toLowerCase());
+        const color = existing ? (existing.color || 'slate') : selectedColor;
+        tagArray.push({ name: value, color });
+        inputElement.value = '';
+        renderCallback();
+    }
+}
+
+/**
+ * Adds a tag from autocomplete to the tag array
+ * @param {string} name - Tag name
+ * @param {string} color - Tag color
+ * @param {Array} tagArray - Tag array to add to
+ * @param {Function} renderCallback - Function to call after adding
+ */
+function addTagFromAutocomplete(name, color, tagArray, renderCallback) {
+    if (!name || tagArray.some(t => t.name.toLowerCase() === name.toLowerCase())) return;
+    tagArray.push({ name: name, color: color || 'slate' });
+    renderCallback();
+}
+
+/**
+ * Adds a suggested tag to the tag array
+ * @param {number} suggestedIndex - Index of suggested tag
+ * @param {Array} tagArray - Tag array to add to
+ * @param {Array} suggestedArray - Suggested tags array
+ * @param {Function} renderTags - Function to render tags
+ * @param {Function} renderSuggested - Function to render suggested tags
+ */
+function addSuggestedTag(suggestedIndex, tagArray, suggestedArray, renderTags, renderSuggested) {
+    if (suggestedIndex < 0 || suggestedIndex >= suggestedArray.length) return;
+    const tag = suggestedArray[suggestedIndex];
+    tagArray.push({ name: tag.name, color: tag.color });
+    suggestedArray.splice(suggestedIndex, 1);
+    renderTags();
+    renderSuggested();
+}
+
+/**
+ * Adds all suggested tags to the tag array
+ * @param {Array} tagArray - Tag array to add to
+ * @param {Array} suggestedArray - Suggested tags array
+ * @param {Function} renderTags - Function to render tags
+ * @param {Function} renderSuggested - Function to render suggested tags
+ */
+function addAllSuggestedTags(tagArray, suggestedArray, renderTags, renderSuggested) {
+    suggestedArray.forEach(tag => tagArray.push({ name: tag.name, color: tag.color }));
+    suggestedArray.length = 0; // Clear array
+    renderTags();
+    renderSuggested();
+}
+
+/**
+ * Removes a tag from the array
+ * @param {number} index - Index to remove
+ * @param {Array} tagArray - Tag array to remove from
+ * @param {Function} renderCallback - Function to call after removing
+ */
+function removeTag(index, tagArray, renderCallback) {
+    if (index >= 0 && index < tagArray.length) {
+        tagArray.splice(index, 1);
+        renderCallback();
+    }
+}
+
+/**
+ * Renders suggested tags
+ * @param {Array} suggestedArray - Suggested tags array
+ * @param {string} containerId - ID of container element
+ * @param {string} listId - ID of list element
+ * @param {string} buttonId - ID of "add all" button
+ */
+function renderSuggestedTags(suggestedArray, containerId, listId, buttonId) {
+    const container = document.getElementById(containerId);
+    const list = document.getElementById(listId);
+    const addAllBtn = document.getElementById(buttonId);
+
+    if (!container) return;
+
+    if (suggestedArray.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.style.display = 'grid';
+    if (addAllBtn) {
+        addAllBtn.style.display = suggestedArray.length > 1 ? 'inline-block' : 'none';
+    }
+
+    const tagItems = suggestedArray.map((tag, idx) =>
+        `<span class="${getTagClass(tag.color)} tag--suggested lore-tag ${getLoreTagColorClass(tag.color)}" data-suggested-index="${idx}" role="button" tabindex="0">${escapeHtml(tag.name)}</span>`
+    ).join('');
+    list.innerHTML = tagItems;
+}
+
+/**
+ * Updates color selector buttons to show selected state
+ * @param {string} containerId - ID of container with color buttons
+ * @param {string} selectedColor - Currently selected color
+ */
+function updateColorSelector(containerId, selectedColor) {
+    document.querySelectorAll(`#${containerId} .edit-entry-color-btn`).forEach(btn => {
+        btn.classList.toggle('selected', btn.getAttribute('data-color') === selectedColor);
+    });
+    const swatch = document.getElementById(`${containerId === 'editEntryContainer' ? 'editEntryColorSwatch' : 'addEntryColorSwatch'}`);
+    if (swatch) swatch.setAttribute('data-color', selectedColor);
+}
+
+// ============================================================================
+// EDIT ENTRY MODAL FUNCTIONS
+// ============================================================================
+
 let currentEditingEntryNumber = null;
 let editingEntryTags = [];
 let editingEntrySuggestedTags = [];
@@ -173,11 +315,7 @@ function openEditEntryModal(entryNumber) {
 }
 
 function updateEditEntryColorSelector() {
-    document.querySelectorAll('#editEntryContainer .edit-entry-color-btn').forEach(btn => {
-        btn.classList.toggle('selected', btn.getAttribute('data-color') === editingEntrySelectedColor);
-    });
-    const swatch = document.getElementById('editEntryColorSwatch');
-    if (swatch) swatch.setAttribute('data-color', editingEntrySelectedColor);
+    updateColorSelector('editEntryContainer', editingEntrySelectedColor);
 }
 
 function closeEditEntryModal() {
@@ -195,74 +333,33 @@ function closeEditEntryModal() {
     currentEditingEntryNumber = null;
 }
 
+// Edit entry specific wrappers for shared functions
 function renderEditEntryTags() {
-    const tagItems = editingEntryTags.map((tag, idx) =>
-        `<span class="${getTagClass(tag.color)} lore-tag ${getLoreTagColorClass(tag.color)}" data-name="${escapeHtml(tag.name)}" data-index="${idx}">` +
-        `${escapeHtml(tag.name)}` +
-        `<button type="button" class="tag__remove" data-tag-index="${idx}" aria-label="Remove tag"></button></span>`
-    ).join('');
-    document.getElementById('editEntryTags').innerHTML = tagItems;
+    renderTags(editingEntryTags, 'editEntryTags');
 }
 
 function addTagToEditEntry() {
-    const inputElement = document.getElementById('editEntryTagInput');
-    const value = inputElement.value.trim();
-
-    if (value && !editingEntryTags.some(t => t.name === value)) {
-        const existing = typeof allTags !== 'undefined' && allTags.find(t => t.name.toLowerCase() === value.toLowerCase());
-        const color = existing ? (existing.color || 'slate') : editingEntrySelectedColor;
-        editingEntryTags.push({ name: value, color });
-        inputElement.value = '';
-        renderEditEntryTags();
-    }
+    addTagFromInput('editEntryTagInput', editingEntryTags, editingEntrySelectedColor, renderEditEntryTags);
 }
 
 function addTagToEditEntryFromAutocomplete(name, color) {
-    if (!name || editingEntryTags.some(t => t.name.toLowerCase() === name.toLowerCase())) return;
-    editingEntryTags.push({ name: name, color: color || 'slate' });
-    renderEditEntryTags();
+    addTagFromAutocomplete(name, color, editingEntryTags, renderEditEntryTags);
 }
 
 function addSuggestedTagToEditEntry(suggestedIndex) {
-    if (suggestedIndex < 0 || suggestedIndex >= editingEntrySuggestedTags.length) return;
-    const tag = editingEntrySuggestedTags[suggestedIndex];
-    editingEntryTags.push({ name: tag.name, color: tag.color });
-    editingEntrySuggestedTags.splice(suggestedIndex, 1);
-    renderEditEntryTags();
-    renderEditEntrySuggestedTags();
+    addSuggestedTag(suggestedIndex, editingEntryTags, editingEntrySuggestedTags, renderEditEntryTags, renderEditEntrySuggestedTags);
 }
 
 function addAllSuggestedTagsToEditEntry() {
-    editingEntrySuggestedTags.forEach(tag => editingEntryTags.push({ name: tag.name, color: tag.color }));
-    editingEntrySuggestedTags = [];
-    renderEditEntryTags();
-    renderEditEntrySuggestedTags();
+    addAllSuggestedTags(editingEntryTags, editingEntrySuggestedTags, renderEditEntryTags, renderEditEntrySuggestedTags);
 }
 
 function renderEditEntrySuggestedTags() {
-    const container = document.getElementById('editEntrySuggestedTags');
-    const list = document.getElementById('editEntrySuggestedTagsList');
-    const addAllBtn = document.getElementById('editEntryAddAllSuggested');
-
-    if (editingEntrySuggestedTags.length === 0) {
-        container.style.display = 'none';
-        return;
-    }
-
-    container.style.display = 'grid';
-    addAllBtn.style.display = editingEntrySuggestedTags.length > 1 ? 'inline-block' : 'none';
-
-    const tagItems = editingEntrySuggestedTags.map((tag, idx) =>
-        `<span class="${getTagClass(tag.color)} tag--suggested lore-tag ${getLoreTagColorClass(tag.color)}" data-suggested-index="${idx}" role="button" tabindex="0">${escapeHtml(tag.name)}</span>`
-    ).join('');
-    list.innerHTML = tagItems;
+    renderSuggestedTags(editingEntrySuggestedTags, 'editEntrySuggestedTags', 'editEntrySuggestedTagsList', 'editEntryAddAllSuggested');
 }
 
 function removeEditEntryTag(index) {
-    if (index >= 0 && index < editingEntryTags.length) {
-        editingEntryTags.splice(index, 1);
-        renderEditEntryTags();
-    }
+    removeTag(index, editingEntryTags, renderEditEntryTags);
 }
 
 function showTraySaveMessage(tray) {
@@ -320,7 +417,10 @@ function deleteEditEntry() {
     setTimeout(closeEditEntryModal, 600);
 }
 
-// Add entry modal functions
+// ============================================================================
+// ADD ENTRY MODAL FUNCTIONS
+// ============================================================================
+
 let addingEntryTags = [];
 let addingEntrySuggestedTags = [];
 let addingEntrySelectedColor = 'slate';
@@ -361,41 +461,26 @@ function closeAddEntryModal() {
 }
 
 function updateAddEntryColorSelector() {
-    document.querySelectorAll('#addEntryContainer .edit-entry-color-btn').forEach(btn => {
-        btn.classList.toggle('selected', btn.getAttribute('data-color') === addingEntrySelectedColor);
-    });
-    const swatch = document.getElementById('addEntryColorSwatch');
-    if (swatch) swatch.setAttribute('data-color', addingEntrySelectedColor);
+    updateColorSelector('addEntryContainer', addingEntrySelectedColor);
 }
 
+// Add entry specific wrappers for shared functions
 function renderAddEntryTags() {
-    const tagItems = addingEntryTags.map((tag, idx) =>
-        `<span class="${getTagClass(tag.color)} lore-tag ${getLoreTagColorClass(tag.color)}" data-name="${escapeHtml(tag.name)}" data-index="${idx}">` +
-        `${escapeHtml(tag.name)}` +
-        `<button type="button" class="tag__remove" data-tag-index="${idx}" aria-label="Remove tag"></button></span>`
-    ).join('');
-    document.getElementById('addEntryTags').innerHTML = tagItems;
+    renderTags(addingEntryTags, 'addEntryTags');
 }
 
 function addTagToAddEntry() {
-    const inputElement = document.getElementById('addEntryTagInput');
-    const value = inputElement.value.trim();
-
-    if (value && !addingEntryTags.some(t => t.name === value)) {
-        const existing = typeof allTags !== 'undefined' && allTags.find(t => t.name.toLowerCase() === value.toLowerCase());
-        const color = existing ? (existing.color || 'slate') : addingEntrySelectedColor;
-        addingEntryTags.push({ name: value, color });
-        inputElement.value = '';
+    addTagFromInput('addEntryTagInput', addingEntryTags, addingEntrySelectedColor, () => {
         renderAddEntryTags();
         updateAddEntrySuggestedTags();
-    }
+    });
 }
 
 function addTagToAddEntryFromAutocomplete(name, color) {
-    if (!name || addingEntryTags.some(t => t.name.toLowerCase() === name.toLowerCase())) return;
-    addingEntryTags.push({ name: name, color: color || 'slate' });
-    renderAddEntryTags();
-    updateAddEntrySuggestedTags();
+    addTagFromAutocomplete(name, color, addingEntryTags, () => {
+        renderAddEntryTags();
+        updateAddEntrySuggestedTags();
+    });
 }
 
 function updateAddEntrySuggestedTags() {
@@ -408,48 +493,22 @@ function updateAddEntrySuggestedTags() {
 }
 
 function addSuggestedTagToAddEntry(suggestedIndex) {
-    if (suggestedIndex < 0 || suggestedIndex >= addingEntrySuggestedTags.length) return;
-    const tag = addingEntrySuggestedTags[suggestedIndex];
-    addingEntryTags.push({ name: tag.name, color: tag.color });
-    addingEntrySuggestedTags.splice(suggestedIndex, 1);
-    renderAddEntryTags();
-    renderAddEntrySuggestedTags();
+    addSuggestedTag(suggestedIndex, addingEntryTags, addingEntrySuggestedTags, renderAddEntryTags, renderAddEntrySuggestedTags);
 }
 
 function addAllSuggestedTagsToAddEntry() {
-    addingEntrySuggestedTags.forEach(tag => addingEntryTags.push({ name: tag.name, color: tag.color }));
-    addingEntrySuggestedTags = [];
-    renderAddEntryTags();
-    renderAddEntrySuggestedTags();
+    addAllSuggestedTags(addingEntryTags, addingEntrySuggestedTags, renderAddEntryTags, renderAddEntrySuggestedTags);
 }
 
 function renderAddEntrySuggestedTags() {
-    const container = document.getElementById('addEntrySuggestedTags');
-    const list = document.getElementById('addEntrySuggestedTagsList');
-    const addAllBtn = document.getElementById('addEntryAddAllSuggested');
-
-    if (!container) return;
-
-    if (addingEntrySuggestedTags.length === 0) {
-        container.style.display = 'none';
-        return;
-    }
-
-    container.style.display = 'grid';
-    addAllBtn.style.display = addingEntrySuggestedTags.length > 1 ? 'inline-block' : 'none';
-
-    const tagItems = addingEntrySuggestedTags.map((tag, idx) =>
-        `<span class="${getTagClass(tag.color)} tag--suggested lore-tag ${getLoreTagColorClass(tag.color)}" data-suggested-index="${idx}" role="button" tabindex="0">${escapeHtml(tag.name)}</span>`
-    ).join('');
-    list.innerHTML = tagItems;
+    renderSuggestedTags(addingEntrySuggestedTags, 'addEntrySuggestedTags', 'addEntrySuggestedTagsList', 'addEntryAddAllSuggested');
 }
 
 function removeAddEntryTag(index) {
-    if (index >= 0 && index < addingEntryTags.length) {
-        addingEntryTags.splice(index, 1);
+    removeTag(index, addingEntryTags, () => {
         renderAddEntryTags();
         updateAddEntrySuggestedTags();
-    }
+    });
 }
 
 function submitAddEntry() {
