@@ -379,6 +379,47 @@ h1 {
     height: 0.8rem;
 }
 
+.goto-entry-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.goto-entry-input {
+    height: var(--btn-box-height);
+    width: 80px;
+    padding: 0 12px;
+    background: #1E1B31;
+    border: var(--border);
+    border-radius: var(--border-radius);
+    color: var(--text-color);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    transition: border-color 0.2s ease;
+}
+
+.goto-entry-input:focus {
+    outline: none;
+    border-color: var(--muted-text-color);
+}
+
+.goto-entry-input::placeholder {
+    color: var(--lesser-text-color);
+    font-size: 0.75rem;
+}
+
+/* Hide arrows (spinners) in number input */
+.goto-entry-input::-webkit-outer-spin-button,
+.goto-entry-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+.goto-entry-input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
 .generic-ui-btn.text {
     padding: 0 36px;
     font-size: 0.9375rem;
@@ -1450,6 +1491,11 @@ h1 {
 
 .card:hover {
     background: linear-gradient(0deg, #191734 0%, var(--dark-bg) 100%);
+}
+
+.card.card--highlighted {
+    border-color: var(--color-magenta) !important;
+    box-shadow: 0 0 5px rgba(255, 0, 255, 0.3) !important;
 }
 
 .card-description {

@@ -39,6 +39,43 @@ function setupEventListeners() {
         searchInput.focus();
     });
 
+    // Jump to entry logic
+    const gotoEntry = document.getElementById('gotoEntry');
+    gotoEntry?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const num = e.target.value;
+            if (!num) return;
+
+            // Search for the card with the matching entry number
+            const cards = document.querySelectorAll('.card');
+            let foundCard = null;
+
+            for (const card of cards) {
+                const cardNum = card.getAttribute('data-entry-number');
+                if (cardNum === num || parseFloat(cardNum) === parseFloat(num)) {
+                    foundCard = card;
+                    break;
+                }
+            }
+
+            if (foundCard) {
+                // Clear any existing highlights first
+                document.querySelectorAll('.card.card--highlighted').forEach(c => {
+                    c.classList.remove('card--highlighted');
+                });
+
+                foundCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                foundCard.classList.add('card--highlighted');
+
+                setTimeout(() => {
+                    foundCard.classList.remove('card--highlighted');
+                }, 3000);
+            }
+
+            e.preventDefault();
+        }
+    });
+
     // Setup filters button - toggles sidesheet (use delegation so it works even if element isn't ready)
     // Setup global clicks for dropdowns and sidesheet
     document.addEventListener('click', (e) => {
