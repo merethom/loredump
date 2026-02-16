@@ -4,6 +4,51 @@ let allTags = [];
 
 const TYPE_TO_COLOR = { character: 'purple', place: 'green', theme: 'blue', person: 'slate' };
 
+// ============================================================================
+// REGEX CACHE - Prevents rebuilding regex patterns on every search
+// ============================================================================
+
+let regexCache = null;
+let regexCacheVersion = 0; // Increments when tags change
+
+/**
+ * Builds and caches regex patterns for all tag terms
+ * Only rebuilds when tags have been modified
+ */
+function getRegexCache() {
+    if (regexCache && regexCache.version === regexCacheVersion) {
+        return regexCache.patterns;
+    }
+
+    const termsMap = getAllTerms();
+    const sortedTerms = Array.from(termsMap.keys()).sort((a, b) => b.length - a.length);
+
+    const patterns = sortedTerms.map(term => ({
+        term: term,
+        regex: new RegExp(`\\b${escapeRegex(term)}\\b`, 'gi'),
+        tag: termsMap.get(term.toLowerCase())
+    }));
+
+    regexCache = {
+        patterns: patterns,
+        version: regexCacheVersion
+    };
+
+    return patterns;
+}
+
+/**
+ * Invalidates the regex cache when tags are modified
+ * Call this after adding, updating, or deleting tags
+ */
+function invalidateRegexCache() {
+    regexCacheVersion++;
+}
+
+// ============================================================================
+// TAG LOADING & MANAGEMENT
+// ============================================================================
+
 async function loadTags() {
     try {
         const response = await fetch('tags.json');
@@ -22,6 +67,7 @@ async function loadTags() {
             }
             return tag;
         });
+        invalidateRegexCache(); // Cache needs rebuild after loading tags
     } catch (error) {
         console.error('Failed to load tags.json:', error);
         allTags = [];
@@ -44,17 +90,20 @@ function findTagByTerm(term) {
     );
 }
 
+/**
+ * Finds tags in text using cached regex patterns
+ * OPTIMIZED: Regex patterns are built once and reused
+ */
 function findTagsInText(text) {
     const foundTags = [];
-    const termsMap = getAllTerms();
+    const patterns = getRegexCache();
 
-    // Sort terms by length (longest first) to match multi-word terms first
-    const sortedTerms = Array.from(termsMap.keys()).sort((a, b) => b.length - a.length);
+    patterns.forEach(({ regex, tag }) => {
+        // Reset regex state for reuse
+        regex.lastIndex = 0;
 
-    sortedTerms.forEach(term => {
-        const regex = new RegExp(`\\b${escapeRegex(term)}\\b`, 'gi');
         if (regex.test(text)) {
-            const tag = termsMap.get(term.toLowerCase());
+            // Avoid duplicates (same tag might match multiple terms)
             if (!foundTags.find(t => t.id === tag.id)) {
                 foundTags.push(tag);
             }
@@ -73,6 +122,7 @@ function addTag(name, color, terms) {
         terms: terms || [name]
     };
     allTags.push(tag);
+    invalidateRegexCache(); // Cache needs rebuild after adding tag
     return tag;
 }
 
@@ -93,6 +143,12 @@ function updateTag(id, updates) {
     if (nameChanged || colorChanged) {
         replaceTagInEntries(nameChanged ? oldName : tag.name, { name: tag.name, color: tag.color });
     }
+
+    // If terms changed, invalidate cache
+    if (updates.terms) {
+        invalidateRegexCache();
+    }
+
     return tag;
 }
 
@@ -115,6 +171,7 @@ function deleteTag(id) {
     const index = allTags.findIndex(t => t.id === id);
     if (index > -1) {
         allTags.splice(index, 1);
+        invalidateRegexCache(); // Cache needs rebuild after deleting tag
         return true;
     }
     return false;

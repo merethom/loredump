@@ -539,6 +539,11 @@ function initializeApp() {
 
     setupEventListeners();
 
+    // Set up event delegation for database cards (prevents memory leaks)
+    if (typeof setupDatabaseEventDelegation === 'function') {
+        setupDatabaseEventDelegation();
+    }
+
     // Initial render
     filterData();
 }

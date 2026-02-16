@@ -80,15 +80,36 @@ function renderDatabase() {
     `;
     }).join('');
 
-    // Add click event listeners to cards
-    document.querySelectorAll('.card').forEach(card => {
-        card.addEventListener('click', (e) => {
-            const entryNumber = card.getAttribute('data-entry-number');
-            if (entryNumber && !e.target.closest('.card-tags .tag')) {
-                e.stopPropagation();
-                openEditEntryModal(entryNumber);
-            }
-        });
+    // Event delegation is set up once in setupDatabaseEventDelegation()
+    // No need to add listeners here anymore!
+}
+
+/**
+ * Sets up event delegation for database cards (called once on init)
+ * This prevents memory leaks from adding new listeners on every render
+ */
+function setupDatabaseEventDelegation() {
+    const db = document.getElementById('database');
+    if (!db) return;
+
+    // Only set up the listener once
+    if (db._hasCardDelegation) return;
+    db._hasCardDelegation = true;
+
+    db.addEventListener('click', (e) => {
+        // Find the card that was clicked
+        const card = e.target.closest('.card');
+        if (!card) return;
+
+        // Don't open modal if clicking on a tag
+        if (e.target.closest('.card-tags .tag')) return;
+
+        // Get entry number and open modal
+        const entryNumber = card.getAttribute('data-entry-number');
+        if (entryNumber) {
+            e.stopPropagation();
+            openEditEntryModal(entryNumber);
+        }
     });
 }
 
