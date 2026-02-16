@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Storage Recovery Tool</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0D0927;
+            color: #FBE6FD;
+        }
+
+        .container {
+            background: rgba(25, 23, 52, 0.6);
+            border: 1.5px solid #38304D;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #924DF5;
+            margin-top: 0;
+        }
+
+        h2 {
+            color: #B0A8C9;
+            font-size: 1.1rem;
+        }
+
+        h3 {
+            color: #B0A8C9;
+            font-size: 1rem;
+            margin-top: 20px;
+        }
+
+        button {
+            background: #924DF5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: monospace;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #7a3dd4;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .status.success {
+            background: rgba(183, 202, 87, 0.2);
+            border: 1px solid #B7CA57;
+        }
+
+        .status.error {
+            background: rgba(231, 87, 125, 0.2);
+            border: 1px solid #E7577D;
+        }
+
+        .status.info {
+            background: rgba(146, 77, 245, 0.2);
+            border: 1px solid #924DF5;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .found-data {
+            background: rgba(183, 202, 87, 0.1);
+            border: 2px solid #B7CA57;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .count {
+            font-size: 1.2rem;
+            color: #B7CA57;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔍 Browser Storage Recovery Tool</h1>
+        <p>This tool searches all browser storage locations for cached lore data.</p>
+        <p><strong>IMPORTANT:</strong> Have your user open this page in the SAME BROWSER they use for the app!</p>
+    </div>
+
+    <div class="container">
+        <h2>Step 1: Scan All Storage</h2>
+        <button id="scanBtn">🔍 Scan Browser Storage</button>
+        <button id="exportBtn">📥 Export All Findings</button>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let allFindings = {};
+
+        document.getElementById('scanBtn').addEventListener('click', scanAllStorage);
+        document.getElementById('exportBtn').addEventListener('click', exportAllFindings);
+
+        function showResult(message, type) {
+            const div = document.createElement('div');
+            div.className = 'status ' + type;
+            div.innerHTML = message;
+            document.getElementById('results').appendChild(div);
+        }
+
+        function createDataDisplay(storageType, key, entryCount) {
+            const div = document.createElement('div');
+            div.className = 'found-data';
+            div.innerHTML = '🎯 <strong>FOUND POTENTIAL DATA: ' + key + '<\/strong><br>' +
+                '<span class="count">' + entryCount + ' entries<\/span><br>';
+
+            const viewBtn = document.createElement('button');
+            viewBtn.textContent = 'View';
+            viewBtn.onclick = function() {
+                viewData(storageType, key);
+            };
+
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = 'Download';
+            downloadBtn.onclick = function() {
+                downloadData(storageType, key);
+            };
+
+            div.appendChild(viewBtn);
+            div.appendChild(downloadBtn);
+
+            const container = document.createElement('div');
+            container.className = 'status success';
+            container.appendChild(div);
+            document.getElementById('results').appendChild(container);
+        }
+
+        function createIDBDisplay(dbName, storeName, index, entryCount, tagCount) {
+            const div = document.createElement('div');
+            div.className = 'found-data';
+            div.innerHTML = '🎯 <strong>FOUND LORE DATA IN IndexedDB!<\/strong><br>' +
+                'Database: ' + dbName + ' → ' + storeName + ' [' + index + ']<br>' +
+                '<span class="count">' + entryCount + ' entries, ' + tagCount + ' tags<\/span><br>';
+
+            const viewBtn = document.createElement('button');
+            viewBtn.textContent = 'View';
+            viewBtn.onclick = function() {
+                viewIDBData(dbName, storeName, index);
+            };
+
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = 'Download';
+            downloadBtn.onclick = function() {
+                downloadIDBData(dbName, storeName, index);
+            };
+
+            div.appendChild(viewBtn);
+            div.appendChild(downloadBtn);
+
+            const container = document.createElement('div');
+            container.className = 'status success';
+            container.appendChild(div);
+            document.getElementById('results').appendChild(container);
+        }
+
+        async function scanAllStorage() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div class="status info">Scanning all storage locations...</div>';
+
+            allFindings = {
+                localStorage: {},
+                sessionStorage: {},
+                indexedDB: {},
+                caches: {},
+                timestamp: new Date().toISOString()
+            };
+
+            // 1. Check LocalStorage
+            showResult('<h3>📦 LocalStorage</h3>', 'info');
+            try {
+                const lsKeys = Object.keys(localStorage);
+                showResult(`Found ${lsKeys.length} items in localStorage`, 'info');
+
+                for (const key of lsKeys) {
+                    const value = localStorage.getItem(key);
+                    allFindings.localStorage[key] = value;
+
+                    try {
+                        const parsed = JSON.parse(value);
+                        if (parsed && typeof parsed === 'object') {
+                            if (parsed.entries || parsed.tags || (Array.isArray(parsed) && parsed.length > 0)) {
+                                const entryCount = Array.isArray(parsed) ? parsed.length : (parsed.entries ? parsed.entries.length : 0);
+                                createDataDisplay('localStorage', key, entryCount);
+                            }
+                        }
+                    } catch (e) {
+                        // Not JSON, skip
+                    }
+                }
+            } catch (e) {
+                showResult('LocalStorage error: ' + e.message, 'error');
+            }
+
+            // 2. Check SessionStorage
+            showResult('<h3>📦 SessionStorage</h3>', 'info');
+            try {
+                const ssKeys = Object.keys(sessionStorage);
+                showResult(`Found ${ssKeys.length} items in sessionStorage`, 'info');
+
+                for (const key of ssKeys) {
+                    const value = sessionStorage.getItem(key);
+                    allFindings.sessionStorage[key] = value;
+
+                    try {
+                        const parsed = JSON.parse(value);
+                        if (parsed && typeof parsed === 'object') {
+                            if (parsed.entries || parsed.tags || (Array.isArray(parsed) && parsed.length > 0)) {
+                                const entryCount = Array.isArray(parsed) ? parsed.length : (parsed.entries ? parsed.entries.length : 0);
+                                createDataDisplay('sessionStorage', key, entryCount);
+                            }
+                        }
+                    } catch (e) {
+                        // Not JSON
+                    }
+                }
+            } catch (e) {
+                showResult('SessionStorage error: ' + e.message, 'error');
+            }
+
+            // 3. Check IndexedDB (Firebase often caches here!)
+            showResult('<h3>🗄️ IndexedDB (Firebase Cache)</h3>', 'info');
+            try {
+                const databases = await indexedDB.databases();
+                showResult(`Found ${databases.length} IndexedDB databases`, 'info');
+
+                for (const dbInfo of databases) {
+                    const dbName = dbInfo.name;
+                    showResult(`Scanning database: ${dbName}`, 'info');
+
+                    try {
+                        await scanIndexedDB(dbName);
+                    } catch (e) {
+                        showResult(`Error scanning ${dbName}: ${e.message}`, 'error');
+                    }
+                }
+            } catch (e) {
+                showResult(`IndexedDB error: ${e.message}`, 'error');
+            }
+
+            // 4. Check Cache Storage
+            showResult('<h3>💾 Cache Storage</h3>', 'info');
+            try {
+                const cacheNames = await caches.keys();
+                showResult(`Found ${cacheNames.length} caches`, 'info');
+
+                for (const cacheName of cacheNames) {
+                    const cache = await caches.open(cacheName);
+                    const requests = await cache.keys();
+                    allFindings.caches[cacheName] = requests.map(function(r) {
+                        return r.url;
+                    });
+                    showResult(`Cache "${cacheName}": ${requests.length} entries`, 'info');
+                }
+            } catch (e) {
+                showResult(`Cache Storage error: ${e.message}`, 'error');
+            }
+
+            showResult('<strong>✓ Scan complete!</strong>', 'success');
+        }
+
+        async function scanIndexedDB(dbName) {
+            return new Promise(function(resolve, reject) {
+                const request = indexedDB.open(dbName);
+
+                request.onerror = function() {
+                    reject(request.error);
+                };
+
+                request.onsuccess = async function(event) {
+                    const db = event.target.result;
+                    const storeNames = Array.from(db.objectStoreNames);
+
+                    allFindings.indexedDB[dbName] = {};
+
+                    for (const storeName of storeNames) {
+                        try {
+                            const tx = db.transaction(storeName, 'readonly');
+                            const store = tx.objectStore(storeName);
+                            const allData = await new Promise(function(res, rej) {
+                                const req = store.getAll();
+                                req.onsuccess = function() {
+                                    res(req.result);
+                                };
+                                req.onerror = function() {
+                                    rej(req.error);
+                                };
+                            });
+
+                            allFindings.indexedDB[dbName][storeName] = allData;
+
+                            showResult(`  Store "${storeName}": ${allData.length} records`, 'info');
+
+                            // Check if this might be lore data
+                            for (let i = 0; i < allData.length; i++) {
+                                const item = allData[i];
+                                if (item && typeof item === 'object') {
+                                    // Check for Firebase data structure
+                                    if (item.entries || item.tags || (item.value && (item.value.entries || item.value.tags))) {
+                                        const data = item.value || item;
+                                        const entryCount = data.entries ? data.entries.length : 0;
+                                        const tagCount = data.tags ? data.tags.length : 0;
+                                        createIDBDisplay(dbName, storeName, i, entryCount, tagCount);
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                            showResult(`  Error reading store "${storeName}": ${e.message}`, 'error');
+                        }
+                    }
+
+                    db.close();
+                    resolve();
+                };
+            });
+        }
+
+        function viewData(storageType, key) {
+            let data;
+            if (storageType === 'localStorage') {
+                data = localStorage.getItem(key);
+            } else if (storageType === 'sessionStorage') {
+                data = sessionStorage.getItem(key);
+            }
+
+            const win = window.open('', '_blank');
+            const escapedKey = escapeHtml(key);
+            const escapedData = escapeHtml(data || '');
+            var html = '<html><head><title>' + escapedKey + '<\/title>';
+            html += '<style>body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #d4d4d4; } ';
+            html += 'pre { white-space: pre-wrap; word-wrap: break-word; }<\/style><\/head>';
+            html += '<body><h2>' + storageType + ': ' + escapedKey + '<\/h2><pre>' + escapedData + '<\/pre><\/body><\/html>';
+            win.document.write(html);
+            win.document.close();
+        }
+
+        function viewIDBData(dbName, storeName, index) {
+            const data = allFindings.indexedDB[dbName][storeName][index];
+            const win = window.open('', '_blank');
+            const escaped = escapeHtml(JSON.stringify(data, null, 2));
+            var html = '<html><head><title>IndexedDB: ' + escapeHtml(dbName) + '<\/title>';
+            html += '<style>body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #d4d4d4; } ';
+            html += 'pre { white-space: pre-wrap; word-wrap: break-word; }<\/style><\/head>';
+            html += '<body><h2>' + escapeHtml(dbName) + ' &rarr; ' + escapeHtml(storeName) + '[' + index + ']<\/h2>';
+            html += '<pre>' + escaped + '<\/pre><\/body><\/html>';
+            win.document.write(html);
+            win.document.close();
+        }
+
+        function downloadData(storageType, key) {
+            let data;
+            if (storageType === 'localStorage') {
+                data = localStorage.getItem(key);
+            } else if (storageType === 'sessionStorage') {
+                data = sessionStorage.getItem(key);
+            }
+
+            const blob = new Blob([data], {
+                type: 'application/json'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${storageType}-${key}-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadIDBData(dbName, storeName, index) {
+            const data = allFindings.indexedDB[dbName][storeName][index];
+            const blob = new Blob([JSON.stringify(data, null, 2)], {
+                type: 'application/json'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `indexeddb-${dbName}-${storeName}-${index}-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportAllFindings() {
+            const blob = new Blob([JSON.stringify(allFindings, null, 2)], {
+                type: 'application/json'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `browser-storage-dump-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+
+</html>

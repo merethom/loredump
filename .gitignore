@@ -8,6 +8,12 @@ js/jsonbin-config.js
 js/jsonbin-backup.js
 css/design.css
 css/handcode.css
+browser-backups/
+fix-jsonbin-versioning.html
+jsonbin-recovery.html
+latest_backup.json
+
+
 
 # IDE
 .vscode/
