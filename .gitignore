@@ -1,18 +1,19 @@
 # Firebase config is committed for GitHub Pages deployment.
 # Security is enforced by Firebase Auth rules (restricted to your emails).
 
+# GitHub backup config (contains Personal Access Token - NEVER commit!)
+js/github-config.js
+
 # OS
 .DS_Store
 js/firebase-config.js
-js/jsonbin-config.js
-js/jsonbin-backup.js
 css/design.css
 css/handcode.css
 browser-backups/
-fix-jsonbin-versioning.html
-jsonbin-recovery.html
-latest_backup.json
-
+emergency-backup.json
+_out/
+js/github-config.js
+js/firebase-config.js
 
 
 # IDE

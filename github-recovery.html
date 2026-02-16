@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Backup Recovery</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        h1 {
+            color: #4a9eff;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #888;
+            margin-bottom: 24px;
+        }
+
+        .section {
+            margin: 24px 0;
+            padding: 20px;
+            background: #252525;
+            border-radius: 8px;
+        }
+
+        .status {
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 4px;
+            background: #2a2a2a;
+        }
+
+        .success {
+            background: #1a4d2e;
+            border-left: 4px solid #4caf50;
+        }
+
+        .error {
+            background: #4d1a1a;
+            border-left: 4px solid #f44336;
+        }
+
+        .warning {
+            background: #4d3d1a;
+            border-left: 4px solid #ff9800;
+        }
+
+        .info {
+            background: #1a2e4d;
+            border-left: 4px solid #2196f3;
+        }
+
+        button {
+            background: #4a9eff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #357abd;
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        button.danger {
+            background: #d32f2f;
+        }
+
+        button.danger:hover {
+            background: #b71c1c;
+        }
+
+        .backup-list {
+            margin-top: 16px;
+        }
+
+        .backup-item {
+            background: #1a1a1a;
+            padding: 16px;
+            margin: 8px 0;
+            border-radius: 4px;
+            border-left: 3px solid #4a9eff;
+        }
+
+        .backup-item:hover {
+            background: #222;
+        }
+
+        .backup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .backup-date {
+            font-size: 16px;
+            font-weight: 600;
+            color: #4a9eff;
+        }
+
+        .backup-stats {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .backup-message {
+            color: #ccc;
+            font-size: 13px;
+            margin: 4px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .backup-actions {
+            margin-top: 12px;
+        }
+
+        .backup-actions button {
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+
+        .sha {
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: #888;
+            font-size: 11px;
+        }
+
+        pre {
+            background: #0a0a0a;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .spinner {
+            border: 3px solid #333;
+            border-top: 3px solid #4a9eff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        a {
+            color: #4a9eff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔄 GitHub Backup Recovery</h1>
+    <p class="subtitle">Browse and restore previous versions of your lore data</p>
+
+    <div class="section">
+        <h2>Configuration Status</h2>
+        <div id="configStatus"></div>
+    </div>
+
+    <div class="section">
+        <h2>Backup History</h2>
+        <button onclick="loadBackups()">📋 Load Backup List</button>
+        <div id="backupList"></div>
+    </div>
+
+    <div class="section" id="previewSection" style="display: none;">
+        <h2>Backup Preview</h2>
+        <div id="previewContent"></div>
+    </div>
+
+    <script src="js/github-config.js"></script>
+    <script src="js/github-backup.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="js/firebase-db.js"></script>
+
+    <script>
+        let currentBackups = [];
+
+        function checkConfig() {
+            const statusDiv = document.getElementById('configStatus');
+            const isConfigured = window.githubBackup?.isConfigured();
+
+            if (!isConfigured) {
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ GitHub not configured<br><br>
+                        <strong>Setup Instructions:</strong><br>
+                        1. Copy <code>js/github-config.example.js</code> to <code>js/github-config.js</code><br>
+                        2. Create a private GitHub repo for backups<br>
+                        3. Generate a Personal Access Token at 
+                           <a href="https://github.com/settings/tokens" target="_blank">
+                               github.com/settings/tokens
+                           </a><br>
+                        4. Add your token and repo name to <code>github-config.js</code>
+                    </div>
+                `;
+            } else {
+                const config = window.githubConfig;
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        ✅ GitHub configured<br>
+                        Repository: <a href="https://github.com/${config.repo}" target="_blank">
+                            ${config.repo}
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadBackups() {
+            const listDiv = document.getElementById('backupList');
+
+            listDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Loading backups...</div>';
+
+            try {
+                const backups = await window.githubBackup.listBackups();
+                currentBackups = backups;
+
+                if (backups.length === 0) {
+                    listDiv.innerHTML = '<div class="status warning">⚠️ No backups found</div>';
+                    return;
+                }
+
+                let html = `<div class="status success">Found ${backups.length} backup(s)</div>`;
+                html += '<div class="backup-list">';
+
+                backups.forEach((backup, index) => {
+                    const date = new Date(backup.date);
+                    const dateStr = date.toLocaleString();
+
+                    // Parse stats from commit message
+                    const match = backup.message.match(/(\d+) entries, (\d+) tags/);
+                    const entries = match ? match[1] : '?';
+                    const tags = match ? match[2] : '?';
+
+                    html += `
+                        <div class="backup-item">
+                            <div class="backup-header">
+                                <div class="backup-date">${dateStr}</div>
+                                <div class="backup-stats">${entries} entries • ${tags} tags</div>
+                            </div>
+                            <div class="backup-message">${escapeHtml(backup.message)}</div>
+                            <div class="sha">${backup.sha.substring(0, 7)}</div>
+                            <div class="backup-actions">
+                                <button onclick="previewBackup('${backup.sha}', ${index})">
+                                    👁️ Preview
+                                </button>
+                                <button onclick="downloadBackup('${backup.sha}')">
+                                    💾 Download JSON
+                                </button>
+                                <button onclick="restoreBackup('${backup.sha}')" class="danger">
+                                    ⚠️ Restore to Firebase
+                                </button>
+                                <a href="${backup.url}" target="_blank">
+                                    <button>🔗 View on GitHub</button>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                listDiv.innerHTML = html;
+
+            } catch (err) {
+                listDiv.innerHTML = `<div class="status error">❌ Error loading backups: ${escapeHtml(err.message)}</div>`;
+            }
+        }
+
+        async function previewBackup(sha, index) {
+            const previewSection = document.getElementById('previewSection');
+            const previewContent = document.getElementById('previewContent');
+
+            previewSection.style.display = 'block';
+            previewContent.innerHTML = '<div class="loading"><div class="spinner"></div>Loading backup data...</div>';
+
+            try {
+                const data = await window.githubBackup.fetchBackupVersion(sha);
+
+                if (!data) {
+                    previewContent.innerHTML = '<div class="status error">❌ Failed to load backup</div>';
+                    return;
+                }
+
+                const backup = currentBackups[index];
+                const date = new Date(backup.date).toLocaleString();
+
+                previewContent.innerHTML = `
+                    <div class="status info">
+                        <strong>Date:</strong> ${date}<br>
+                        <strong>Commit:</strong> ${backup.sha.substring(0, 7)}<br>
+                        <strong>Entries:</strong> ${data.entries?.length || 0}<br>
+                        <strong>Tags:</strong> ${data.tags?.length || 0}
+                    </div>
+                    <h3>Sample Entries (first 5):</h3>
+                    <pre>${JSON.stringify(data.entries?.slice(0, 5), null, 2)}</pre>
+                    <h3>Tags:</h3>
+                    <pre>${JSON.stringify(data.tags, null, 2)}</pre>
+                `;
+
+                // Scroll to preview
+                previewSection.scrollIntoView({
+                    behavior: 'smooth'
+                });
+
+            } catch (err) {
+                previewContent.innerHTML = `<div class="status error">❌ Error: ${escapeHtml(err.message)}</div>`;
+            }
+        }
+
+        async function downloadBackup(sha) {
+            try {
+                const data = await window.githubBackup.fetchBackupVersion(sha);
+
+                if (!data) {
+                    alert('Failed to load backup');
+                    return;
+                }
+
+                const jsonString = JSON.stringify({
+                    entries: data.entries,
+                    tags: data.tags,
+                    timestamp: data.timestamp
+                }, null, 2);
+
+                const blob = new Blob([jsonString], {
+                    type: 'application/json'
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup-${sha.substring(0, 7)}-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+            } catch (err) {
+                alert('Download failed: ' + err.message);
+            }
+        }
+
+        async function restoreBackup(sha) {
+            const confirmed = confirm(
+                '⚠️ WARNING ⚠️\n\n' +
+                'This will REPLACE all current data in Firebase with this backup.\n\n' +
+                'Make sure you have a recent backup of your current data before proceeding.\n\n' +
+                'Continue with restore?'
+            );
+
+            if (!confirmed) return;
+
+            const doubleConfirm = confirm('Are you ABSOLUTELY sure? This cannot be undone!');
+            if (!doubleConfirm) return;
+
+            try {
+                const data = await window.githubBackup.fetchBackupVersion(sha);
+
+                if (!data) {
+                    alert('Failed to load backup');
+                    return;
+                }
+
+                // Restore to Firebase
+                if (window.firebaseDb) {
+                    const success = await window.firebaseDb.saveLoreData(data);
+                    if (success) {
+                        alert('✅ Backup restored to Firebase!\n\nReloading to show restored data...');
+                        window.location.href = 'index.html';
+                    } else {
+                        alert('❌ Firebase save failed. Check console for errors.');
+                    }
+                } else {
+                    alert('❌ Firebase not available. Check configuration.');
+                }
+
+            } catch (err) {
+                alert('Restore failed: ' + err.message);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Check config on load
+        window.addEventListener('load', checkConfig);
+    </script>
+</body>
+
+</html>

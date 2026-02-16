@@ -27,10 +27,15 @@ Noxsyphone lore database with Firebase auth and Realtime Database.
    - Add your domain to Authorized domains (Authentication → Settings)
    - Set Realtime Database rules for your allowed users
 
-5. **JSONBin backup** (optional – versioned backup of tags and entries)
-   - Sign up at [jsonbin.io](https://jsonbin.io)
-   - Go to [API Keys](https://jsonbin.io/app/api-keys) and copy your Master Key (or create an Access Key)
-   - Copy `js/jsonbin-config.example.js` to `js/jsonbin-config.js`
-   - Set `apiKey` to your key; leave `binId` empty (a bin is created on first save)
-   - After each successful Firebase save, a snapshot is stored to JSONBin with versioning (up to 1000 versions)
-   - No UI – for recovery only. Use the JSONBin dashboard or `fetchBackupVersion('latest')` in the console to inspect data
+5. **GitHub backup** (optional – versioned backup of tags and entries)
+   - Create a private GitHub repository for backups (e.g., `loredump-backups`)
+   - Generate a Personal Access Token at [github.com/settings/tokens](https://github.com/settings/tokens)
+     - Click "Generate new token (classic)"
+     - Name it "Loredump Backup"
+     - Check the **repo** scope (full control of private repositories)
+     - Copy the token (you won't see it again!)
+   - Copy `js/github-config.example.js` to `js/github-config.js`
+   - Set `token` to your Personal Access Token
+   - Set `repo` to your repository (format: `username/repo-name`)
+   - After each successful Firebase save, a commit is automatically created in your backup repo
+   - Browse and restore backups using `github-recovery.html`

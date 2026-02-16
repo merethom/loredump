@@ -18,34 +18,27 @@ async function loadData() {
                 return;
             }
         } catch (e) {
-            console.warn('Firebase load failed, falling back to Sheets:', e);
+            console.error('Firebase load failed:', e);
         }
     }
 
-    // Fall back to Google Sheets
-    const corsProxy = 'https://cors-anywhere.herokuapp.com/';
-    const urlsToTry = [{
-            url: SHEET_URL,
-            source: 'Google Sheets (direct)'
-        },
-        {
-            url: `${corsProxy}${SHEET_URL}`,
-            source: 'Google Sheets (via proxy)'
-        }
-    ];
-
-    tryLoadURL(0, urlsToTry);
+    // NO FALLBACK - Firebase is the single source of truth
+    // If Firebase fails, show error instead of loading stale Google Sheets data
+    console.error('Failed to load from Firebase');
+    document.getElementById('dataSource').textContent = 'Error: Firebase unavailable';
+    document.getElementById('database').style.display = 'none';
+    document.getElementById('errorState').classList.add('show');
 }
 
 function saveLoreToFirebase() {
     if (!window.firebaseDb) return;
     window.firebaseDb.saveLoreData({
-        entries: allData || [],
-        tags: allTags || []
-    })
+            entries: allData || [],
+            tags: allTags || []
+        })
         .then((ok) => {
-            if (ok && window.jsonbinBackup && typeof window.jsonbinBackup.saveBackup === 'function') {
-                window.jsonbinBackup.saveBackup(allData || [], allTags || []);
+            if (ok && window.githubBackup && typeof window.githubBackup.saveBackup === 'function') {
+                window.githubBackup.saveBackup(allData || [], allTags || []);
             }
         })
         .catch(err => console.warn('Firebase save failed:', err));
