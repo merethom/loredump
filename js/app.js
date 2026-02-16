@@ -114,6 +114,7 @@ function setupEventListeners() {
                 tagFilterSearchTerm = '';
                 updateTagFilterSearchClearVisibility();
                 refreshTagFilter();
+                tagFilterSearch.blur();
                 e.preventDefault();
                 e.stopPropagation();
             }

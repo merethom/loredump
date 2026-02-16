@@ -85,6 +85,64 @@ function renderDatabase() {
 }
 
 /**
+ * Handles clicking on an entry number - clears all filters and highlights the entry
+ * @param {HTMLElement} card - The card element that was clicked
+ * @param {Event} event - The click event
+ */
+function handleEntryNumberClick(card, event) {
+    event.stopPropagation();
+    
+    const entryNumber = card.getAttribute('data-entry-number');
+    if (!entryNumber) return;
+    
+    // Clear all filters and search
+    searchTerm = '';
+    selectedTags.clear();
+    
+    // Update UI elements
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = '';
+        const searchClear = document.getElementById('searchClear');
+        if (searchClear) searchClear.classList.remove('show');
+    }
+    
+    // Refresh tag filter UI and re-render data
+    if (typeof refreshTagFilter === 'function') refreshTagFilter();
+    filterData();
+    
+    // Wait for render, then scroll to and highlight the entry
+    requestAnimationFrame(() => {
+        const targetCard = document.querySelector(`.card[data-entry-number="${entryNumber}"]`);
+        if (!targetCard) return;
+        
+        // Clear any existing highlights and selections
+        document.querySelectorAll('.card.card--highlighted').forEach(c => {
+            c.classList.remove('card--highlighted');
+        });
+        document.querySelectorAll('.card.card--selected').forEach(c => {
+            c.classList.remove('card--selected');
+        });
+        
+        // Update goto entry field for keyboard navigation sync
+        const gotoEntry = document.getElementById('gotoEntry');
+        if (gotoEntry) {
+            gotoEntry.value = entryNumber;
+        }
+        
+        // Scroll and add temporary highlight
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        targetCard.classList.add('card--highlighted');
+        
+        // After temporary highlight fades, keep persistent selection
+        setTimeout(() => {
+            targetCard.classList.remove('card--highlighted');
+            targetCard.classList.add('card--selected');
+        }, 3000);
+    });
+}
+
+/**
  * Sets up event delegation for database cards (called once on init)
  * This prevents memory leaks from adding new listeners on every render
  */
@@ -100,6 +158,12 @@ function setupDatabaseEventDelegation() {
         // Find the card that was clicked
         const card = e.target.closest('.card');
         if (!card) return;
+
+        // Check if clicking on entry number specifically
+        if (e.target.closest('.card-number')) {
+            handleEntryNumberClick(card, e);
+            return;
+        }
 
         // Don't open modal if clicking on a tag
         if (e.target.closest('.card-tags .tag')) return;

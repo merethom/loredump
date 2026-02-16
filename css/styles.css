@@ -1538,6 +1538,13 @@ h1 {
 .card-number {
     font-size: 14px;
     color: var(--muted-text-color);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s ease;
+}
+
+.card-number:hover {
+    color: var(--primary-color);
 }
 
 .empty-state {
