@@ -1233,6 +1233,7 @@ h1 {
     color: var(--text-color);
 }
 
+.close-btn,
 .filter-sidesheet-close {
     width: 36px;
     height: 36px;
@@ -1246,6 +1247,7 @@ h1 {
     border-radius: var(--border-radius);
 }
 
+.close-btn:hover,
 .filter-sidesheet-close:hover {
     color: var(--text-color);
     background: rgba(255, 255, 255, 0.08);

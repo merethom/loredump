@@ -1,0 +1,61 @@
+/* Keyboard Shortcuts Styles */
+
+/* Selected card highlight (for keyboard navigation) */
+.card--selected {
+    /* box-shadow: 0 0 0 2px var(--color-purple) !important; */
+    border-color: var(--text-color) !important;
+    background: rgba(146, 77, 245, 0.05) !important;
+}
+
+.card--selected .card-number {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+/* Keyboard help modal styles */
+#keyboardHelpModal .shortcut-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#keyboardHelpModal .shortcut-row:last-child {
+    border-bottom: none;
+}
+
+#keyboardHelpModal kbd {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-color);
+    margin-right: 8px;
+    display: inline-block;
+    min-width: 32px;
+    text-align: center;
+}
+
+#keyboardHelpModal h3 {
+    margin-top: 0;
+    color: var(--text-color);
+    font-size: 1.5rem;
+}
+
+#keyboardHelpModal h4 {
+    color: var(--lesser-text-color);
+    margin-bottom: 10px;
+    margin-top: 20px;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+#keyboardHelpModal .shortcut-row span {
+    flex: 1;
+    color: var(--lesser-text-color);
+    font-size: 14px;
+}
