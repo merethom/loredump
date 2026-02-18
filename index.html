@@ -246,17 +246,17 @@
         </div>
 
         <!-- Filter Sidesheet -->
-        <div id="filterSidesheet" class="filter-sidesheet" aria-hidden="true">
-            <div class="filter-sidesheet-panel">
-                <div class="filter-sidesheet-header">
-                    <h2 class="filter-sidesheet-title">Filters</h2>
-                    <button type="button" class="filter-sidesheet-close" id="filterSidesheetClose" aria-label="Close">
+        <div id="filterSidesheet" class="sidesheet filter-sidesheet" aria-hidden="true">
+            <div class="sidesheet-panel">
+                <div class="sidesheet-header">
+                    <h2 class="sidesheet-title">Filters</h2>
+                    <button type="button" class="sidesheet-close" id="filterSidesheetClose" aria-label="Close">
                         <svg class="icon" aria-hidden="true">
                             <use href="img/sprites/duotone.svg#xmark"></use>
                         </svg>
                     </button>
                 </div>
-                <div class="filter-sidesheet-content">
+                <div class="sidesheet-content">
                     <div class="tag-filter-search-wrapper">
                         <svg class="icon tag-filter-search-icon" aria-hidden="true">
                             <use href="img/sprites/regular.svg#magnifying-glass"></use>
@@ -302,6 +302,69 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Tag Editor Sidesheet -->
+        <div id="tagEditorSidesheet" class="sidesheet tag-editor-sidesheet" aria-hidden="true">
+            <div class="sidesheet-panel">
+                <div class="sidesheet-header">
+                    <h2 class="sidesheet-title">Edit Tags</h2>
+                    <button type="button" class="sidesheet-close" id="tagEditorSidesheetClose" aria-label="Close">
+                        <svg class="icon" aria-hidden="true">
+                            <use href="img/sprites/duotone.svg#xmark"></use>
+                        </svg>
+                    </button>
+                </div>
+                <div class="sidesheet-content">
+                    <div class="tag-filter-search-wrapper">
+                        <svg class="icon tag-filter-search-icon" aria-hidden="true">
+                            <use href="img/sprites/regular.svg#magnifying-glass"></use>
+                        </svg>
+                        <input type="text" id="tagEditorSearch" class="tag-filter-search" placeholder="Search tags..." autocomplete="off" aria-label="Search tags">
+                        <button type="button" class="search-clear" id="tagEditorSearchClear" title="Clear search" aria-label="Clear search">
+                            <svg class="icon" aria-hidden="true">
+                                <use href="img/sprites/duotone.svg#xmark"></use>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="tagFormHome">
+                        <div id="tagForm" class="tag-form-section">
+                            <h3 id="tagFormTitle" class="tag-form-title"></h3>
+                            <div style="margin: 15px 0;">
+                                <label class="tag-form-label">Tag Name:</label>
+                                <input type="text" id="tagName" class="tag-form-input">
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label class="tag-form-label">Color:</label>
+                                <div class="tag-form-color-selector">
+                                    <button type="button" class="tag-form-color-btn" data-color="purple" title="Purple"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="green" title="Green"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="blue" title="Blue"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="orange" title="Orange"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="teal" title="Teal"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="pink" title="Pink"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="amber" title="Amber"></button>
+                                    <button type="button" class="tag-form-color-btn selected" data-color="slate" title="Slate"></button>
+                                </div>
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label class="tag-form-label">Terms (one per line):</label>
+                                <textarea id="tagTerms" class="tag-form-textarea"></textarea>
+                            </div>
+                            <div class="tag-form-buttons">
+                                <button type="button" onclick="submitTagForm()" id="tagFormSubmit" class="tag-btn" style="flex: 1;">Create Tag</button>
+                                <button type="button" onclick="cancelTagForm()" class="tag-btn" style="flex: 1;">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="showNewTagForm()" class="tag-btn" style="margin-bottom: 20px;">+ New Tag</button>
+                    <div id="tagList"></div>
+                    <div class="tag-editor-divider">
+                        <button type="button" onclick="downloadTags()" class="tag-btn">⬇️ Download tags.json</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     </div>
@@ -385,66 +448,6 @@
             </div>
             <div class="modal-description" id="modalDescription"></div>
             <div class="modal-tags" id="modalTags"></div>
-        </div>
-    </div>
-
-    <!-- Tag Editor Modal -->
-    <div id="tagEditorModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Tag Editor</h2>
-                <button class="modal-close close-btn" onclick="closeTagEditor()">&times;</button>
-            </div>
-
-            <div class="tag-editor-search-wrapper">
-                <svg class="icon tag-editor-search-icon" aria-hidden="true">
-                    <use href="img/sprites/regular.svg#magnifying-glass"></use>
-                </svg>
-                <input type="text" id="tagEditorSearch" class="tag-editor-search-input" placeholder="Search tags...">
-            </div>
-
-            <div id="tagFormHome">
-                <div id="tagForm" class="tag-form-section">
-                    <h3 id="tagFormTitle" class="tag-form-title"></h3>
-                    <div style="margin: 15px 0;">
-                        <label class="tag-form-label">Tag Name:</label>
-                        <input type="text" id="tagName" class="tag-form-input">
-                    </div>
-                    <div style="margin: 15px 0;">
-                        <label class="tag-form-label">Color:</label>
-                        <div class="tag-form-color-selector">
-                            <button type="button" class="tag-form-color-btn" data-color="purple"
-                                title="Purple"></button>
-                            <button type="button" class="tag-form-color-btn" data-color="green" title="Green"></button>
-                            <button type="button" class="tag-form-color-btn" data-color="blue" title="Blue"></button>
-                            <button type="button" class="tag-form-color-btn" data-color="orange"
-                                title="Orange"></button>
-                            <button type="button" class="tag-form-color-btn" data-color="teal" title="Teal"></button>
-                            <button type="button" class="tag-form-color-btn" data-color="pink" title="Pink"></button>
-                            <button type="button" class="tag-form-color-btn" data-color="amber" title="Amber"></button>
-                            <button type="button" class="tag-form-color-btn selected" data-color="slate"
-                                title="Slate"></button>
-                        </div>
-                    </div>
-                    <div style="margin: 15px 0;">
-                        <label class="tag-form-label">Terms (one per line):</label>
-                        <textarea id="tagTerms" class="tag-form-textarea"></textarea>
-                    </div>
-                    <div class="tag-form-buttons">
-                        <button onclick="submitTagForm()" id="tagFormSubmit" class="tag-btn" style="flex: 1;">Create
-                            Tag</button>
-                        <button onclick="cancelTagForm()" class="tag-btn" style="flex: 1;">Cancel</button>
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="showNewTagForm()" class="tag-btn" style="margin-bottom: 20px;">+ New Tag</button>
-
-            <div id="tagList"></div>
-
-            <div class="tag-editor-divider">
-                <button onclick="downloadTags()" class="tag-btn">⬇️ Download tags.json</button>
-            </div>
         </div>
     </div>
 

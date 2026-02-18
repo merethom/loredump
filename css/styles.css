@@ -126,7 +126,7 @@ body.app-active {
     transition: grid-template-columns 0.3s ease;
 }
 
-.app-layout:has(.filter-sidesheet.open) {
+.app-layout:has(.sidesheet.open) {
     grid-template-columns: 1fr 440px;
 }
 
@@ -315,7 +315,8 @@ h1 {
 }
 
 .search-box,
-#tagFilterSearch {
+#tagFilterSearch,
+#tagEditorSearch {
     width: 100%;
     padding: 12px 40px 12px 40px;
     color: var(--text-color);
@@ -327,12 +328,14 @@ h1 {
 }
 
 .search-box::placeholder,
-#tagFilterSearch::placeholder {
+#tagFilterSearch::placeholder,
+#tagEditorSearch::placeholder {
     color: var(--lesser-text-color);
 }
 
 .search-box:focus,
-#tagFilterSearch:focus {
+#tagFilterSearch:focus,
+#tagEditorSearch:focus {
     outline: none;
     border-color: #5a5169;
 }
@@ -1197,17 +1200,21 @@ h1 {
 }
 
 /* --------------------------------------------------------------------------
-   8. FILTER SIDESHEET
+   8. SIDESHEETS (shared: filter + tag editor)
    -------------------------------------------------------------------------- */
 
-.filter-sidesheet {
+.sidesheet {
     grid-area: tag-sidesheet;
     overflow: hidden;
     min-height: 0;
     max-height: 100vh;
 }
 
-.filter-sidesheet-panel {
+.sidesheet:not(.open) {
+    display: none;
+}
+
+.sidesheet-panel {
     width: 440px;
     height: 100%;
     max-height: 100vh;
@@ -1219,7 +1226,7 @@ h1 {
     overflow: hidden;
 }
 
-.filter-sidesheet-header {
+.sidesheet-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1227,14 +1234,14 @@ h1 {
     border-bottom: 1px solid #3E3D5D;
 }
 
-.filter-sidesheet-title {
+.sidesheet-title {
     font-size: 1rem;
     font-weight: 500;
     color: var(--text-color);
 }
 
 .close-btn,
-.filter-sidesheet-close {
+.sidesheet-close {
     width: 36px;
     height: 36px;
     display: flex;
@@ -1248,17 +1255,17 @@ h1 {
 }
 
 .close-btn:hover,
-.filter-sidesheet-close:hover {
+.sidesheet-close:hover {
     color: var(--text-color);
     background: rgba(255, 255, 255, 0.08);
 }
 
-.filter-sidesheet-close .icon {
+.sidesheet-close .icon {
     width: 1rem;
     height: 1rem;
 }
 
-.filter-sidesheet-content {
+.sidesheet-content {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
@@ -1266,6 +1273,11 @@ h1 {
     display: flex;
     flex-direction: column;
     gap: 24px;
+}
+
+/* Filter sidesheet (uses shared sidesheet classes) */
+.filter-sidesheet .tag-filter-search-wrapper {
+    margin-bottom: 0;
 }
 
 .filter-sidesheet-section {
@@ -2095,24 +2107,6 @@ h1 {
     gap: 8px;
 }
 
-.tag-edit-btn,
-.tag-delete-btn {
-    padding: 6px 12px;
-    background: #1E1B31;
-    border: 1.5px solid #38304D;
-    border-radius: 6px;
-    color: var(--lesser-text-color);
-    cursor: pointer;
-    font-size: 12px;
-    font-family: var(--font-mono);
-    transition: all 0.2s;
-}
-
-.tag-edit-btn:hover {
-    border-color: #5a5169;
-    color: var(--text-color);
-}
-
 .tag-delete-btn:hover {
     border-color: var(--color-orange-red);
     color: var(--color-orange-red);
@@ -2124,7 +2118,7 @@ h1 {
     word-break: break-all;
 }
 
-#tagEditorModal .tag-form-section {
+.tag-editor-sidesheet .tag-form-section {
     padding: 20px;
     background: rgba(30, 27, 49, 0.6);
     border: 1.5px solid #38304D;
@@ -2133,57 +2127,19 @@ h1 {
     display: none;
 }
 
-#tagEditorModal .tag-editor-search-wrapper {
-    position: sticky;
-    top: -24px;
-    background: #1E1B31;
-    z-index: 10;
-    margin-top: 0;
-    padding-top: 24px;
-    padding-bottom: 16px;
-    margin-bottom: 20px;
+.tag-editor-sidesheet .tag-filter-search-wrapper {
+    margin-bottom: 0;
 }
 
-.tag-editor-search-icon {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1rem;
-    height: 1rem;
-    color: var(--lesser-text-color);
-    pointer-events: none;
-}
-
-.tag-editor-search-input {
-    width: 100%;
-    padding: 12px 16px 12px 44px;
-    background: #1E1B31;
-    border: 1.5px solid #38304D;
-    border-radius: 8px;
-    color: var(--text-color);
-    font-family: var(--font-mono);
-    font-size: 14px;
-}
-
-.tag-editor-search-input::placeholder {
-    color: #6a6078;
-}
-
-.tag-editor-search-input:focus {
-    outline: none;
-    border-color: #5a5169;
-}
-
-#tagEditorModal #tagForm {
+.tag-editor-sidesheet #tagForm {
     display: none;
 }
 
-#tagEditorModal .tag-form-title {
+.tag-editor-sidesheet .tag-form-title {
     color: var(--text-color);
 }
 
-#tagEditorModal .tag-form-label,
+.tag-editor-sidesheet .tag-form-label,
 #tagEditContainer .tag-form-label {
     display: block;
     margin-bottom: 5px;
@@ -2249,7 +2205,7 @@ h1 {
     box-shadow: 0 0 0 1px #1E1B31;
 }
 
-#tagEditorModal .tag-form-input,
+.tag-editor-sidesheet .tag-form-input,
 #tagEditContainer .tag-form-input {
     width: 100%;
     padding: 8px;
@@ -2261,7 +2217,7 @@ h1 {
     font-family: var(--font-mono);
 }
 
-#tagEditorModal .tag-form-textarea {
+.tag-editor-sidesheet .tag-form-textarea {
     width: 100%;
     padding: 8px;
     background: #1E1B31;
@@ -2273,48 +2229,44 @@ h1 {
     margin: 15px 0;
 }
 
-#tagEditorModal .tag-form-input::placeholder,
-#tagEditorModal .tag-form-textarea::placeholder,
+.tag-editor-sidesheet .tag-form-input::placeholder,
+.tag-editor-sidesheet .tag-form-textarea::placeholder,
 #tagEditContainer .tag-form-input::placeholder,
 #tagEditContainer .tag-form-textarea::placeholder {
     color: #6a6078;
 }
 
-#tagEditorModal .tag-form-buttons,
+.tag-editor-sidesheet .tag-form-buttons,
 #tagEditContainer .tag-form-buttons {
     display: flex;
     gap: 10px;
 }
 
-#tagEditorModal .tag-form-buttons button,
+.tag-editor-sidesheet .tag-form-buttons button,
 #tagEditContainer .tag-form-buttons button {
     flex: 1;
 }
 
-#tagEditorModal .tag-editor-divider {
+.tag-editor-sidesheet .tag-editor-divider {
     margin-top: 20px;
     padding-top: 20px;
     border-top: 1px solid #38304D;
 }
 
-#tagEditorModal .modal-content {
-    max-width: 520px;
-}
-
-#tagEditorModal input,
-#tagEditorModal textarea {
+.tag-editor-sidesheet input,
+.tag-editor-sidesheet textarea {
     background: #1E1B31;
     border: 1.5px solid #38304D;
     color: var(--text-color);
 }
 
-#tagEditorModal input:focus,
-#tagEditorModal textarea:focus {
+.tag-editor-sidesheet input:focus,
+.tag-editor-sidesheet textarea:focus {
     outline: none;
     border-color: var(--color-purple);
 }
 
-#tagEditorModal label {
+.tag-editor-sidesheet label {
     color: var(--lesser-text-color);
 }
 

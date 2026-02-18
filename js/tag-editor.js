@@ -6,30 +6,66 @@ let tagEditDropdownTargetTagId = null;
 let tagEditDropdownSelectedColor = 'slate';
 
 function openTagEditor() {
-    const modal = document.getElementById('tagEditorModal');
-    document.getElementById('tagEditorSearch').value = '';
+    const sidesheet = document.getElementById('tagEditorSidesheet');
+    if (!sidesheet) return;
+    if (typeof closeFilterSidesheet === 'function') closeFilterSidesheet();
+    const searchEl = document.getElementById('tagEditorSearch');
+    const searchClearEl = document.getElementById('tagEditorSearchClear');
+    if (searchEl) searchEl.value = '';
+    if (searchClearEl) searchClearEl.classList.remove('show');
     tagEditorSearchTerm = '';
     renderTagList();
-    modal.classList.add('active');
+    sidesheet.classList.add('open');
+    sidesheet.setAttribute('aria-hidden', 'false');
+    document.getElementById('tagEditorBtn')?.classList.add('active');
 }
 
 function closeTagEditor() {
-    document.getElementById('tagEditorModal').classList.remove('active');
+    const sidesheet = document.getElementById('tagEditorSidesheet');
+    if (sidesheet) {
+        sidesheet.classList.remove('open');
+        sidesheet.setAttribute('aria-hidden', 'true');
+    }
+    document.getElementById('tagEditorBtn')?.classList.remove('active');
 }
 
-// Tag editor search - runs once when script loads
+// Tag editor search - runs once when script loads (same pattern as filter sidesheet search)
 (function initTagEditorSearch() {
     const searchInput = document.getElementById('tagEditorSearch');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            tagEditorSearchTerm = e.target.value;
-            renderTagList();
-        });
+    const searchClear = document.getElementById('tagEditorSearchClear');
+    if (!searchInput) return;
+
+    function updateSearchClearVisibility() {
+        searchClear?.classList.toggle('show', searchInput.value.length > 0);
     }
+
+    searchInput.addEventListener('input', (e) => {
+        tagEditorSearchTerm = e.target.value;
+        updateSearchClearVisibility();
+        renderTagList();
+    });
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            searchInput.value = '';
+            tagEditorSearchTerm = '';
+            updateSearchClearVisibility();
+            renderTagList();
+            searchInput.blur();
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+    searchClear?.addEventListener('click', () => {
+        searchInput.value = '';
+        tagEditorSearchTerm = '';
+        updateSearchClearVisibility();
+        renderTagList();
+        searchInput.focus();
+    });
 })();
 
 function updateTagFormColorSelector() {
-    document.querySelectorAll('#tagEditorModal .tag-form-color-btn').forEach(btn => {
+    document.querySelectorAll('.tag-editor-sidesheet .tag-form-color-btn').forEach(btn => {
         btn.classList.toggle('selected', btn.getAttribute('data-color') === tagEditorSelectedColor);
     });
 }
@@ -71,8 +107,12 @@ function renderTagList() {
                     <span class="${tagClass}">${escapeHtml(tag.name)}</span>
                 </div>
                 <div class="tag-item-actions">
-                    <button class="tag-edit-btn" data-action="edit">Edit</button>
-                    <button class="tag-delete-btn" data-action="delete">Delete</button>
+                    <button type="button" class="generic-ui-btn tag-edit-btn" data-action="edit" title="Edit tag" aria-label="Edit tag">
+                        <svg class="icon" aria-hidden="true"><use href="img/sprites/duotone.svg#pen"></use></svg>
+                    </button>
+                    <button type="button" class="generic-ui-btn tag-delete-btn" data-action="delete" title="Delete tag" aria-label="Delete tag">
+                        <svg class="icon" aria-hidden="true"><use href="img/sprites/duotone.svg#trash"></use></svg>
+                    </button>
                 </div>
             </div>
             <div class="tag-item-terms">

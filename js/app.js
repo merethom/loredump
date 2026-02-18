@@ -197,6 +197,7 @@ function setupEventListeners() {
 
     // Filter sidesheet open/close
     window.openFilterSidesheet = function () {
+        if (typeof closeTagEditor === 'function') closeTagEditor();
         filtersVisible = true;
         document.getElementById('filterSidesheet').classList.add('open');
         document.getElementById('filterSidesheet').setAttribute('aria-hidden', 'false');
@@ -219,6 +220,7 @@ function setupEventListeners() {
     };
 
     document.getElementById('filterSidesheetClose')?.addEventListener('click', closeFilterSidesheet);
+    document.getElementById('tagEditorSidesheetClose')?.addEventListener('click', closeTagEditor);
 
     // Clear all tags button
     document.getElementById('tagFilterClearAll')?.addEventListener('click', () => {
@@ -252,7 +254,7 @@ function setupEventListeners() {
     });
 
     // Tag editor color selector
-    document.getElementById('tagEditorModal')?.addEventListener('click', (e) => {
+    document.getElementById('tagEditorSidesheet')?.addEventListener('click', (e) => {
         if (e.target.classList.contains('tag-form-color-btn')) {
             tagEditorSelectedColor = e.target.getAttribute('data-color');
             updateTagFormColorSelector();
@@ -601,7 +603,7 @@ document.addEventListener('keydown', (e) => {
             return; /* clear input, don't close sidesheet */
         }
         typeof closeFilterSidesheet === 'function' && closeFilterSidesheet();
-    } else if (document.getElementById('tagEditorModal')?.classList.contains('active')) {
+    } else if (document.getElementById('tagEditorSidesheet')?.classList.contains('open')) {
         closeTagEditor();
     } else if (document.getElementById('modal')?.classList.contains('active')) {
         closeModal();
@@ -614,7 +616,7 @@ document.addEventListener('click', (e) => {
     if (!tagEl) return;
     if (e.target.closest('.tag__remove')) return;
     if (e.target.closest('#editEntryContainer') || e.target.closest('#addEntryContainer')) return;
-    if (e.target.closest('#tagFilter') || e.target.closest('#filterSidesheet')) return;
+        if (e.target.closest('#tagFilter') || e.target.closest('#filterSidesheet') || e.target.closest('#tagEditorSidesheet')) return;
 
     const tagName = tagEl.getAttribute('data-name');
     if (!tagName) return;
