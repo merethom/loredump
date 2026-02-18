@@ -249,6 +249,117 @@ h1 {
     margin-left: auto;
 }
 
+.sync-status {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.sync-badge {
+    background: var(--color-orange-red-33);
+    color: var(--color-orange-red);
+    font-size: 0.625rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid var(--color-orange-red);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    transition: filter 0.2s;
+}
+
+.sync-status:hover .sync-badge {
+    filter: brightness(1.2);
+}
+
+.modal-subtitle {
+    font-size: 0.75rem;
+    color: var(--lesser-text-color);
+    margin-top: 4px;
+}
+
+.sync-diff-container {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-right: 8px;
+}
+
+.sidesheet-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px 24px;
+    border-top: 1px solid #3E3D5D;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.diff-section-title {
+    font-size: 0.875rem;
+    color: var(--lesser-text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--muted-text-color);
+    padding-bottom: 4px;
+}
+
+.diff-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--muted-text-color);
+    border-radius: 4px;
+    padding: 12px;
+}
+
+.diff-item-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.75rem;
+}
+
+.diff-type-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.625rem;
+    font-weight: bold;
+}
+
+.diff-type-added {
+    background: rgba(183, 202, 87, 0.2);
+    color: var(--color-lime);
+}
+
+.diff-type-modified {
+    background: rgba(84, 129, 233, 0.2);
+    color: var(--color-blue);
+}
+
+.diff-type-deleted {
+    background: rgba(231, 87, 125, 0.2);
+    color: var(--color-orange-red);
+}
+
+.diff-content {
+    font-size: 0.875rem;
+    color: var(--text-color);
+}
+
+.diff-change-line {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.diff-old {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+.diff-new {
+    color: var(--color-lime);
+}
+
 .user-email {
     font-size: 0.75rem;
     color: var(--lesser-text-color);

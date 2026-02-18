@@ -614,6 +614,8 @@ document.addEventListener('keydown', (e) => {
         closeTagEditor();
     } else if (document.getElementById('modal')?.classList.contains('active')) {
         closeModal();
+    } else if (document.getElementById('syncSidesheet')?.classList.contains('open')) {
+        typeof closeSyncSidesheet === 'function' && closeSyncSidesheet();
     }
 });
 
@@ -623,7 +625,7 @@ document.addEventListener('click', (e) => {
     if (!tagEl) return;
     if (e.target.closest('.tag__remove')) return;
     if (e.target.closest('#editEntryContainer') || e.target.closest('#addEntryContainer')) return;
-        if (e.target.closest('#tagFilter') || e.target.closest('#filterSidesheet') || e.target.closest('#tagEditorSidesheet')) return;
+    if (e.target.closest('#tagFilter') || e.target.closest('#filterSidesheet') || e.target.closest('#tagEditorSidesheet')) return;
 
     const tagName = tagEl.getAttribute('data-name');
     if (!tagName) return;

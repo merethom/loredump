@@ -1,6 +1,5 @@
 // Data loading and CSV parsing
 
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT_mstImJihA42vSDO7VLfH1fowekBj_QSyUbFiCjXEgpgCBRqgjtXPhfCfX-qTbTbFXvfGrgnSPnn6/pub?output=csv';
 
 async function loadData() {
     // Try Firebase first
@@ -11,8 +10,23 @@ async function loadData() {
                 console.log('Loaded from Firebase');
                 document.getElementById('dataSource').textContent = 'loaded from Firebase';
                 document.getElementById('errorState').classList.remove('show');
-                allData = data.entries || [];
-                allTags = data.tags || [];
+
+                // Store the remote baseline
+                remoteData = JSON.parse(JSON.stringify(data.entries || []));
+                remoteTags = JSON.parse(JSON.stringify(data.tags || []));
+
+                // Check for local draft
+                const draft = window.syncManager ? window.syncManager.loadDraft() : null;
+                if (draft) {
+                    console.log('Local draft found, using draft data');
+                    allData = draft.entries || [];
+                    allTags = draft.tags || [];
+                    document.getElementById('dataSource').textContent += ' (using local draft)';
+                } else {
+                    allData = data.entries || [];
+                    allTags = data.tags || [];
+                }
+
                 syncTagsFromDocument();
                 initializeApp();
                 return;
@@ -22,101 +36,49 @@ async function loadData() {
         }
     }
 
-    // NO FALLBACK - Firebase is the single source of truth
-    // If Firebase fails, show error instead of loading stale Google Sheets data
+    // Firebase is the single source of truth
     console.error('Failed to load from Firebase');
     document.getElementById('dataSource').textContent = 'Error: Firebase unavailable';
     document.getElementById('database').style.display = 'none';
     document.getElementById('errorState').classList.add('show');
 }
-
+/**
+ * Handles saving lore data.
+ * In the new drafting system, this primarily saves to the local draft.
+ */
 function saveLoreToFirebase() {
-    if (!window.firebaseDb) return;
-    window.firebaseDb.saveLoreData({
+    // Always save to local draft immediately
+    if (window.syncManager) {
+        window.syncManager.saveDraft(allData, allTags);
+    }
+}
+
+/**
+ * Explicitly publishes local changes to Firebase
+ * @returns {Promise}
+ */
+async function publishLoreToFirebase() {
+    if (!window.firebaseDb) throw new Error('Firebase not initialized');
+
+    try {
+        await window.firebaseDb.saveLoreData({
             entries: allData || [],
             tags: allTags || []
-        })
-        .then(() => {
-            // GitHub backups are now handled via GitHub Actions, not from the client
-        })
-        .catch(err => console.warn('Firebase save failed:', err));
-}
-
-function tryLoadURL(index, urls) {
-    if (index >= urls.length) {
-        console.error('Failed to load from all data sources');
-        document.getElementById('dataSource').textContent = 'Error loading data';
-        document.getElementById('database').style.display = 'none';
-        document.getElementById('errorState').classList.add('show');
-        return;
-    }
-
-    const {
-        url,
-        source
-    } = urls[index];
-    console.log(`Attempting to load from: ${source}`);
-
-    fetch(url, {
-            mode: 'cors',
-            credentials: 'omit'
-        })
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.text();
-        })
-        .then(csv => {
-            console.log(`Successfully loaded from: ${source}`);
-            document.getElementById('dataSource').textContent = `loaded from ${source}`;
-            document.getElementById('errorState').classList.remove('show');
-            allData = parseCSV(csv);
-            loadTags().then(() => {
-                syncTagsFromDocument();
-                initializeApp();
-                // Save to Firebase so next load uses it
-                saveLoreToFirebase();
-            });
-        })
-        .catch(error => {
-            console.log(`Failed to load from ${source}: ${error.message}`);
-            tryLoadURL(index + 1, urls);
         });
-}
 
-function parseCSV(csv) {
-    const lines = csv.split('\n');
-    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+        // Update baseline upon success
+        remoteData = JSON.parse(JSON.stringify(allData || []));
+        remoteTags = JSON.parse(JSON.stringify(allTags || []));
 
-    return lines.slice(1)
-        .filter(line => line.trim())
-        .map(line => {
-            const cells = parseCSVLine(line);
-            const entry = {};
-            headers.forEach((header, index) => {
-                entry[header] = cells[index] ? cells[index].trim().replace(/"/g, '') : '';
-            });
-            return entry;
-        })
-        .filter(entry => (entry.Number || entry.Name) && entry.Description && entry.Description.trim());
-}
-
-function parseCSVLine(line) {
-    const result = [];
-    let current = '';
-    let insideQuotes = false;
-
-    for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-
-        if (char === '"') {
-            insideQuotes = !insideQuotes;
-        } else if (char === ',' && !insideQuotes) {
-            result.push(current);
-            current = '';
-        } else {
-            current += char;
+        // Clear local draft as it's now matching remote
+        if (window.syncManager) {
+            window.syncManager.clearDraft();
         }
+
+        console.log('Published to Firebase successfully');
+        return true;
+    } catch (err) {
+        console.error('Firebase publication failed:', err);
+        throw err;
     }
-    result.push(current);
-    return result;
 }
