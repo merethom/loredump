@@ -55,24 +55,43 @@ function saveLoreToFirebase() {
 
 /**
  * Explicitly publishes local changes to Firebase
+ * @param {Object} [dataToPublish] - Optional partial data to publish. If omitted, publishes all local data.
  * @returns {Promise}
  */
-async function publishLoreToFirebase() {
+async function publishLoreToFirebase(dataToPublish) {
     if (!window.firebaseDb) throw new Error('Firebase not initialized');
+
+    const entries = dataToPublish ? dataToPublish.entries : (allData || []);
+    const tags = dataToPublish ? dataToPublish.tags : (allTags || []);
 
     try {
         await window.firebaseDb.saveLoreData({
-            entries: allData || [],
-            tags: allTags || []
+            entries: entries,
+            tags: tags
         });
 
         // Update baseline upon success
-        remoteData = JSON.parse(JSON.stringify(allData || []));
-        remoteTags = JSON.parse(JSON.stringify(allTags || []));
+        remoteData = JSON.parse(JSON.stringify(entries));
+        remoteTags = JSON.parse(JSON.stringify(tags));
 
-        // Clear local draft as it's now matching remote
+        // Only clear local draft if we published EVERYTHING
+        // Otherwise, keep the draft so unpublished changes persist for next sync
         if (window.syncManager) {
-            window.syncManager.clearDraft();
+            const isFullPublish = !dataToPublish ||
+                (entries.length === allData.length &&
+                    tags.length === allTags.length &&
+                    JSON.stringify(entries) === JSON.stringify(allData) &&
+                    JSON.stringify(tags) === JSON.stringify(allTags));
+
+            if (isFullPublish) {
+                window.syncManager.clearDraft();
+                console.log('Full publish complete: local draft cleared');
+            } else {
+                // We keep the draft, but we should make sure the next diff 
+                // only shows the remaining items. Since we updated remoteData (the baseline),
+                // the next time getDiff runs it will naturally subtract these items.
+                console.log('Partial publish complete: local draft retained for remaining changes');
+            }
         }
 
         console.log('Published to Firebase successfully');

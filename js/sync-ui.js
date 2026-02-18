@@ -2,6 +2,11 @@
  * Sync UI - handles updating the sync status badge and dashboard
  */
 (function () {
+    // Track which changes are selected for publishing.
+    // keys are "entry:{number}" or "tag:{id}"
+    let selectedChanges = new Set();
+    let currentDiff = null;
+
     /**
      * Updates the sync status badge in the header
      */
@@ -62,30 +67,44 @@
             return;
         }
 
-        const diff = window.syncManager.getDiff(remoteData, remoteTags, allData, allTags);
+        currentDiff = window.syncManager.getDiff(remoteData, remoteTags, allData, allTags);
+
+        // Populate selectedChanges with all new changes if it's empty or first load of this diff
+        // For simplicity, we'll reset selection to "all" whenever the diff is re-rendered from scratch
+        selectedChanges.clear();
 
         let html = '';
 
         // Render Entries Diff
-        if (diff.entries.added.length > 0 || diff.entries.modified.length > 0 || diff.entries.deleted.length > 0) {
+        if (currentDiff.entries.added.length > 0 || currentDiff.entries.modified.length > 0 || currentDiff.entries.deleted.length > 0) {
             html += '<h3 class="diff-section-title">Lore Entries</h3>';
 
-            diff.entries.added.forEach(e => {
+            currentDiff.entries.added.forEach(e => {
+                const id = `entry:${e.Number}`;
+                selectedChanges.add(id);
                 html += `
-                <div class="diff-item">
+                <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header">
-                        <span>${e.Number}</span>
+                        <div class="diff-item-identity">
+                            <div class="diff-select-circle selected" onclick="toggleChangeSelection('${id}')"></div>
+                            <span>${e.Number}</span>
+                        </div>
                         <span class="diff-type-badge diff-type-added">added</span>
                     </div>
                     <div class="diff-content">${escapeHtml(e.Description)}</div>
                 </div>`;
             });
 
-            diff.entries.modified.forEach(m => {
+            currentDiff.entries.modified.forEach(m => {
+                const id = `entry:${m.new.Number}`;
+                selectedChanges.add(id);
                 html += `
-                <div class="diff-item">
+                <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header">
-                        <span>${m.new.Number}</span>
+                        <div class="diff-item-identity">
+                            <div class="diff-select-circle selected" onclick="toggleChangeSelection('${id}')"></div>
+                            <span>${m.new.Number}</span>
+                        </div>
                         <span class="diff-type-badge diff-type-modified">modified</span>
                     </div>
                     <div class="diff-content">
@@ -97,11 +116,16 @@
                 </div>`;
             });
 
-            diff.entries.deleted.forEach(e => {
+            currentDiff.entries.deleted.forEach(e => {
+                const id = `entry:${e.Number}`;
+                selectedChanges.add(id);
                 html += `
-                <div class="diff-item">
+                <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header">
-                        <span>${e.Number}</span>
+                        <div class="diff-item-identity">
+                            <div class="diff-select-circle selected" onclick="toggleChangeSelection('${id}')"></div>
+                            <span>${e.Number}</span>
+                        </div>
                         <span class="diff-type-badge diff-type-deleted">deleted</span>
                     </div>
                     <div class="diff-content diff-old">${escapeHtml(e.Description)}</div>
@@ -110,25 +134,35 @@
         }
 
         // Render Tags Diff
-        if (diff.tags.added.length > 0 || diff.tags.modified.length > 0 || diff.tags.deleted.length > 0) {
+        if (currentDiff.tags.added.length > 0 || currentDiff.tags.modified.length > 0 || currentDiff.tags.deleted.length > 0) {
             html += '<h3 class="diff-section-title">Tags</h3>';
 
-            diff.tags.added.forEach(t => {
+            currentDiff.tags.added.forEach(t => {
+                const id = `tag:${t.id}`;
+                selectedChanges.add(id);
                 html += `
-                <div class="diff-item">
+                <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header" style="align-items: center;">
-                        <span class="${getTagClass(t.color)}">${escapeHtml(t.name)}</span>
+                        <div class="diff-item-identity">
+                            <div class="diff-select-circle selected" onclick="toggleChangeSelection('${id}')"></div>
+                            <span class="${getTagClass(t.color)}">${escapeHtml(t.name)}</span>
+                        </div>
                         <span class="diff-type-badge diff-type-added">added</span>
                     </div>
                     <div class="diff-content">Color: ${t.color}, Terms: ${t.terms.join(', ')}</div>
                 </div>`;
             });
 
-            diff.tags.modified.forEach(m => {
+            currentDiff.tags.modified.forEach(m => {
+                const id = `tag:${m.new.id}`;
+                selectedChanges.add(id);
                 html += `
-                <div class="diff-item">
+                <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header" style="align-items: center;">
-                        <span class="${getTagClass(m.new.color)}">${escapeHtml(m.new.name)}</span>
+                        <div class="diff-item-identity">
+                            <div class="diff-select-circle selected" onclick="toggleChangeSelection('${id}')"></div>
+                            <span class="${getTagClass(m.new.color)}">${escapeHtml(m.new.name)}</span>
+                        </div>
                         <span class="diff-type-badge diff-type-modified">modified</span>
                     </div>
                     <div class="diff-content">
@@ -137,11 +171,16 @@
                 </div>`;
             });
 
-            diff.tags.deleted.forEach(t => {
+            currentDiff.tags.deleted.forEach(t => {
+                const id = `tag:${t.id}`;
+                selectedChanges.add(id);
                 html += `
-                <div class="diff-item">
+                <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header" style="align-items: center;">
-                        <span class="${getTagClass(t.color)}" style="opacity: 0.7; text-decoration: line-through;">${escapeHtml(t.name)}</span>
+                        <div class="diff-item-identity">
+                            <div class="diff-select-circle selected" onclick="toggleChangeSelection('${id}')"></div>
+                            <span class="${getTagClass(t.color)}" style="opacity: 0.7; text-decoration: line-through;">${escapeHtml(t.name)}</span>
+                        </div>
                         <span class="diff-type-badge diff-type-deleted">deleted</span>
                     </div>
                 </div>`;
@@ -153,6 +192,45 @@
         }
 
         container.innerHTML = html;
+        updatePublishButtonText();
+    }
+
+    /**
+     * Toggles whether a specific change is selected for publication
+     */
+    function toggleChangeSelection(id) {
+        if (selectedChanges.has(id)) {
+            selectedChanges.delete(id);
+        } else {
+            selectedChanges.add(id);
+        }
+
+        // Update UI
+        const item = document.querySelector(`.diff-item[data-change-id="${id}"]`);
+        if (item) {
+            const circle = item.querySelector('.diff-select-circle');
+            circle.classList.toggle('selected', selectedChanges.has(id));
+            item.classList.toggle('deselected', !selectedChanges.has(id));
+        }
+
+        updatePublishButtonText();
+    }
+
+    /**
+     * Updates the "Publish Changes" button text to show count
+     */
+    function updatePublishButtonText() {
+        const publishBtn = document.getElementById('publishBtn');
+        if (!publishBtn) return;
+
+        const count = selectedChanges.size;
+        if (count === 0) {
+            publishBtn.textContent = 'Publish Changes';
+            publishBtn.disabled = true;
+        } else {
+            publishBtn.textContent = `Publish ${count} Change${count === 1 ? '' : 's'}`;
+            publishBtn.disabled = false;
+        }
     }
 
     /**
@@ -160,15 +238,65 @@
      */
     async function publishChanges() {
         const publishBtn = document.getElementById('publishBtn');
-        if (!publishBtn) return;
+        if (!publishBtn || !currentDiff) return;
 
         const originalText = publishBtn.textContent;
         publishBtn.disabled = true;
         publishBtn.textContent = 'Publishing...';
 
         try {
+            // Perform a partial merge: start with remote baseline and apply ONLY selected changes
+            let entriesToPublish = JSON.parse(JSON.stringify(remoteData || []));
+            let tagsToPublish = JSON.parse(JSON.stringify(remoteTags || []));
+
+            // Apply selected entry changes
+            currentDiff.entries.added.forEach(e => {
+                if (selectedChanges.has(`entry:${e.Number}`)) {
+                    entriesToPublish.push(JSON.parse(JSON.stringify(e)));
+                }
+            });
+
+            currentDiff.entries.modified.forEach(m => {
+                if (selectedChanges.has(`entry:${m.new.Number}`)) {
+                    const idx = entriesToPublish.findIndex(e => e.Number === m.new.Number);
+                    if (idx !== -1) entriesToPublish[idx] = JSON.parse(JSON.stringify(m.new));
+                }
+            });
+
+            currentDiff.entries.deleted.forEach(e => {
+                if (selectedChanges.has(`entry:${e.Number}`)) {
+                    const idx = entriesToPublish.findIndex(ent => ent.Number === e.Number);
+                    if (idx !== -1) entriesToPublish.splice(idx, 1);
+                }
+            });
+
+            // Apply selected tag changes
+            currentDiff.tags.added.forEach(t => {
+                if (selectedChanges.has(`tag:${t.id}`)) {
+                    tagsToPublish.push(JSON.parse(JSON.stringify(t)));
+                }
+            });
+
+            currentDiff.tags.modified.forEach(m => {
+                if (selectedChanges.has(`tag:${m.new.id}`)) {
+                    const idx = tagsToPublish.findIndex(t => t.id === m.new.id);
+                    if (idx !== -1) tagsToPublish[idx] = JSON.parse(JSON.stringify(m.new));
+                }
+            });
+
+            currentDiff.tags.deleted.forEach(t => {
+                if (selectedChanges.has(`tag:${t.id}`)) {
+                    const idx = tagsToPublish.findIndex(tag => tag.id === t.id);
+                    if (idx !== -1) tagsToPublish.splice(idx, 1);
+                }
+            });
+
             if (typeof publishLoreToFirebase === 'function') {
-                await publishLoreToFirebase();
+                await publishLoreToFirebase({
+                    entries: entriesToPublish,
+                    tags: tagsToPublish
+                });
+
                 updateSyncStatus();
                 closeSyncSidesheet();
                 // Refresh UI to show data is in sync
@@ -178,7 +306,7 @@
             alert('Failed to publish changes: ' + err.message);
         } finally {
             publishBtn.disabled = false;
-            publishBtn.textContent = originalText;
+            updatePublishButtonText();
         }
     }
 
@@ -230,6 +358,7 @@
     window.publishChanges = publishChanges;
     window.discardLocalChanges = discardLocalChanges;
     window.downloadLoreJson = downloadLoreJson;
+    window.toggleChangeSelection = toggleChangeSelection;
 
     // Listen for data updates to refresh the badge
     window.addEventListener('loreDraftUpdated', updateSyncStatus);

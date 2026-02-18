@@ -410,17 +410,18 @@
                     </button>
                 </div>
                 <div class="sidesheet-content">
+                    <button type="button" class="generic-ui-btn" onclick="downloadLoreJson()"
+                        style="margin-right: 8px;">Download JSON</button>
                     <div id="syncDiffContainer" class="sync-diff-container">
                         <!-- Diff content will be injected here -->
                     </div>
                     <div class="sidesheet-footer">
                         <button type="button" class="generic-ui-btn text-btn" onclick="discardLocalChanges()"
-                            style="margin-right: auto; color: var(--color-orange-red);">Discard Changes</button>
-                        <button type="button" class="generic-ui-btn" onclick="downloadLoreJson()"
-                            style="margin-right: 8px;">Download JSON</button>
+                            style="margin-right: auto; color: var(--color-orange-red);">Discard</button>
                         <button type="button" class="generic-ui-btn purple-btn" id="publishBtn"
-                            onclick="publishChanges()">Publish Changes</button>
+                            onclick="publishChanges()">Publish</button>
                     </div>
+
                 </div>
             </div>
         </div>

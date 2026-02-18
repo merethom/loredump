@@ -278,6 +278,11 @@ h1 {
     margin-top: 4px;
 }
 
+.sidesheet-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
 .sync-diff-container {
     display: flex;
     flex-direction: column;
@@ -285,23 +290,63 @@ h1 {
     padding-right: 8px;
 }
 
-.sidesheet-footer {
-    display: flex;
-    justify-content: flex-end;
-}
-
 .diff-item {
     background: var(--dark-bg);
     border: var(--border);
     border-radius: var(--border-radius);
+    transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.diff-item.deselected {
+    opacity: 0.5;
+    border-color: transparent;
 }
 
 .diff-item-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     font-size: 0.825rem;
     color: var(--muted-text-color);
     padding: var(--box-padding);
+}
+
+.diff-item-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.diff-select-circle {
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--muted-text-color);
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.diff-select-circle:hover {
+    border-color: var(--text-color);
+}
+
+.diff-select-circle.selected {
+    background: var(--color-magenta);
+    border-color: var(--color-magenta);
+}
+
+.diff-select-circle.selected::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
 }
 
 .diff-type-badge {

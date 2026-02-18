@@ -355,12 +355,12 @@ function setupEventListeners() {
                 e.stopPropagation();
             }
 
-            if (e.target.getAttribute('data-action') === 'cancel-add') {
+            if (e.target.closest('[data-action="cancel-add"]')) {
                 closeAddEntryModal();
                 e.stopPropagation();
             }
 
-            if (e.target.getAttribute('data-action') === 'submit-add') {
+            if (e.target.closest('[data-action="submit-add"]')) {
                 submitAddEntry();
                 e.stopPropagation();
             }
@@ -410,17 +410,17 @@ function setupEventListeners() {
                 e.stopPropagation();
             }
 
-            if (e.target.getAttribute('data-action') === 'cancel-edit') {
+            if (e.target.closest('[data-action="cancel-edit"]')) {
                 closeEditEntryModal();
                 e.stopPropagation();
             }
 
-            if (e.target.getAttribute('data-action') === 'update-edit') {
+            if (e.target.closest('[data-action="update-edit"]')) {
                 updateEditEntry();
                 e.stopPropagation();
             }
 
-            if (e.target.getAttribute('data-action') === 'delete-edit') {
+            if (e.target.closest('[data-action="delete-edit"]')) {
                 deleteEditEntry();
                 e.stopPropagation();
             }
