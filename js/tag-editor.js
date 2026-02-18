@@ -4,8 +4,6 @@ let tagEditorSelectedColor = 'slate';
 let tagEditorSearchTerm = '';
 let tagEditDropdownTargetTagId = null;
 let tagEditDropdownSelectedColor = 'slate';
-let tagContextMenuTargetTagName = null;
-let longPressTimer = null;
 
 function openTagEditor() {
     const modal = document.getElementById('tagEditorModal');
@@ -265,55 +263,7 @@ function countEntriesWithTag(tagName) {
     }).length;
 }
 
-function showTagContextMenu(x, y, tagName) {
-    tagContextMenuTargetTagName = tagName;
-    const menu = document.getElementById('tagContextMenu');
-    menu.style.left = x + 'px';
-    menu.style.top = y + 'px';
-    menu.classList.add('show');
-}
-
-function hideTagContextMenu() {
-    tagContextMenuTargetTagName = null;
-    document.getElementById('tagContextMenu').classList.remove('show');
-}
-
-function handleTagContextMenuAction(action) {
-    const tagName = tagContextMenuTargetTagName;
-    hideTagContextMenu();
-    if (!tagName) return;
-    if (action === 'edit') {
-        openTagEditDropdown(tagName);
-    } else if (action === 'delete') {
-        deleteTagFromContext(tagName);
-    }
-}
-
-(function initTagContextMenu() {
-    const menu = document.getElementById('tagContextMenu');
-    if (!menu) return;
-
-    document.addEventListener('contextmenu', (e) => {
-        const tagEl = e.target.closest('.tag[data-name]');
-        if (!tagEl) return;
-        if (tagEl.closest('.tag__remove')) return;
-        if (tagEl.closest('#editEntryContainer') || tagEl.closest('#addEntryContainer')) return;
-        const tagName = tagEl.getAttribute('data-name');
-        if (!tagName) return;
-        e.preventDefault();
-        showTagContextMenu(e.clientX, e.clientY, tagName);
-    });
-
-    menu.querySelectorAll('.tag-context-menu-item').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            handleTagContextMenuAction(btn.getAttribute('data-action'));
-        });
-    });
-
-    document.addEventListener('click', () => hideTagContextMenu());
-    document.addEventListener('scroll', () => hideTagContextMenu(), true);
-
+(function initTagEditDropdown() {
     document.getElementById('tagEditContainer')?.addEventListener('click', (e) => {
         if (e.target.classList.contains('tag-form-color-btn')) {
             tagEditDropdownSelectedColor = e.target.getAttribute('data-color');
@@ -322,34 +272,6 @@ function handleTagContextMenuAction(action) {
     });
 
     document.getElementById('tagEditSubmit')?.addEventListener('click', submitTagEditDropdown);
-
-    document.addEventListener('touchstart', (e) => {
-        const tagEl = e.target.closest('.tag[data-name]');
-        if (!tagEl || tagEl.closest('#editEntryContainer') || tagEl.closest('#addEntryContainer')) return;
-        if (tagEl.closest('.tag__remove')) return;
-        longPressTimer = setTimeout(() => {
-            longPressTimer = null;
-            const tagName = tagEl.getAttribute('data-name');
-            if (tagName) {
-                const rect = tagEl.getBoundingClientRect();
-                showTagContextMenu(rect.left + rect.width / 2, rect.bottom, tagName);
-            }
-        }, 500);
-    }, { passive: true });
-
-    document.addEventListener('touchend', () => {
-        if (longPressTimer) {
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
-        }
-    }, { passive: true });
-
-    document.addEventListener('touchmove', () => {
-        if (longPressTimer) {
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
-        }
-    }, { passive: true });
 })();
 
 function downloadTags() {

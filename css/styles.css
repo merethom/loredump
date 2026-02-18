@@ -1658,45 +1658,6 @@ h1 {
     width: 100%;
 }
 
-.tag-context-menu {
-    display: none;
-    position: fixed;
-    z-index: 1100;
-    background: #1E1B31;
-    border: 1.5px solid #38304D;
-    border-radius: 8px;
-    padding: 4px 0;
-    min-width: 140px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-
-.tag-context-menu.show {
-    display: block;
-}
-
-.tag-context-menu-item {
-    display: block;
-    width: 100%;
-    padding: 10px 16px;
-    border: none;
-    background: none;
-    color: var(--lesser-text-color);
-    font-size: 13px;
-    font-family: var(--font-mono);
-    text-align: left;
-    cursor: pointer;
-    transition: background 0.15s;
-}
-
-.tag-context-menu-item:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-color);
-}
-
-.tag-context-menu-item[data-action="delete"]:hover {
-    color: var(--color-orange-red);
-}
-
 .tag-btn {
     padding: 8px 12px;
     background: #1E1B31;
