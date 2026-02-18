@@ -597,6 +597,16 @@ document.addEventListener('keydown', (e) => {
         }
         typeof closeFilterSidesheet === 'function' && closeFilterSidesheet();
     } else if (document.getElementById('tagEditorSidesheet')?.classList.contains('open')) {
+        const tagEditorColorWrapper = document.getElementById('tagEditorColorWrapper');
+        if (tagEditorColorWrapper?.classList.contains('open')) {
+            tagEditorColorWrapper.classList.remove('open');
+            return;
+        }
+        const tagForm = document.getElementById('tagForm');
+        if (tagForm?.style.display === 'block') {
+            typeof cancelTagForm === 'function' && cancelTagForm();
+            return;
+        }
         closeTagEditor();
     } else if (document.getElementById('modal')?.classList.contains('active')) {
         closeModal();
