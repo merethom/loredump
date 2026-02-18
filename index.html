@@ -410,16 +410,14 @@
                     </button>
                 </div>
                 <div class="sidesheet-content">
-                    <p class="modal-subtitle">The following changes are local and have not been pushed to the database.
-                    </p>
                     <div id="syncDiffContainer" class="sync-diff-container">
                         <!-- Diff content will be injected here -->
                     </div>
                     <div class="sidesheet-footer">
                         <button type="button" class="generic-ui-btn text-btn" onclick="discardLocalChanges()"
                             style="margin-right: auto; color: var(--color-orange-red);">Discard Changes</button>
-                        <button type="button" class="generic-ui-btn" onclick="closeSyncSidesheet()"
-                            style="margin-right: 8px;">Close</button>
+                        <button type="button" class="generic-ui-btn" onclick="downloadLoreJson()"
+                            style="margin-right: 8px;">Download JSON</button>
                         <button type="button" class="generic-ui-btn purple-btn" id="publishBtn"
                             onclick="publishChanges()">Publish Changes</button>
                     </div>

@@ -68,14 +68,14 @@
 
         // Render Entries Diff
         if (diff.entries.added.length > 0 || diff.entries.modified.length > 0 || diff.entries.deleted.length > 0) {
-            html += '<div class="diff-section-title">Lore Entries</div>';
+            html += '<h3 class="diff-section-title">Lore Entries</h3>';
 
             diff.entries.added.forEach(e => {
                 html += `
                 <div class="diff-item">
                     <div class="diff-item-header">
-                        <span>Entry #${e.Number}</span>
-                        <span class="diff-type-badge diff-type-added">Added</span>
+                        <span>${e.Number}</span>
+                        <span class="diff-type-badge diff-type-added">added</span>
                     </div>
                     <div class="diff-content">${escapeHtml(e.Description)}</div>
                 </div>`;
@@ -85,8 +85,8 @@
                 html += `
                 <div class="diff-item">
                     <div class="diff-item-header">
-                        <span>Entry #${m.new.Number}</span>
-                        <span class="diff-type-badge diff-type-modified">Modified</span>
+                        <span>${m.new.Number}</span>
+                        <span class="diff-type-badge diff-type-modified">modified</span>
                     </div>
                     <div class="diff-content">
                         ${m.old.Description !== m.new.Description ? `
@@ -101,8 +101,8 @@
                 html += `
                 <div class="diff-item">
                     <div class="diff-item-header">
-                        <span>Entry #${e.Number}</span>
-                        <span class="diff-type-badge diff-type-deleted">Deleted</span>
+                        <span>${e.Number}</span>
+                        <span class="diff-type-badge diff-type-deleted">deleted</span>
                     </div>
                     <div class="diff-content diff-old">${escapeHtml(e.Description)}</div>
                 </div>`;
@@ -111,14 +111,14 @@
 
         // Render Tags Diff
         if (diff.tags.added.length > 0 || diff.tags.modified.length > 0 || diff.tags.deleted.length > 0) {
-            html += '<div class="diff-section-title" style="margin-top: 24px;">Tags</div>';
+            html += '<h3 class="diff-section-title">Tags</h3>';
 
             diff.tags.added.forEach(t => {
                 html += `
                 <div class="diff-item">
-                    <div class="diff-item-header">
-                        <span>${escapeHtml(t.name)}</span>
-                        <span class="diff-type-badge diff-type-added">Added</span>
+                    <div class="diff-item-header" style="align-items: center;">
+                        <span class="${getTagClass(t.color)}">${escapeHtml(t.name)}</span>
+                        <span class="diff-type-badge diff-type-added">added</span>
                     </div>
                     <div class="diff-content">Color: ${t.color}, Terms: ${t.terms.join(', ')}</div>
                 </div>`;
@@ -127,9 +127,9 @@
             diff.tags.modified.forEach(m => {
                 html += `
                 <div class="diff-item">
-                    <div class="diff-item-header">
-                        <span>${escapeHtml(m.new.name)}</span>
-                        <span class="diff-type-badge diff-type-modified">Modified</span>
+                    <div class="diff-item-header" style="align-items: center;">
+                        <span class="${getTagClass(m.new.color)}">${escapeHtml(m.new.name)}</span>
+                        <span class="diff-type-badge diff-type-modified">modified</span>
                     </div>
                     <div class="diff-content">
                         <div class="diff-change-line">Changes in color or terms.</div>
@@ -140,9 +140,9 @@
             diff.tags.deleted.forEach(t => {
                 html += `
                 <div class="diff-item">
-                    <div class="diff-item-header">
-                        <span>${escapeHtml(t.name)}</span>
-                        <span class="diff-type-badge diff-type-deleted">Deleted</span>
+                    <div class="diff-item-header" style="align-items: center;">
+                        <span class="${getTagClass(t.color)}" style="opacity: 0.7; text-decoration: line-through;">${escapeHtml(t.name)}</span>
+                        <span class="diff-type-badge diff-type-deleted">deleted</span>
                     </div>
                 </div>`;
             });
@@ -205,11 +205,31 @@
         if (typeof filterData === 'function') filterData();
     }
 
+    /**
+     * Downloads the current local lore state (entries + tags) as a JSON file
+     */
+    function downloadLoreJson() {
+        const data = {
+            entries: allData || [],
+            tags: allTags || [],
+            exportedAt: new Date().toISOString()
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        a.href = url;
+        a.download = `noxsyphone-lore-draft-${timestamp}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
     // Attach to global scope
     window.openSyncSidesheet = openSyncSidesheet;
     window.closeSyncSidesheet = closeSyncSidesheet;
     window.publishChanges = publishChanges;
     window.discardLocalChanges = discardLocalChanges;
+    window.downloadLoreJson = downloadLoreJson;
 
     // Listen for data updates to refresh the badge
     window.addEventListener('loreDraftUpdated', updateSyncStatus);
