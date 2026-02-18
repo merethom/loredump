@@ -253,14 +253,6 @@ function setupEventListeners() {
         el.scrollTo({ top: bottom, behavior: 'smooth' });
     });
 
-    // Tag editor color selector
-    document.getElementById('tagEditorSidesheet')?.addEventListener('click', (e) => {
-        if (e.target.classList.contains('tag-form-color-btn')) {
-            tagEditorSelectedColor = e.target.getAttribute('data-color');
-            updateTagFormColorSelector();
-        }
-    });
-
     // Setup modal event listeners
     const modalElement = document.getElementById('modal');
     if (modalElement) {
@@ -302,6 +294,7 @@ function setupEventListeners() {
         if (!e.target.closest('.edit-entry-color-wrapper')) {
             document.getElementById('editEntryColorWrapper')?.classList.remove('open');
             document.getElementById('addEntryColorWrapper')?.classList.remove('open');
+            document.getElementById('tagEditorColorWrapper')?.classList.remove('open');
         }
         // Clear tag input when clicking outside of it
         if (document.getElementById('addEntryContainer')?.classList.contains('active')) {

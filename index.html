@@ -180,7 +180,8 @@
                         </div>
                         <div class="enter-tag">
                             <h3>Tags</h3>
-                            <div class="tag-input-wrapper">
+                            <div class="tag-input-row">
+                                <div class="tag-input-wrapper">
                                 <input type="text" id="editEntryTagInput" placeholder="Add a tag and press Enter..."
                                     tabindex="0" autocomplete="off">
                                 <div id="editEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
@@ -207,6 +208,7 @@
                                         <button type="button" class="tag-color slate edit-entry-color-btn selected"
                                             data-color="slate" title="Slate" tabindex="0"></button>
                                     </div>
+                                </div>
                                 </div>
                             </div>
                             <div id="editEntryTags" class="tag-list"></div>
@@ -317,35 +319,43 @@
                     </button>
                 </div>
                 <div class="sidesheet-content">
-                    <div class="tag-filter-search-wrapper">
-                        <svg class="icon tag-filter-search-icon" aria-hidden="true">
-                            <use href="img/sprites/regular.svg#magnifying-glass"></use>
-                        </svg>
-                        <input type="text" id="tagEditorSearch" class="tag-filter-search" placeholder="Search tags..." autocomplete="off" aria-label="Search tags">
-                        <button type="button" class="search-clear" id="tagEditorSearchClear" title="Clear search" aria-label="Clear search">
+                    <div class="search-add-row">
+                        <div class="tag-filter-search-wrapper">
+                            <svg class="icon tag-filter-search-icon" aria-hidden="true">
+                                <use href="img/sprites/regular.svg#magnifying-glass"></use>
+                            </svg>
+                            <input type="text" id="tagEditorSearch" class="tag-filter-search" placeholder="Search tags..." autocomplete="off" aria-label="Search tags">
+                            <button type="button" class="search-clear" id="tagEditorSearchClear" title="Clear search" aria-label="Clear search">
+                                <svg class="icon" aria-hidden="true">
+                                    <use href="img/sprites/duotone.svg#xmark"></use>
+                                </svg>
+                            </button>
+                        </div>
+                        <button type="button" class="generic-ui-btn purple-btn" id="tagEditorNewTagBtn" title="New tag" aria-label="New tag" onclick="showNewTagForm()">
                             <svg class="icon" aria-hidden="true">
-                                <use href="img/sprites/duotone.svg#xmark"></use>
+                                <use href="img/sprites/solid.svg#plus"></use>
                             </svg>
                         </button>
                     </div>
                     <div id="tagFormHome">
                         <div id="tagForm" class="tag-form-section">
                             <h3 id="tagFormTitle" class="tag-form-title"></h3>
-                            <div style="margin: 15px 0;">
-                                <label class="tag-form-label">Tag Name:</label>
-                                <input type="text" id="tagName" class="tag-form-input">
-                            </div>
-                            <div style="margin: 15px 0;">
-                                <label class="tag-form-label">Color:</label>
-                                <div class="tag-form-color-selector">
-                                    <button type="button" class="tag-form-color-btn" data-color="purple" title="Purple"></button>
-                                    <button type="button" class="tag-form-color-btn" data-color="green" title="Green"></button>
-                                    <button type="button" class="tag-form-color-btn" data-color="blue" title="Blue"></button>
-                                    <button type="button" class="tag-form-color-btn" data-color="orange" title="Orange"></button>
-                                    <button type="button" class="tag-form-color-btn" data-color="teal" title="Teal"></button>
-                                    <button type="button" class="tag-form-color-btn" data-color="pink" title="Pink"></button>
-                                    <button type="button" class="tag-form-color-btn" data-color="amber" title="Amber"></button>
-                                    <button type="button" class="tag-form-color-btn selected" data-color="slate" title="Slate"></button>
+                            <div class="tag-input-row" style="margin: 15px 0;">
+                                <div class="tag-input-wrapper">
+                                    <input type="text" id="tagName" placeholder="Tag name..." autocomplete="off" aria-label="Tag name">
+                                    <div class="edit-entry-color-wrapper" id="tagEditorColorWrapper">
+                                        <button type="button" class="lore-tag-current-color edit-entry-color-swatch" id="tagEditorColorSwatch" data-color="slate" aria-label="Tag color" title="Select color"></button>
+                                        <div class="lore-tag-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
+                                            <button type="button" class="tag-color orange-red edit-entry-color-btn" data-color="amber" title="Amber"></button>
+                                            <button type="button" class="tag-color orange edit-entry-color-btn" data-color="orange" title="Orange"></button>
+                                            <button type="button" class="tag-color lime edit-entry-color-btn" data-color="green" title="Green"></button>
+                                            <button type="button" class="tag-color aqua edit-entry-color-btn" data-color="teal" title="Teal"></button>
+                                            <button type="button" class="tag-color blue edit-entry-color-btn" data-color="blue" title="Blue"></button>
+                                            <button type="button" class="tag-color purple edit-entry-color-btn" data-color="purple" title="Purple"></button>
+                                            <button type="button" class="tag-color magenta edit-entry-color-btn" data-color="pink" title="Pink"></button>
+                                            <button type="button" class="tag-color slate edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div style="margin: 15px 0;">
@@ -358,7 +368,6 @@
                             </div>
                         </div>
                     </div>
-                    <button type="button" onclick="showNewTagForm()" class="tag-btn" style="margin-bottom: 20px;">+ New Tag</button>
                     <div id="tagList"></div>
                     <div class="tag-editor-divider">
                         <button type="button" onclick="downloadTags()" class="tag-btn">⬇️ Download tags.json</button>
@@ -385,7 +394,8 @@
                 </div>
                 <div class="enter-tag">
                     <h3>Tags</h3>
-                    <div class="tag-input-wrapper">
+                    <div class="tag-input-row">
+                        <div class="tag-input-wrapper">
                         <input type="text" id="addEntryTagInput" placeholder="Add a tag..." tabindex="0"
                             autocomplete="off">
                         <div id="addEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
@@ -412,6 +422,7 @@
                                 <button type="button" class="tag-color slate edit-entry-color-btn selected"
                                     data-color="slate" title="Slate" tabindex="0"></button>
                             </div>
+                        </div>
                         </div>
                     </div>
                     <div id="addEntryTags" class="tag-list"></div>

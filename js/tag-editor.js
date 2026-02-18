@@ -65,7 +65,9 @@ function closeTagEditor() {
 })();
 
 function updateTagFormColorSelector() {
-    document.querySelectorAll('.tag-editor-sidesheet .tag-form-color-btn').forEach(btn => {
+    const swatch = document.getElementById('tagEditorColorSwatch');
+    if (swatch) swatch.setAttribute('data-color', tagEditorSelectedColor);
+    document.querySelectorAll('#tagForm .edit-entry-color-btn').forEach(btn => {
         btn.classList.toggle('selected', btn.getAttribute('data-color') === tagEditorSelectedColor);
     });
 }
@@ -312,6 +314,25 @@ function countEntriesWithTag(tagName) {
     });
 
     document.getElementById('tagEditSubmit')?.addEventListener('click', submitTagEditDropdown);
+})();
+
+// Tag editor color wrapper: swatch toggles popover, color btn sets color (same pattern as add/edit entry)
+(function initTagEditorColorWrapper() {
+    const wrapper = document.getElementById('tagEditorColorWrapper');
+    if (!wrapper) return;
+
+    wrapper.addEventListener('click', (e) => {
+        if (e.target.classList.contains('edit-entry-color-swatch') || e.target.closest('.edit-entry-color-swatch')) {
+            wrapper.classList.toggle('open');
+            return;
+        }
+        const colorBtn = e.target.closest('.edit-entry-color-btn');
+        if (colorBtn) {
+            tagEditorSelectedColor = colorBtn.getAttribute('data-color') || 'slate';
+            updateTagFormColorSelector();
+            wrapper.classList.remove('open');
+        }
+    });
 })();
 
 function downloadTags() {
