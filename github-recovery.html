@@ -243,6 +243,60 @@
         <div id="previewContent"></div>
     </div>
 
+    <div class="section" id="importAuthSection">
+        <h2>Firebase sign-in</h2>
+        <p style="color: #888; font-size: 14px;">You must be signed in to read or write the database. Sign in with the same Google account you use on the main site.</p>
+        <div id="recoveryAuthError" class="status error" style="display: none; margin: 12px 0;"></div>
+        <div id="importAuthSignedOut" style="margin: 12px 0;">
+            <button type="button" id="recoverySignInBtn">Sign in with Google</button>
+        </div>
+        <div id="importAuthSignedIn" style="display: none; margin: 12px 0;">
+            <span id="recoveryUserEmail" style="color: #4caf50;"></span>
+            <button type="button" id="recoverySignOutBtn" style="margin-left: 12px;">Sign out</button>
+        </div>
+    </div>
+
+    <div class="section" id="importSection">
+        <h2>Import to Firebase</h2>
+        <p id="importAuthRequiredMsg" style="color: #ff9800; font-size: 14px;">Sign in with Google above to merge or replace Firebase data.</p>
+        <p id="importAuthOkMsg" style="display: none; color: #888; font-size: 14px;">
+            Add lost data by uploading or pasting a backup JSON file. Use <strong>Replace</strong> to overwrite Firebase with the file. Use <strong>Merge</strong> to add only new entries (by Number) and new tags from the file without removing existing data.
+        </p>
+        <div id="importFormWrap" style="display: none;">
+        <div style="margin: 12px 0;">
+            <label style="display: block; margin-bottom: 6px;">JSON file (same shape as backup: <code>{ "entries": [...], "tags": [...] }</code>):</label>
+            <input type="file" id="importFileInput" accept=".json,application/json" style="
+                padding: 8px;
+                background: #1a1a1a;
+                border: 1px solid #444;
+                border-radius: 4px;
+                color: #e0e0e0;
+            ">
+        </div>
+        <div style="margin: 12px 0;">
+            <label style="display: block; margin-bottom: 6px;">Or paste JSON here:</label>
+            <textarea id="importJsonText" placeholder='{ "entries": [ ... ], "tags": [ ... ] }' style="
+                width: 100%;
+                min-height: 120px;
+                padding: 8px;
+                background: #1a1a1a;
+                border: 1px solid #444;
+                border-radius: 4px;
+                color: #e0e0e0;
+                font-family: monospace;
+                font-size: 12px;
+                box-sizing: border-box;
+            "></textarea>
+        </div>
+        <div id="importSummary" style="margin: 8px 0; font-size: 14px; color: #888;"></div>
+        <div style="margin-top: 12px;">
+            <button onclick="importReplaceFirebase()" class="danger">Replace Firebase with file</button>
+            <button onclick="importMergeFirebase()">Merge into Firebase</button>
+        </div>
+        <div id="importResult" style="margin-top: 12px;"></div>
+        </div>
+    </div>
+
     <script>
         // Fallback if config file doesn't load
         window.githubConfig = window.githubConfig || {
@@ -254,6 +308,7 @@
     <script src="js/github-backup.js"></script>
     <script src="js/firebase-config.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="js/firebase-db.js"></script>
 
@@ -493,6 +548,190 @@
             return div.innerHTML;
         }
 
+        function getImportData() {
+            const text = document.getElementById('importJsonText').value.trim();
+            if (!text) return null;
+            try {
+                const data = JSON.parse(text);
+                const entries = Array.isArray(data.entries) ? data.entries : [];
+                const tags = Array.isArray(data.tags) ? data.tags : [];
+                return { entries, tags };
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function updateImportSummary() {
+            const data = getImportData();
+            const el = document.getElementById('importSummary');
+            if (!data) {
+                el.textContent = '';
+                return;
+            }
+            el.textContent = `File has ${data.entries.length} entries and ${data.tags.length} tags.`;
+        }
+
+        document.getElementById('importFileInput').addEventListener('change', function () {
+            const file = this.files && this.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function () {
+                document.getElementById('importJsonText').value = reader.result;
+                updateImportSummary();
+            };
+            reader.readAsText(file);
+        });
+        document.getElementById('importJsonText').addEventListener('input', updateImportSummary);
+
+        async function importReplaceFirebase() {
+            const data = getImportData();
+            const resultEl = document.getElementById('importResult');
+            if (!data) {
+                resultEl.innerHTML = '<div class="status error">Invalid or empty JSON. Use backup shape: { "entries": [...], "tags": [...] }</div>';
+                return;
+            }
+            if (!window.firebaseDb) {
+                resultEl.innerHTML = '<div class="status error">Firebase not available. Check firebase-config.js.</div>';
+                return;
+            }
+            const ok = confirm('Replace ALL data in Firebase with this file? This cannot be undone.');
+            if (!ok) return;
+            try {
+                const success = await window.firebaseDb.saveLoreData(data);
+                if (success) {
+                    resultEl.innerHTML = '<div class="status success">Firebase replaced. <a href="index.html">Open main site</a> to see ' + data.entries.length + ' entries.</div>';
+                } else {
+                    resultEl.innerHTML = '<div class="status error">Firebase save failed. Check console.</div>';
+                }
+            } catch (err) {
+                resultEl.innerHTML = '<div class="status error">Error: ' + escapeHtml(err.message) + '</div>';
+            }
+        }
+
+        async function importMergeFirebase() {
+            const fileData = getImportData();
+            const resultEl = document.getElementById('importResult');
+            if (!fileData) {
+                resultEl.innerHTML = '<div class="status error">Invalid or empty JSON. Use backup shape: { "entries": [...], "tags": [...] }</div>';
+                return;
+            }
+            if (!window.firebaseDb) {
+                resultEl.innerHTML = '<div class="status error">Firebase not available. Check firebase-config.js.</div>';
+                return;
+            }
+            try {
+                const current = await window.firebaseDb.loadLoreData();
+                const currentEntries = (current && Array.isArray(current.entries)) ? current.entries : [];
+                const currentTags = (current && Array.isArray(current.tags)) ? current.tags : [];
+
+                const entriesByNumber = new Map(currentEntries.map(e => [String(e.Number), e]));
+                fileData.entries.forEach(e => entriesByNumber.set(String(e.Number), e));
+                const mergedEntries = Array.from(entriesByNumber.values()).sort((a, b) => (parseFloat(a.Number) || 0) - (parseFloat(b.Number) || 0));
+
+                const tagsByName = new Map(currentTags.filter(t => t && t.name).map(t => [t.name.toLowerCase(), t]));
+                fileData.tags.forEach(t => {
+                    if (t && t.name && !tagsByName.has(t.name.toLowerCase())) tagsByName.set(t.name.toLowerCase(), t);
+                });
+                const mergedTags = Array.from(tagsByName.values());
+
+                const success = await window.firebaseDb.saveLoreData({ entries: mergedEntries, tags: mergedTags });
+                if (success) {
+                    const added = mergedEntries.length - currentEntries.length;
+                    resultEl.innerHTML = '<div class="status success">Merged. Firebase now has ' + mergedEntries.length + ' entries and ' + mergedTags.length + ' tags.' + (added ? ' (' + added + ' new entries added.)' : '') + ' <a href="index.html">Open main site</a></div>';
+                } else {
+                    resultEl.innerHTML = '<div class="status error">Firebase save failed. Check console.</div>';
+                }
+            } catch (err) {
+                resultEl.innerHTML = '<div class="status error">Error: ' + escapeHtml(err.message) + '</div>';
+            }
+        }
+
+        // Firebase Auth for recovery page (required for Import to Firebase)
+        function initRecoveryAuth() {
+            const authErrorEl = document.getElementById('recoveryAuthError');
+            const signInBtn = document.getElementById('recoverySignInBtn');
+            const signOutBtn = document.getElementById('recoverySignOutBtn');
+
+            function showAuthError(msg) {
+                if (authErrorEl) {
+                    authErrorEl.textContent = msg;
+                    authErrorEl.style.display = 'block';
+                }
+                if (signInBtn) signInBtn.disabled = true;
+            }
+
+            function clearAuthError() {
+                if (authErrorEl) authErrorEl.style.display = 'none';
+                if (signInBtn) signInBtn.disabled = false;
+            }
+
+            if (!window.firebase) {
+                showAuthError('Firebase SDK did not load. Check the browser console and ensure you are opening this page over HTTP/HTTPS (not file://).');
+                return;
+            }
+            // Ensure Firebase app is initialized (recovery page may not have called firebase-db yet)
+            if (!window.firebase.apps || window.firebase.apps.length === 0) {
+                if (!window.firebaseConfig) {
+                    showAuthError('Firebase config missing. Ensure js/firebase-config.js exists and is loaded (e.g. run from a local server in the project folder).');
+                    return;
+                }
+                try {
+                    window.firebase.initializeApp(window.firebaseConfig);
+                } catch (e) {
+                    showAuthError('Firebase init failed: ' + (e.message || e));
+                    return;
+                }
+            }
+            if (!window.firebase.auth) {
+                showAuthError('Firebase Auth did not load. Check that firebase-auth-compat.js is loading.');
+                return;
+            }
+
+            clearAuthError();
+            const auth = window.firebase.auth();
+            const signedOut = document.getElementById('importAuthSignedOut');
+            const signedIn = document.getElementById('importAuthSignedIn');
+            const userEmail = document.getElementById('recoveryUserEmail');
+            const authRequiredMsg = document.getElementById('importAuthRequiredMsg');
+            const authOkMsg = document.getElementById('importAuthOkMsg');
+            const formWrap = document.getElementById('importFormWrap');
+
+            function setSignedIn(user) {
+                if (user) {
+                    if (signedOut) signedOut.style.display = 'none';
+                    if (signedIn) signedIn.style.display = 'block';
+                    if (userEmail) userEmail.textContent = user.email || 'Signed in';
+                    if (authRequiredMsg) authRequiredMsg.style.display = 'none';
+                    if (authOkMsg) authOkMsg.style.display = 'block';
+                    if (formWrap) formWrap.style.display = 'block';
+                } else {
+                    if (signedOut) signedOut.style.display = 'block';
+                    if (signedIn) signedIn.style.display = 'none';
+                    if (authRequiredMsg) authRequiredMsg.style.display = 'block';
+                    if (authOkMsg) authOkMsg.style.display = 'none';
+                    if (formWrap) formWrap.style.display = 'none';
+                }
+            }
+
+            if (signInBtn) {
+                signInBtn.addEventListener('click', function () {
+                    const provider = new window.firebase.auth.GoogleAuthProvider();
+                    auth.signInWithPopup(provider).catch(function (err) {
+                        console.error('Sign-in error:', err);
+                        var msg = err.message || 'Unknown error';
+                        if (err.code === 'auth/popup-blocked') msg = 'Sign-in popup was blocked. Allow popups for this site and try again.';
+                        else if (err.code === 'auth/popup-closed-by-user') return; // user closed, no need to alert
+                        else alert('Sign-in failed: ' + msg);
+                    });
+                });
+            }
+            if (signOutBtn) {
+                signOutBtn.addEventListener('click', function () { auth.signOut(); });
+            }
+
+            auth.onAuthStateChanged(setSignedIn);
+        }
+
         // Check config on load and pre-fill inputs if config file exists
         window.addEventListener('load', () => {
             // Pre-fill from config file if it loaded
@@ -501,6 +740,7 @@
                 document.getElementById('repoInput').value = window.githubConfig.repo;
             }
             checkConfig();
+            initRecoveryAuth();
         });
     </script>
 </body>

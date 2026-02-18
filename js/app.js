@@ -92,6 +92,10 @@ function setupEventListeners() {
 
         // Close dropdowns if clicking outside
         if (!e.target.closest('.generic-ui-btn') && !e.target.closest('.controls-dropdown')) {
+            const editContainer = document.getElementById('editEntryContainer');
+            if (editContainer?.classList.contains('show')) {
+                closeEditEntryModal();
+            }
             document.querySelectorAll('.controls-dropdown').forEach(d => d.classList.remove('show'));
         }
     });

@@ -36,10 +36,8 @@ function saveLoreToFirebase() {
             entries: allData || [],
             tags: allTags || []
         })
-        .then((ok) => {
-            if (ok && window.githubBackup && typeof window.githubBackup.saveBackup === 'function') {
-                window.githubBackup.saveBackup(allData || [], allTags || []);
-            }
+        .then(() => {
+            // GitHub backups are now handled via GitHub Actions, not from the client
         })
         .catch(err => console.warn('Firebase save failed:', err));
 }
