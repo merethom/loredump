@@ -240,6 +240,17 @@ function setupEventListeners() {
     // Setup tag editor button
     document.getElementById('tagEditorBtn').addEventListener('click', openTagEditor);
 
+    // Scroll to top / bottom (main content is the scroll container, not window)
+    const scrollEl = () => document.querySelector('.app-main-content') || window;
+    document.getElementById('scrollToTopBtn')?.addEventListener('click', () => {
+        scrollEl().scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    document.getElementById('scrollToBottomBtn')?.addEventListener('click', () => {
+        const el = scrollEl();
+        const bottom = el === window ? document.documentElement.scrollHeight - window.innerHeight : el.scrollHeight - el.clientHeight;
+        el.scrollTo({ top: bottom, behavior: 'smooth' });
+    });
+
     // Tag editor color selector
     document.getElementById('tagEditorModal')?.addEventListener('click', (e) => {
         if (e.target.classList.contains('tag-form-color-btn')) {

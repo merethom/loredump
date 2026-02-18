@@ -16,6 +16,7 @@ js/github-config.js
 js/firebase-config.js
 
 
+
 # IDE
 .vscode/
 *.swp

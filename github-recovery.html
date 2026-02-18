@@ -195,6 +195,39 @@
     <p class="subtitle">Browse and restore previous versions of your lore data</p>
 
     <div class="section">
+        <h2>GitHub Credentials</h2>
+        <p style="color: #888; font-size: 14px;">
+            Enter your credentials here (they are NOT saved or sent anywhere except directly to GitHub API)
+        </p>
+        <div style="margin: 16px 0;">
+            <label style="display: block; margin-bottom: 8px;">Personal Access Token:</label>
+            <input type="password" id="tokenInput" placeholder="ghp_..." style="
+                width: 100%;
+                padding: 8px;
+                background: #1a1a1a;
+                border: 1px solid #444;
+                border-radius: 4px;
+                color: #e0e0e0;
+                font-family: monospace;
+            ">
+        </div>
+        <div style="margin: 16px 0;">
+            <label style="display: block; margin-bottom: 8px;">Repository (username/repo-name):</label>
+            <input type="text" id="repoInput" placeholder="merethom/loredump-backups" style="
+                width: 100%;
+                padding: 8px;
+                background: #1a1a1a;
+                border: 1px solid #444;
+                border-radius: 4px;
+                color: #e0e0e0;
+                font-family: monospace;
+            ">
+        </div>
+        <button onclick="saveCredentials()" style="background: #4caf50;">💾 Save Credentials (Session Only)</button>
+        <div id="credStatus" style="margin-top: 12px;"></div>
+    </div>
+
+    <div class="section">
         <h2>Configuration Status</h2>
         <div id="configStatus"></div>
     </div>
@@ -210,7 +243,14 @@
         <div id="previewContent"></div>
     </div>
 
-    <script src="js/github-config.js"></script>
+    <script>
+        // Fallback if config file doesn't load
+        window.githubConfig = window.githubConfig || {
+            token: '',
+            repo: ''
+        };
+    </script>
+    <script src="js/github-config.js" onerror="console.warn('github-config.js not found - please create it from github-config.example.js')"></script>
     <script src="js/github-backup.js"></script>
     <script src="js/firebase-config.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -220,22 +260,46 @@
     <script>
         let currentBackups = [];
 
+        function saveCredentials() {
+            const token = document.getElementById('tokenInput').value.trim();
+            const repo = document.getElementById('repoInput').value.trim();
+            const statusDiv = document.getElementById('credStatus');
+
+            if (!token || !repo) {
+                statusDiv.innerHTML = '<div class="status error">⚠️ Please enter both token and repository</div>';
+                return;
+            }
+
+            // Override the config
+            window.githubConfig = {
+                token,
+                repo
+            };
+
+            statusDiv.innerHTML = '<div class="status success">✅ Credentials saved for this session</div>';
+            checkConfig();
+        }
+
         function checkConfig() {
             const statusDiv = document.getElementById('configStatus');
+
+            // Try to load from inputs if config isn't set
+            const token = document.getElementById('tokenInput')?.value?.trim();
+            const repo = document.getElementById('repoInput')?.value?.trim();
+
+            if (token && repo) {
+                window.githubConfig = {
+                    token,
+                    repo
+                };
+            }
+
             const isConfigured = window.githubBackup?.isConfigured();
 
             if (!isConfigured) {
                 statusDiv.innerHTML = `
-                    <div class="status error">
-                        ❌ GitHub not configured<br><br>
-                        <strong>Setup Instructions:</strong><br>
-                        1. Copy <code>js/github-config.example.js</code> to <code>js/github-config.js</code><br>
-                        2. Create a private GitHub repo for backups<br>
-                        3. Generate a Personal Access Token at 
-                           <a href="https://github.com/settings/tokens" target="_blank">
-                               github.com/settings/tokens
-                           </a><br>
-                        4. Add your token and repo name to <code>github-config.js</code>
+                    <div class="status warning">
+                        ⚠️ Not configured - enter credentials above
                     </div>
                 `;
             } else {
@@ -429,8 +493,15 @@
             return div.innerHTML;
         }
 
-        // Check config on load
-        window.addEventListener('load', checkConfig);
+        // Check config on load and pre-fill inputs if config file exists
+        window.addEventListener('load', () => {
+            // Pre-fill from config file if it loaded
+            if (window.githubConfig && window.githubConfig.token !== 'YOUR_GITHUB_TOKEN') {
+                document.getElementById('tokenInput').value = window.githubConfig.token;
+                document.getElementById('repoInput').value = window.githubConfig.repo;
+            }
+            checkConfig();
+        });
     </script>
 </body>
 
