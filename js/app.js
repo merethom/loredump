@@ -202,6 +202,7 @@ function setupEventListeners() {
     // Filter sidesheet open/close
     window.openFilterSidesheet = function () {
         if (typeof closeTagEditor === 'function') closeTagEditor();
+        if (typeof closeSyncSidesheet === 'function') closeSyncSidesheet();
         filtersVisible = true;
         document.getElementById('filterSidesheet').classList.add('open');
         document.getElementById('filterSidesheet').setAttribute('aria-hidden', 'false');

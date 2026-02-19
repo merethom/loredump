@@ -9,6 +9,7 @@ function openTagEditor() {
     const sidesheet = document.getElementById('tagEditorSidesheet');
     if (!sidesheet) return;
     if (typeof closeFilterSidesheet === 'function') closeFilterSidesheet();
+    if (typeof closeSyncSidesheet === 'function') closeSyncSidesheet();
     const searchEl = document.getElementById('tagEditorSearch');
     const searchClearEl = document.getElementById('tagEditorSearchClear');
     if (searchEl) searchEl.value = '';

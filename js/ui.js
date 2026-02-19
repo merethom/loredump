@@ -91,14 +91,14 @@ function renderDatabase() {
  */
 function handleEntryNumberClick(card, event) {
     event.stopPropagation();
-    
+
     const entryNumber = card.getAttribute('data-entry-number');
     if (!entryNumber) return;
-    
+
     // Clear all filters and search
     searchTerm = '';
     selectedTags.clear();
-    
+
     // Update UI elements
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
@@ -106,16 +106,16 @@ function handleEntryNumberClick(card, event) {
         const searchClear = document.getElementById('searchClear');
         if (searchClear) searchClear.classList.remove('show');
     }
-    
+
     // Refresh tag filter UI and re-render data
     if (typeof refreshTagFilter === 'function') refreshTagFilter();
     filterData();
-    
+
     // Wait for render, then scroll to and highlight the entry
     requestAnimationFrame(() => {
         const targetCard = document.querySelector(`.card[data-entry-number="${entryNumber}"]`);
         if (!targetCard) return;
-        
+
         // Clear any existing highlights and selections
         document.querySelectorAll('.card.card--highlighted').forEach(c => {
             c.classList.remove('card--highlighted');
@@ -123,17 +123,17 @@ function handleEntryNumberClick(card, event) {
         document.querySelectorAll('.card.card--selected').forEach(c => {
             c.classList.remove('card--selected');
         });
-        
+
         // Update goto entry field for keyboard navigation sync
         const gotoEntry = document.getElementById('gotoEntry');
         if (gotoEntry) {
             gotoEntry.value = entryNumber;
         }
-        
+
         // Scroll and add temporary highlight
         targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         targetCard.classList.add('card--highlighted');
-        
+
         // After temporary highlight fades, keep persistent selection
         setTimeout(() => {
             targetCard.classList.remove('card--highlighted');
@@ -358,6 +358,7 @@ function openEditEntryModal(entryNumber) {
     if (typeof filtersVisible !== 'undefined' && filtersVisible && typeof closeFilterSidesheet === 'function') {
         closeFilterSidesheet();
     }
+    if (typeof closeSyncSidesheet === 'function') closeSyncSidesheet();
     closeAddEntryModal();
     currentEditingEntryNumber = entryNumber;
 
@@ -522,6 +523,7 @@ function openAddEntryModal() {
     if (typeof filtersVisible !== 'undefined' && filtersVisible && typeof closeFilterSidesheet === 'function') {
         closeFilterSidesheet();
     }
+    if (typeof closeSyncSidesheet === 'function') closeSyncSidesheet();
     document.getElementById('addEntryNumber').value = getNextEntryNumber();
     const addContent = document.getElementById('addEntryContent');
     addContent.value = '';
