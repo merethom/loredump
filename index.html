@@ -63,8 +63,7 @@
                             </svg>
                         </button>
                     </div>
-                    <button class="generic-ui-btn purple-btn" id="addEntryBtn" title="Add entry">
-                        <i class="fa-solid fa-plus"></i>
+                    <button class="generic-ui-btn magenta-btn" id="addEntryBtn" title="Add entry">
                         <svg class="icon" aria-hidden="true">
                             <use href="img/sprites/solid.svg#plus"></use>
                         </svg>
@@ -73,7 +72,7 @@
                 <div class="controls-row">
                     <button class="generic-ui-btn" id="filtersBtn" title="Filters">
                         <svg class="icon" aria-hidden="true">
-                            <use href="img/sprites/regular.svg#filter"></use>
+                            <use href="img/sprites/solid.svg#filter"></use>
                         </svg>
                     </button>
                     <div class="goto-entry-wrapper">
@@ -228,7 +227,7 @@
                         </div>
                         <div class="tray-footer">
                             <span class="tray-save-message" id="editTraySaveMessage" aria-live="polite"></span>
-                            <button type="button" class="generic-ui-btn text purple-btn" data-action="update-edit"
+                            <button type="button" class="generic-ui-btn text magenta-btn" data-action="update-edit"
                                 tabindex="0">Save</button>
                         </div>
                     </div>
@@ -338,7 +337,7 @@
                                 </svg>
                             </button>
                         </div>
-                        <button type="button" class="generic-ui-btn purple-btn" id="tagEditorNewTagBtn" title="New tag"
+                        <button type="button" class="generic-ui-btn magenta-btn" id="tagEditorNewTagBtn" title="New tag"
                             aria-label="New tag" onclick="showNewTagForm()">
                             <svg class="icon" aria-hidden="true">
                                 <use href="img/sprites/solid.svg#plus"></use>
@@ -410,15 +409,15 @@
                     </button>
                 </div>
                 <div class="sidesheet-content">
-                    <button type="button" class="generic-ui-btn" onclick="downloadLoreJson()"
+                    <button type="button" class="generic-ui-btn text-btn" onclick="downloadLoreJson()"
                         style="margin-right: 8px;">Download JSON</button>
                     <div id="syncDiffContainer" class="sync-diff-container">
                         <!-- Diff content will be injected here -->
                     </div>
                     <div class="sidesheet-footer">
-                        <button type="button" class="generic-ui-btn text-btn" onclick="discardLocalChanges()"
-                            style="margin-right: auto; color: var(--color-orange-red);">Discard</button>
-                        <button type="button" class="generic-ui-btn purple-btn" id="publishBtn"
+                        <button type="button" class="generic-ui-btn text-btn"
+                            onclick="discardLocalChanges()">Discard</button>
+                        <button type="button" class="generic-ui-btn magenta-btn text-btn" id="publishBtn"
                             onclick="publishChanges()">Publish</button>
                     </div>
 
@@ -489,7 +488,7 @@
                     <span class="tray-save-message" id="addTraySaveMessage" aria-live="polite"></span>
                     <div class="tray-footer-buttons">
                         <!-- <button type="button" class="generic-ui-btn text" data-action="cancel-add" tabindex="0">Cancel</button> -->
-                        <button type="button" class="generic-ui-btn text purple-btn" data-action="submit-add"
+                        <button type="button" class="generic-ui-btn text magenta-btn" data-action="submit-add"
                             tabindex="0">Add Entry</button>
                     </div>
                 </div>

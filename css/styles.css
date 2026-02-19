@@ -280,14 +280,14 @@ h1 {
 
 .sidesheet-footer {
     display: flex;
-    justify-content: flex-end;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .sync-diff-container {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    padding-right: 8px;
 }
 
 .diff-item {
@@ -460,7 +460,9 @@ h1 {
 #tagFilterSearch,
 #tagEditorSearch {
     width: 100%;
-    padding: 12px 40px 12px 40px;
+    height: calc(var(--btn-box-height) + 2px);
+    display: flex;
+    padding: 0 40px 0 40px;
     color: var(--text-color);
     font-family: var(--font-mono);
     font-size: 0.825rem;
@@ -587,18 +589,19 @@ h1 {
     padding-right: 12px;
 }
 
-.generic-ui-btn.purple-btn {
+.generic-ui-btn.magenta-btn:hover {
     border-color: var(--color-magenta);
+    background: var(--color-magenta-33);
 }
 
-.generic-ui-btn.purple-btn:hover {
-    border-color: color-mix(in srgb, var(--color-magenta) 80%, white);
+.generic-ui-btn.magenta-btn:hover svg {
+    fill: var(--color-magenta);
 }
+
 
 #addEntryBtn {
     flex-shrink: 0;
     margin-left: auto;
-    border-color: var(--color-magenta);
 }
 
 #signOutBtn {
@@ -640,7 +643,6 @@ h1 {
     align-items: center;
     gap: 8px;
     width: auto;
-    min-width: 140px;
 }
 
 .sort-control-wrapper {
@@ -2253,9 +2255,18 @@ h3.diff-section-title {
     gap: 8px;
 }
 
+#tagEditorBtn:hover,
+#filtersBtn:hover,
+.tag-edit-btn:hover {
+    border-color: var(--color-lime);
+    color: var(--color-lime);
+    background: var(--color-lime-33);
+}
+
 .tag-delete-btn:hover {
     border-color: var(--color-orange-red);
     color: var(--color-orange-red);
+    background: var(--color-orange-red-33);
 }
 
 .tag-item-terms {
