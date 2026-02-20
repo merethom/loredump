@@ -84,6 +84,11 @@
                         <option value="entry-asc">Oldest</option>
                         <option value="entry-desc">Newest</option>
                     </select>
+                    <button class="generic-ui-btn" id="arcEditorBtn" title="Edit Arcs">
+                        <svg class="icon" aria-hidden="true">
+                            <use href="img/sprites/solid.svg#book-open"></use>
+                        </svg>
+                    </button>
                     <button class="generic-ui-btn" id="tagEditorBtn" title="Edit Tags">
                         <svg class="icon" aria-hidden="true">
                             <use href="img/sprites/duotone.svg#pen"></use>
@@ -166,6 +171,7 @@
                         <div class="tray-header">
                             <h2>Lore entry</h2>
                             <div class="tray-header-actions">
+                                <div id="editEntryArcIndicator" class="editor-arc-badge"></div>
                                 <input type="number" id="editEntryNumber" class="tray-header-entry-num" step="any"
                                     min="0" placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
                                 <button type="button" class="generic-ui-btn" data-action="delete-edit"
@@ -176,6 +182,7 @@
                                 </button>
                             </div>
                         </div>
+                        
                         <div class="entry-content">
                             <h3>Content</h3>
                             <textarea id="editEntryContent" placeholder="Add your lore entry here..." tabindex="0"
@@ -397,6 +404,27 @@
             </div>
         </div>
 
+        <!-- Arc Editor Sidesheet -->
+        <div id="arcEditorSidesheet" class="sidesheet arc-editor-sidesheet" aria-hidden="true">
+            <div class="sidesheet-panel">
+                <div class="sidesheet-header">
+                    <h2 class="sidesheet-title">Manage Arcs</h2>
+                    <button type="button" class="sidesheet-close" id="arcEditorSidesheetClose" aria-label="Close">
+                        <svg class="icon" aria-hidden="true">
+                            <use href="img/sprites/duotone.svg#xmark"></use>
+                        </svg>
+                    </button>
+                </div>
+                <div class="sidesheet-content">
+                    <p class="sidesheet-intro">Arcs are automatically grouped by the integer part of entry numbers (e.g.
+                        1.0 - 1.99 = Arc 1).</p>
+                    <div id="arcList" class="arc-list">
+                        <!-- Arcs will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Sync Sidesheet -->
         <div id="syncSidesheet" class="sidesheet sync-sidesheet" aria-hidden="true">
             <div class="sidesheet-panel">
@@ -436,6 +464,7 @@
                     <input type="number" id="addEntryNumber" class="tray-header-entry-num" step="any" min="0"
                         placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
                 </div>
+                <div id="addEntryArcIndicator" class="editor-arc-badge"></div>
                 <div class="entry-content">
                     <h3>Content</h3>
                     <textarea id="addEntryContent" placeholder="Add your lore entry here..." tabindex="0"
@@ -517,6 +546,8 @@
         let allData = [];
         let remoteData = [];
         let remoteTags = [];
+        let allArcs = {};
+        let remoteArcs = {};
         let filteredData = [];
         let selectedTags = new Set();
         let selectedCustomTags = new Set();
@@ -542,6 +573,7 @@
     <script src="js/filter.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/tag-editor.js"></script>
+    <script src="js/arc-manager.js"></script>
     <script src="js/sync-manager.js"></script>
     <script src="js/sync-ui.js"></script>
     <script src="js/app.js"></script>

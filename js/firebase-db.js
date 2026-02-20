@@ -6,7 +6,7 @@
  * snapshot.val() returns a plain object, not an Array. We must normalize to an array
  * so no entries are dropped (e.g. 290 in Firebase showing as 269 on the site).
  */
-(function() {
+(function () {
     function getDb() {
         if (!window.firebase || !window.firebase.apps || !window.firebase.apps.length) {
             window.firebase.initializeApp(window.firebaseConfig);
@@ -33,6 +33,7 @@
 
             const entriesArray = toArray(data.entries);
             const tagsArray = toArray(data.tags);
+            const arcsObject = data.arcs || {};
 
             // Debug info to help diagnose count mismatches (e.g. 290 vs 269)
             if (typeof console !== 'undefined') {
@@ -47,7 +48,8 @@
 
             return {
                 entries: entriesArray,
-                tags: tagsArray
+                tags: tagsArray,
+                arcs: arcsObject
             };
         } catch (err) {
             console.error('Firebase load error:', err);
@@ -60,7 +62,8 @@
             const db = getDb();
             await db.ref('loredump').set({
                 entries: data.entries || [],
-                tags: data.tags || []
+                tags: data.tags || [],
+                arcs: data.arcs || {}
             });
             return true;
         } catch (err) {

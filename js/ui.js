@@ -60,18 +60,35 @@ function renderDatabase() {
     }
 
     emptyState.classList.remove('show');
+    let currentArc = null;
     db.innerHTML = filteredData.map(entry => {
+        const entryNum = parseFloat(entry.Number);
+        const arcKey = Math.floor(entryNum).toString();
+        const arcData = allArcs[arcKey] || { name: '', color: 'slate' };
+
+        let arcHeader = '';
+        if (arcKey !== currentArc) {
+            currentArc = arcKey;
+            const arcDisplayName = arcData.name ? `Arc ${arcKey}: ${arcData.name}` : `Arc ${arcKey}`;
+            arcHeader = `
+                <div class="db-arc-header arc--header-${arcData.color}">
+                    <span class="arc-header-label">${arcDisplayName}</span>
+                </div>
+            `;
+        }
+
         const tags = getEntryTagsForDisplay(entry);
         const tagsHtml = tags.map(t =>
             `<span class="${getTagClass(t.color)}" data-name="${escapeHtml(t.name)}">${escapeHtml(t.name)}</span>`
         ).join('');
 
         return `
-        <div class="card" data-entry-number="${entry.Number}">
+        ${arcHeader}
+        <div class="card arc--card-${arcData.color}" data-entry-number="${entry.Number}">
             <div class="card-description">${escapeHtml(entry.Description)}</div>
             <div class="card-divider"></div>
             <div class="card-footer">
-                <span class="card-number">${entry.Number}.0</span>
+                <span class="card-number">${entry.Number}</span>
                 <div class="card-tags">
                     ${tagsHtml}
                 </div>
@@ -375,6 +392,15 @@ function openEditEntryModal(entryNumber) {
     document.getElementById('editEntryContent').value = entry.Description;
     document.getElementById('editEntryNumber').value = entry.Number;
 
+    // Update arc indicator in editor if element exists
+    const arcKey = Math.floor(parseFloat(entry.Number)).toString();
+    const arcData = allArcs[arcKey] || { name: '', color: 'slate' };
+    const arcIndicator = document.getElementById('editEntryArcIndicator');
+    if (arcIndicator) {
+        arcIndicator.textContent = arcData.name ? `Arc ${arcKey}: ${arcData.name}` : `Arc ${arcKey}`;
+        arcIndicator.className = `editor-arc-badge arc--badge-${arcData.color}`;
+    }
+
     // Clear input and set default color
     document.getElementById('editEntryTagInput').value = '';
     editingEntrySelectedColor = 'slate';
@@ -540,6 +566,9 @@ function openAddEntryModal() {
     document.getElementById('addTraySaveMessage').textContent = '';
     document.getElementById('addEntryContainer').classList.add('active');
     document.getElementById('addEntryBtn')?.classList.add('active');
+
+    // Update arc indicator
+    updateArcIndicator('add');
 }
 
 function closeAddEntryModal() {
@@ -630,4 +659,27 @@ function submitAddEntry() {
     filterData();
     showTraySaveMessage('add');
     setTimeout(closeAddEntryModal, 600);
+}
+/**
+ * Updates the arc indicator in the add/edit tray
+ * @param {string} type - 'add' or 'edit'
+ */
+function updateArcIndicator(type) {
+    const inputId = type === 'add' ? 'addEntryNumber' : 'editEntryNumber';
+    const indicatorId = type === 'add' ? 'addEntryArcIndicator' : 'editEntryArcIndicator';
+    const numValue = document.getElementById(inputId).value;
+    const num = parseFloat(numValue);
+    const indicator = document.getElementById(indicatorId);
+    if (!indicator) return;
+
+    if (isNaN(num)) {
+        indicator.textContent = '';
+        indicator.className = 'editor-arc-badge';
+        return;
+    }
+
+    const arcKey = Math.floor(num).toString();
+    const arcData = allArcs[arcKey] || { name: '', color: 'slate' };
+    indicator.textContent = arcData.name ? `Arc ${arcKey}: ${arcData.name}` : `Arc ${arcKey}`;
+    indicator.className = `editor-arc-badge arc--badge-${arcData.color}`;
 }

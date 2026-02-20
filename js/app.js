@@ -202,6 +202,7 @@ function setupEventListeners() {
     // Filter sidesheet open/close
     window.openFilterSidesheet = function () {
         if (typeof closeTagEditor === 'function') closeTagEditor();
+        if (typeof closeArcEditor === 'function') closeArcEditor();
         if (typeof closeSyncSidesheet === 'function') closeSyncSidesheet();
         filtersVisible = true;
         document.getElementById('filterSidesheet').classList.add('open');
@@ -436,6 +437,14 @@ function setupEventListeners() {
             }
         });
     }
+
+    // Live Arc Indicator updates
+    document.getElementById('editEntryNumber')?.addEventListener('input', () => {
+        if (typeof updateArcIndicator === 'function') updateArcIndicator('edit');
+    });
+    document.getElementById('addEntryNumber')?.addEventListener('input', () => {
+        if (typeof updateArcIndicator === 'function') updateArcIndicator('add');
+    });
 }
 
 var tagFilterSearchTerm = '';
@@ -613,6 +622,8 @@ document.addEventListener('keydown', (e) => {
             return;
         }
         closeTagEditor();
+    } else if (document.getElementById('arcEditorSidesheet')?.classList.contains('open')) {
+        closeArcEditor();
     } else if (document.getElementById('modal')?.classList.contains('active')) {
         closeModal();
     } else if (document.getElementById('syncSidesheet')?.classList.contains('open')) {

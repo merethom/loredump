@@ -72,7 +72,7 @@
     /* Typography */
     --font-mono: 'PPSupply Mono', ui-monospace, monospace;
     /* Layout */
-    --border-radius: 5px;
+    --border-radius: 3px;
     --box-padding: 24px 28px;
     --border: solid 1.5px #3E3D5D;
     --bg-gradient: linear-gradient(180deg, #191734 0%, #0D0927 100%);
@@ -2458,4 +2458,244 @@ h3.diff-section-title {
 
 .modal-content::-webkit-scrollbar-track {
     background: #1E1B31;
+}
+
+/* --------------------------------------------------------------------------
+   7. ARC CLASSIFICATION
+   -------------------------------------------------------------------------- */
+
+.db-arc-header {
+    margin: 32px 0 16px;
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    background: var(--bg-gradient);
+    border: var(--border);
+    position: sticky;
+    top: 70px;
+    z-index: 10;
+}
+
+.arc-header-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-color);
+}
+
+.editor-arc-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin: 8px 0 16px;
+    border: 1px solid transparent;
+    transform: translateY(4px);
+}
+
+/* Arc Color Variants */
+.arc--header-purple {
+    border-left: 4px solid var(--color-purple);
+}
+
+.arc--header-green {
+    border-left: 4px solid var(--color-lime);
+}
+
+.arc--header-blue {
+    border-left: 4px solid var(--color-blue);
+}
+
+.arc--header-orange {
+    border-left: 4px solid var(--color-orange);
+}
+
+.arc--header-teal {
+    border-left: 4px solid var(--color-aqua);
+}
+
+.arc--header-pink {
+    border-left: 4px solid var(--color-magenta);
+}
+
+.arc--header-amber {
+    border-left: 4px solid var(--color-orange-red);
+}
+
+.arc--header-slate {
+    border-left: 4px solid var(--color-slate);
+}
+
+/* Arc color on entry cards */
+.arc--card-purple {
+    border-left: 4px solid var(--color-purple);
+}
+
+.arc--card-green {
+    border-left: 4px solid var(--color-lime);
+}
+
+.arc--card-blue {
+    border-left: 4px solid var(--color-blue);
+}
+
+.arc--card-orange {
+    border-left: 4px solid var(--color-orange);
+}
+
+.arc--card-teal {
+    border-left: 4px solid var(--color-aqua);
+}
+
+.arc--card-pink {
+    border-left: 4px solid var(--color-magenta);
+}
+
+.arc--card-amber {
+    border-left: 4px solid var(--color-orange-red);
+}
+
+.arc--card-slate {
+    border-left: 4px solid var(--color-slate);
+}
+
+.arc--badge-purple {
+    background: var(--color-purple-33);
+    color: var(--color-purple);
+}
+
+.arc--badge-green {
+    background: var(--color-lime-33);
+    color: var(--color-lime);
+}
+
+.arc--badge-blue {
+    background: var(--color-blue-33);
+    color: var(--color-blue);
+}
+
+.arc--badge-orange {
+    background: var(--color-orange-33);
+    color: var(--color-orange);
+}
+
+.arc--badge-teal {
+    background: var(--color-aqua-33);
+    color: var(--color-aqua);
+}
+
+.arc--badge-pink {
+    background: var(--color-magenta-33);
+    color: var(--color-magenta);
+}
+
+.arc--badge-amber {
+    background: var(--color-orange-red-33);
+    color: var(--color-orange-red);
+}
+
+.arc--badge-slate {
+    background: var(--color-slate-33);
+    color: var(--color-slate);
+}
+
+.arc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.arc-item {
+    background: var(--bg-gradient);
+    border: var(--border);
+    border-radius: var(--border-radius);
+    padding: 16px;
+}
+
+.arc-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.arc-number {
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.arc-color-selector {
+    display: flex;
+    gap: 4px;
+}
+
+.arc-color-btn {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: 1.5px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.arc-color-btn.selected {
+    border-color: #fff;
+    box-shadow: 0 0 0 1px #000;
+}
+
+.arc-color-btn.magenta {
+    background-color: var(--color-magenta);
+}
+
+.arc-color-btn.orange {
+    background-color: var(--color-orange);
+}
+
+.arc-color-btn.lime {
+    background-color: var(--color-lime);
+}
+
+.arc-color-btn.aqua {
+    background-color: var(--color-aqua);
+}
+
+.arc-color-btn.blue {
+    background-color: var(--color-blue);
+}
+
+.arc-color-btn.purple {
+    background-color: var(--color-purple);
+}
+
+.arc-color-btn.orange-red {
+    background-color: var(--color-orange-red);
+}
+
+.arc-color-btn.slate {
+    background-color: var(--color-slate);
+}
+
+.arc-name-input {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: var(--border);
+    border-radius: var(--border-radius);
+    color: var(--text-color);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+}
+
+.arc-name-input:focus {
+    outline: none;
+    border-color: var(--muted-text-color);
+}
+
+.sidesheet-intro {
+    font-size: 0.8125rem;
+    color: var(--lesser-text-color);
+    line-height: 1.5;
+    margin-bottom: 24px;
 }

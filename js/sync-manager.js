@@ -14,6 +14,7 @@
             const data = {
                 entries: entries || [],
                 tags: tags || [],
+                arcs: allArcs || {},
                 updatedAt: new Date().toISOString()
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -61,8 +62,8 @@
         // Simple but effective for this scale: stringify comparison
         // Note: allData/allTags are sorted consistently by our code
         try {
-            const remoteStr = JSON.stringify({ e: remEntries || [], t: remTags || [] });
-            const localStr = JSON.stringify({ e: locEntries || [], t: locTags || [] });
+            const remoteStr = JSON.stringify({ e: remEntries || [], t: remTags || [], a: remoteArcs || {} });
+            const localStr = JSON.stringify({ e: locEntries || [], t: locTags || [], a: allArcs || {} });
             return remoteStr !== localStr;
         } catch (e) {
             return false;
@@ -80,7 +81,8 @@
     function getDiff(remEntries, remTags, locEntries, locTags) {
         const diff = {
             entries: { added: [], modified: [], deleted: [] },
-            tags: { added: [], modified: [], deleted: [] }
+            tags: { added: [], modified: [], deleted: [] },
+            arcs: { added: [], modified: [], deleted: [] }
         };
 
         // Entries diffing (using Number as key)
@@ -118,6 +120,23 @@
         remTags.forEach(rem => {
             if (!locTagMap.has(rem.id)) {
                 diff.tags.deleted.push(rem);
+            }
+        });
+
+        // Arcs diffing (using integer key string)
+        const remArcs = remoteArcs || {};
+        const locArcs = allArcs || {};
+        const allArcKeys = new Set([...Object.keys(remArcs), ...Object.keys(locArcs)]);
+
+        allArcKeys.forEach(key => {
+            const rem = remArcs[key];
+            const loc = locArcs[key];
+            if (!rem && loc) {
+                diff.arcs.added.push({ key, ...loc });
+            } else if (rem && !loc) {
+                diff.arcs.deleted.push({ key, ...rem });
+            } else if (JSON.stringify(rem) !== JSON.stringify(loc)) {
+                diff.arcs.modified.push({ key, old: rem, new: loc });
             }
         });
 

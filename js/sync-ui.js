@@ -187,6 +187,69 @@
             });
         }
 
+        // Render Arcs Diff
+        if (currentDiff.arcs && (currentDiff.arcs.added.length > 0 || currentDiff.arcs.modified.length > 0 || currentDiff.arcs.deleted.length > 0)) {
+            html += '<h3 class="diff-section-title">Arcs</h3>';
+
+            currentDiff.arcs.added.forEach(a => {
+                const id = `arc:${a.key}`;
+                selectedChanges.add(id);
+                const colorClass = `arc--badge-${a.color}`;
+                html += `
+                <div class="diff-item" data-change-id="${id}">
+                    <div class="diff-item-header" style="align-items: center;">
+                        <div class="diff-item-identity">
+                            <div class="diff-select-circle selected" onclick="toggleChangeSelection('${id}')"></div>
+                            <span class="editor-arc-badge ${colorClass}">Arc ${a.key}</span>
+                        </div>
+                        <span class="diff-type-badge diff-type-added">added</span>
+                    </div>
+                    <div class="diff-content">Name: ${escapeHtml(a.name)}</div>
+                </div>`;
+            });
+
+            currentDiff.arcs.modified.forEach(m => {
+                const id = `arc:${m.key}`;
+                selectedChanges.add(id);
+                const colorClass = `arc--badge-${m.new.color}`;
+                html += `
+                <div class="diff-item" data-change-id="${id}">
+                    <div class="diff-item-header" style="align-items: center;">
+                        <div class="diff-item-identity">
+                            <div class="diff-select-circle selected" onclick="toggleChangeSelection('${id}')"></div>
+                            <span class="editor-arc-badge ${colorClass}">Arc ${m.key}</span>
+                        </div>
+                        <span class="diff-type-badge diff-type-modified">modified</span>
+                    </div>
+                    <div class="diff-content">
+                        ${m.old.name !== m.new.name ? `
+                            <div class="diff-change-line"><span class="diff-old">${escapeHtml(m.old.name)}</span></div>
+                            <div class="diff-change-line"><span class="diff-new">${escapeHtml(m.new.name)}</span></div>
+                        ` : ''}
+                        ${m.old.color !== m.new.color ? `
+                            <div class="diff-change-line">Color changed: ${m.old.color} → ${m.new.color}</div>
+                        ` : ''}
+                    </div>
+                </div>`;
+            });
+
+            currentDiff.arcs.deleted.forEach(a => {
+                const id = `arc:${a.key}`;
+                selectedChanges.add(id);
+                html += `
+                <div class="diff-item" data-change-id="${id}">
+                    <div class="diff-item-header" style="align-items: center;">
+                        <div class="diff-item-identity">
+                            <div class="diff-select-circle selected" onclick="toggleChangeSelection('${id}')"></div>
+                            <span class="editor-arc-badge" style="opacity: 0.7; text-decoration: line-through;">Arc ${a.key}</span>
+                        </div>
+                        <span class="diff-type-badge diff-type-deleted">deleted</span>
+                    </div>
+                    <div class="diff-content diff-old">${escapeHtml(a.name)}</div>
+                </div>`;
+            });
+        }
+
         if (!html) {
             html = '<p style="text-align: center; color: var(--lesser-text-color); padding: 40px;">No changes detected.</p>';
         }
@@ -248,6 +311,7 @@
             // Perform a partial merge: start with remote baseline and apply ONLY selected changes
             let entriesToPublish = JSON.parse(JSON.stringify(remoteData || []));
             let tagsToPublish = JSON.parse(JSON.stringify(remoteTags || []));
+            let arcsToPublish = JSON.parse(JSON.stringify(remoteArcs || {}));
 
             // Apply selected entry changes
             currentDiff.entries.added.forEach(e => {
@@ -291,10 +355,32 @@
                 }
             });
 
+            // Apply selected arc changes
+            if (currentDiff.arcs) {
+                currentDiff.arcs.added.forEach(a => {
+                    if (selectedChanges.has(`arc:${a.key}`)) {
+                        arcsToPublish[a.key] = { name: a.name, color: a.color };
+                    }
+                });
+
+                currentDiff.arcs.modified.forEach(m => {
+                    if (selectedChanges.has(`arc:${m.key}`)) {
+                        arcsToPublish[m.key] = { name: m.new.name, color: m.new.color };
+                    }
+                });
+
+                currentDiff.arcs.deleted.forEach(a => {
+                    if (selectedChanges.has(`arc:${a.key}`)) {
+                        delete arcsToPublish[a.key];
+                    }
+                });
+            }
+
             if (typeof publishLoreToFirebase === 'function') {
                 await publishLoreToFirebase({
                     entries: entriesToPublish,
-                    tags: tagsToPublish
+                    tags: tagsToPublish,
+                    arcs: arcsToPublish
                 });
 
                 updateSyncStatus();
@@ -319,6 +405,7 @@
         // Revert local state to remote baseline
         allData = JSON.parse(JSON.stringify(remoteData || []));
         allTags = JSON.parse(JSON.stringify(remoteTags || []));
+        allArcs = JSON.parse(JSON.stringify(remoteArcs || {}));
 
         // Clear local draft
         if (window.syncManager) {
@@ -340,6 +427,7 @@
         const data = {
             entries: allData || [],
             tags: allTags || [],
+            arcs: allArcs || {},
             exportedAt: new Date().toISOString()
         };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

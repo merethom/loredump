@@ -14,6 +14,7 @@ async function loadData() {
                 // Store the remote baseline
                 remoteData = JSON.parse(JSON.stringify(data.entries || []));
                 remoteTags = JSON.parse(JSON.stringify(data.tags || []));
+                remoteArcs = JSON.parse(JSON.stringify(data.arcs || {}));
 
                 // Check for local draft
                 const draft = window.syncManager ? window.syncManager.loadDraft() : null;
@@ -21,10 +22,12 @@ async function loadData() {
                     console.log('Local draft found, using draft data');
                     allData = draft.entries || [];
                     allTags = draft.tags || [];
+                    allArcs = draft.arcs || {};
                     document.getElementById('dataSource').textContent += ' (using local draft)';
                 } else {
                     allData = data.entries || [];
                     allTags = data.tags || [];
+                    allArcs = data.arcs || {};
                 }
 
                 syncTagsFromDocument();
@@ -63,16 +66,19 @@ async function publishLoreToFirebase(dataToPublish) {
 
     const entries = dataToPublish ? dataToPublish.entries : (allData || []);
     const tags = dataToPublish ? dataToPublish.tags : (allTags || []);
+    const arcs = dataToPublish ? dataToPublish.arcs : (allArcs || {});
 
     try {
         await window.firebaseDb.saveLoreData({
             entries: entries,
-            tags: tags
+            tags: tags,
+            arcs: arcs
         });
 
         // Update baseline upon success
         remoteData = JSON.parse(JSON.stringify(entries));
         remoteTags = JSON.parse(JSON.stringify(tags));
+        remoteArcs = JSON.parse(JSON.stringify(arcs));
 
         // Only clear local draft if we published EVERYTHING
         // Otherwise, keep the draft so unpublished changes persist for next sync
