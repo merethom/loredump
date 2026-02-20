@@ -1,7 +1,7 @@
 /**
  * Sync UI - handles updating the sync status badge and dashboard
  */
-(function () {
+(function() {
     // Track which changes are selected for publishing.
     // keys are "entry:{number}" or "tag:{id}"
     let selectedChanges = new Set();
@@ -192,9 +192,10 @@
             html += '<h3 class="diff-section-title">Arcs</h3>';
 
             currentDiff.arcs.added.forEach(a => {
+                if (!a) return;
                 const id = `arc:${a.key}`;
                 selectedChanges.add(id);
-                const colorClass = `arc--badge-${a.color}`;
+                const colorClass = `arc--badge-${a.color || 'slate'}`;
                 html += `
                 <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header" style="align-items: center;">
@@ -209,9 +210,10 @@
             });
 
             currentDiff.arcs.modified.forEach(m => {
+                if (!m || !m.new || !m.old) return;
                 const id = `arc:${m.key}`;
                 selectedChanges.add(id);
-                const colorClass = `arc--badge-${m.new.color}`;
+                const colorClass = `arc--badge-${m.new.color || 'slate'}`;
                 html += `
                 <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header" style="align-items: center;">
@@ -234,6 +236,7 @@
             });
 
             currentDiff.arcs.deleted.forEach(a => {
+                if (!a) return;
                 const id = `arc:${a.key}`;
                 selectedChanges.add(id);
                 html += `
@@ -359,13 +362,19 @@
             if (currentDiff.arcs) {
                 currentDiff.arcs.added.forEach(a => {
                     if (selectedChanges.has(`arc:${a.key}`)) {
-                        arcsToPublish[a.key] = { name: a.name, color: a.color };
+                        arcsToPublish[a.key] = {
+                            name: a.name,
+                            color: a.color
+                        };
                     }
                 });
 
                 currentDiff.arcs.modified.forEach(m => {
                     if (selectedChanges.has(`arc:${m.key}`)) {
-                        arcsToPublish[m.key] = { name: m.new.name, color: m.new.color };
+                        arcsToPublish[m.key] = {
+                            name: m.new.name,
+                            color: m.new.color
+                        };
                     }
                 });
 
@@ -430,7 +439,9 @@
             arcs: allArcs || {},
             exportedAt: new Date().toISOString()
         };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
+            type: 'application/json'
+        });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
@@ -474,7 +485,7 @@
     // Also update when we load data initially
     const originalLoadData = window.loadData;
     if (typeof originalLoadData === 'function') {
-        window.loadData = async function () {
+        window.loadData = async function() {
             await originalLoadData();
             updateSyncStatus();
         };

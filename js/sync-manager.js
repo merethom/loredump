@@ -1,7 +1,7 @@
 /**
  * Sync Manager - handles local drafting and diffing
  */
-(function () {
+(function() {
     const STORAGE_KEY = 'noxsyphone_lore_draft';
 
     /**
@@ -62,8 +62,16 @@
         // Simple but effective for this scale: stringify comparison
         // Note: allData/allTags are sorted consistently by our code
         try {
-            const remoteStr = JSON.stringify({ e: remEntries || [], t: remTags || [], a: remoteArcs || {} });
-            const localStr = JSON.stringify({ e: locEntries || [], t: locTags || [], a: allArcs || {} });
+            const remoteStr = JSON.stringify({
+                e: remEntries || [],
+                t: remTags || [],
+                a: remoteArcs || {}
+            });
+            const localStr = JSON.stringify({
+                e: locEntries || [],
+                t: locTags || [],
+                a: allArcs || {}
+            });
             return remoteStr !== localStr;
         } catch (e) {
             return false;
@@ -80,9 +88,21 @@
      */
     function getDiff(remEntries, remTags, locEntries, locTags) {
         const diff = {
-            entries: { added: [], modified: [], deleted: [] },
-            tags: { added: [], modified: [], deleted: [] },
-            arcs: { added: [], modified: [], deleted: [] }
+            entries: {
+                added: [],
+                modified: [],
+                deleted: []
+            },
+            tags: {
+                added: [],
+                modified: [],
+                deleted: []
+            },
+            arcs: {
+                added: [],
+                modified: [],
+                deleted: []
+            }
         };
 
         // Entries diffing (using Number as key)
@@ -94,7 +114,10 @@
             if (!rem) {
                 diff.entries.added.push(loc);
             } else if (JSON.stringify(loc) !== JSON.stringify(rem)) {
-                diff.entries.modified.push({ old: rem, new: loc });
+                diff.entries.modified.push({
+                    old: rem,
+                    new: loc
+                });
             }
         });
 
@@ -113,7 +136,10 @@
             if (!rem) {
                 diff.tags.added.push(loc);
             } else if (JSON.stringify(loc) !== JSON.stringify(rem)) {
-                diff.tags.modified.push({ old: rem, new: loc });
+                diff.tags.modified.push({
+                    old: rem,
+                    new: loc
+                });
             }
         });
 
@@ -132,11 +158,21 @@
             const rem = remArcs[key];
             const loc = locArcs[key];
             if (!rem && loc) {
-                diff.arcs.added.push({ key, ...loc });
+                diff.arcs.added.push({
+                    key,
+                    ...loc
+                });
             } else if (rem && !loc) {
-                diff.arcs.deleted.push({ key, ...rem });
-            } else if (JSON.stringify(rem) !== JSON.stringify(loc)) {
-                diff.arcs.modified.push({ key, old: rem, new: loc });
+                diff.arcs.deleted.push({
+                    key,
+                    ...rem
+                });
+            } else if (rem && loc && JSON.stringify(rem) !== JSON.stringify(loc)) {
+                diff.arcs.modified.push({
+                    key,
+                    old: rem,
+                    new: loc
+                });
             }
         });
 
