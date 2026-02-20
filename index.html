@@ -54,10 +54,8 @@
                         <svg class="icon search-icon" aria-hidden="true">
                             <use href="img/sprites/regular.svg#magnifying-glass"></use>
                         </svg>
-                        <input type="text" id="searchInput" class="search-box" placeholder="Search lore entries..."
-                            autocomplete="off">
-                        <button type="button" class="search-clear" id="searchClear" title="Clear search"
-                            aria-label="Clear search">
+                        <input type="text" id="searchInput" class="search-box" placeholder="Search lore entries..." autocomplete="off">
+                        <button type="button" class="search-clear" id="searchClear" title="Clear search" aria-label="Clear search">
                             <svg class="icon" aria-hidden="true">
                                 <use href="img/sprites/duotone.svg#xmark"></use>
                             </svg>
@@ -76,11 +74,9 @@
                         </svg>
                     </button>
                     <div class="goto-entry-wrapper">
-                        <input type="number" id="gotoEntry" class="goto-entry-input" placeholder="Entry #" step="any"
-                            min="0">
+                        <input type="number" id="gotoEntry" class="goto-entry-input" placeholder="Entry #" step="any" min="0">
                     </div>
-                    <select id="sortBy" class="sort-dropdown-native" aria-hidden="true" tabindex="-1"
-                        style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
+                    <select id="sortBy" class="sort-dropdown-native" aria-hidden="true" tabindex="-1" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
                         <option value="entry-asc">Oldest</option>
                         <option value="entry-desc">Newest</option>
                     </select>
@@ -114,8 +110,7 @@
                             <use href="img/sprites/solid.svg#chevron-up"></use>
                         </svg>
                     </button>
-                    <button class="generic-ui-btn" id="scrollToBottomBtn" title="To bottom"
-                        aria-label="Scroll to bottom">
+                    <button class="generic-ui-btn" id="scrollToBottomBtn" title="To bottom" aria-label="Scroll to bottom">
                         <svg class="icon" aria-hidden="true">
                             <use href="img/sprites/solid.svg#chevron-down"></use>
                         </svg>
@@ -135,22 +130,14 @@
                             <div style="margin: 15px 0;">
                                 <label class="tag-form-label">Color:</label>
                                 <div class="tag-form-color-selector">
-                                    <button type="button" class="tag-form-color-btn" data-color="purple"
-                                        title="Purple"></button>
-                                    <button type="button" class="tag-form-color-btn" data-color="green"
-                                        title="Green"></button>
-                                    <button type="button" class="tag-form-color-btn" data-color="blue"
-                                        title="Blue"></button>
-                                    <button type="button" class="tag-form-color-btn" data-color="orange"
-                                        title="Orange"></button>
-                                    <button type="button" class="tag-form-color-btn" data-color="teal"
-                                        title="Teal"></button>
-                                    <button type="button" class="tag-form-color-btn" data-color="pink"
-                                        title="Pink"></button>
-                                    <button type="button" class="tag-form-color-btn" data-color="amber"
-                                        title="Amber"></button>
-                                    <button type="button" class="tag-form-color-btn selected" data-color="slate"
-                                        title="Slate"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="purple" title="Purple"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="green" title="Green"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="blue" title="Blue"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="orange" title="Orange"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="teal" title="Teal"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="pink" title="Pink"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="amber" title="Amber"></button>
+                                    <button type="button" class="tag-form-color-btn selected" data-color="slate" title="Slate"></button>
                                 </div>
                             </div>
                             <div style="margin: 15px 0;">
@@ -160,8 +147,7 @@
                             <div class="tag-form-buttons">
                                 <button type="button" id="tagEditSubmit" class="tag-btn" style="flex: 1;">Update
                                     Tag</button>
-                                <button type="button" onclick="closeTagEditDropdown()" class="tag-btn"
-                                    style="flex: 1;">Cancel</button>
+                                <button type="button" onclick="closeTagEditDropdown()" class="tag-btn" style="flex: 1;">Cancel</button>
                             </div>
                         </div>
                     </div>
@@ -172,52 +158,37 @@
                             <h2>Lore entry</h2>
                             <div class="tray-header-actions">
                                 <div id="editEntryArcIndicator" class="editor-arc-badge"></div>
-                                <input type="number" id="editEntryNumber" class="tray-header-entry-num" step="any"
-                                    min="0" placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
-                                <button type="button" class="generic-ui-btn" data-action="delete-edit"
-                                    title="Delete entry" tabindex="0">
+                                <input type="number" id="editEntryNumber" class="tray-header-entry-num" step="any" min="0" placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
+                                <button type="button" class="generic-ui-btn" data-action="delete-edit" title="Delete entry" tabindex="0">
                                     <svg class="icon" aria-hidden="true">
                                         <use href="img/sprites/duotone.svg#trash"></use>
                                     </svg>
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div class="entry-content">
                             <h3>Content</h3>
-                            <textarea id="editEntryContent" placeholder="Add your lore entry here..." tabindex="0"
-                                autocomplete="off"></textarea>
+                            <textarea id="editEntryContent" placeholder="Add your lore entry here..." tabindex="0" autocomplete="off"></textarea>
                         </div>
                         <div class="enter-tag">
                             <h3>Tags</h3>
                             <div class="tag-input-row">
                                 <div class="tag-input-wrapper">
-                                    <input type="text" id="editEntryTagInput" placeholder="Add a tag and press Enter..."
-                                        tabindex="0" autocomplete="off">
+                                    <input type="text" id="editEntryTagInput" placeholder="Add a tag and press Enter..." tabindex="0" autocomplete="off">
                                     <div id="editEntryTagAutocomplete" class="tag-autocomplete" style="display:none;">
                                     </div>
                                     <div class="edit-entry-color-wrapper" id="editEntryColorWrapper">
-                                        <button type="button" class="lore-tag-current-color edit-entry-color-swatch"
-                                            id="editEntryColorSwatch" data-color="slate" aria-label="Tag color"
-                                            title="Select color" tabindex="0"></button>
-                                        <div class="lore-tag-color-selector edit-entry-color-popover" role="group"
-                                            aria-label="Tag color options">
-                                            <button type="button" class="tag-color orange-red edit-entry-color-btn"
-                                                data-color="amber" title="Amber" tabindex="0"></button>
-                                            <button type="button" class="tag-color orange edit-entry-color-btn"
-                                                data-color="orange" title="Orange" tabindex="0"></button>
-                                            <button type="button" class="tag-color lime edit-entry-color-btn"
-                                                data-color="green" title="Green" tabindex="0"></button>
-                                            <button type="button" class="tag-color aqua edit-entry-color-btn"
-                                                data-color="teal" title="Teal" tabindex="0"></button>
-                                            <button type="button" class="tag-color blue edit-entry-color-btn"
-                                                data-color="blue" title="Blue" tabindex="0"></button>
-                                            <button type="button" class="tag-color purple edit-entry-color-btn"
-                                                data-color="purple" title="Purple" tabindex="0"></button>
-                                            <button type="button" class="tag-color magenta edit-entry-color-btn"
-                                                data-color="pink" title="Pink" tabindex="0"></button>
-                                            <button type="button" class="tag-color slate edit-entry-color-btn selected"
-                                                data-color="slate" title="Slate" tabindex="0"></button>
+                                        <button type="button" class="lore-tag-current-color edit-entry-color-swatch" id="editEntryColorSwatch" data-color="slate" aria-label="Tag color" title="Select color" tabindex="0"></button>
+                                        <div class="lore-tag-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
+                                            <button type="button" class="tag-color orange-red edit-entry-color-btn" data-color="amber" title="Amber" tabindex="0"></button>
+                                            <button type="button" class="tag-color orange edit-entry-color-btn" data-color="orange" title="Orange" tabindex="0"></button>
+                                            <button type="button" class="tag-color lime edit-entry-color-btn" data-color="green" title="Green" tabindex="0"></button>
+                                            <button type="button" class="tag-color aqua edit-entry-color-btn" data-color="teal" title="Teal" tabindex="0"></button>
+                                            <button type="button" class="tag-color blue edit-entry-color-btn" data-color="blue" title="Blue" tabindex="0"></button>
+                                            <button type="button" class="tag-color purple edit-entry-color-btn" data-color="purple" title="Purple" tabindex="0"></button>
+                                            <button type="button" class="tag-color magenta edit-entry-color-btn" data-color="pink" title="Pink" tabindex="0"></button>
+                                            <button type="button" class="tag-color slate edit-entry-color-btn selected" data-color="slate" title="Slate" tabindex="0"></button>
                                         </div>
                                     </div>
                                 </div>
@@ -227,15 +198,13 @@
                         <div id="editEntrySuggestedTags" class="suggest-tag">
                             <div class="suggest-tag-header">
                                 <h3>Suggested tags</h3>
-                                <button type="button" class="add-all-tags-btn" id="editEntryAddAllSuggested"
-                                    style="display: none;" tabindex="0">+ Add all tags</button>
+                                <button type="button" class="add-all-tags-btn" id="editEntryAddAllSuggested" style="display: none;" tabindex="0">+ Add all tags</button>
                             </div>
                             <div id="editEntrySuggestedTagsList" class="tag-list"></div>
                         </div>
                         <div class="tray-footer">
                             <span class="tray-save-message" id="editTraySaveMessage" aria-live="polite"></span>
-                            <button type="button" class="generic-ui-btn text magenta-btn" data-action="update-edit"
-                                tabindex="0">Save</button>
+                            <button type="button" class="generic-ui-btn text magenta-btn" data-action="update-edit" tabindex="0">Save</button>
                         </div>
                     </div>
                 </div>
@@ -253,8 +222,7 @@
             </div>
 
             <div class="stats">
-                Showing <span id="resultCount">0</span> of <span id="totalCount">0</span> entries / <span
-                    id="dataSource">loading...</span>
+                Showing <span id="resultCount">0</span> of <span id="totalCount">0</span> entries / <span id="dataSource">loading...</span>
             </div>
         </div>
 
@@ -274,10 +242,8 @@
                         <svg class="icon tag-filter-search-icon" aria-hidden="true">
                             <use href="img/sprites/regular.svg#magnifying-glass"></use>
                         </svg>
-                        <input type="text" id="tagFilterSearch" class="tag-filter-search" placeholder="Search tags..."
-                            autocomplete="off" aria-label="Search tags">
-                        <button type="button" class="search-clear" id="tagFilterSearchClear" title="Clear search"
-                            aria-label="Clear search">
+                        <input type="text" id="tagFilterSearch" class="tag-filter-search" placeholder="Search tags..." autocomplete="off" aria-label="Search tags">
+                        <button type="button" class="search-clear" id="tagFilterSearchClear" title="Clear search" aria-label="Clear search">
                             <svg class="icon" aria-hidden="true">
                                 <use href="img/sprites/duotone.svg#xmark"></use>
                             </svg>
@@ -301,8 +267,7 @@
                             <h3 class="filter-sidesheet-section-title">Filter by tags</h3>
                             <div class="filter-sidesheet-section-actions">
                                 <span id="tagFilterCount" class="tag-filter-count" style="display: none;">0</span>
-                                <button type="button" id="tagFilterClearAll" class="tag-filter-clear-all"
-                                    style="display: none;">Clear</button>
+                                <button type="button" id="tagFilterClearAll" class="tag-filter-clear-all" style="display: none;">Clear</button>
                             </div>
                         </div>
                         <div id="tagFilterActive" class="tag-filter-active">
@@ -335,17 +300,14 @@
                             <svg class="icon tag-filter-search-icon" aria-hidden="true">
                                 <use href="img/sprites/regular.svg#magnifying-glass"></use>
                             </svg>
-                            <input type="text" id="tagEditorSearch" class="tag-filter-search"
-                                placeholder="Search tags..." autocomplete="off" aria-label="Search tags">
-                            <button type="button" class="search-clear" id="tagEditorSearchClear" title="Clear search"
-                                aria-label="Clear search">
+                            <input type="text" id="tagEditorSearch" class="tag-filter-search" placeholder="Search tags..." autocomplete="off" aria-label="Search tags">
+                            <button type="button" class="search-clear" id="tagEditorSearchClear" title="Clear search" aria-label="Clear search">
                                 <svg class="icon" aria-hidden="true">
                                     <use href="img/sprites/duotone.svg#xmark"></use>
                                 </svg>
                             </button>
                         </div>
-                        <button type="button" class="generic-ui-btn magenta-btn" id="tagEditorNewTagBtn" title="New tag"
-                            aria-label="New tag" onclick="showNewTagForm()">
+                        <button type="button" class="generic-ui-btn magenta-btn" id="tagEditorNewTagBtn" title="New tag" aria-label="New tag" onclick="showNewTagForm()">
                             <svg class="icon" aria-hidden="true">
                                 <use href="img/sprites/solid.svg#plus"></use>
                             </svg>
@@ -356,30 +318,18 @@
                             <h3 id="tagFormTitle" class="tag-form-title"></h3>
                             <div class="tag-input-row" style="margin: 15px 0;">
                                 <div class="tag-input-wrapper">
-                                    <input type="text" id="tagName" placeholder="Tag name..." autocomplete="off"
-                                        aria-label="Tag name">
+                                    <input type="text" id="tagName" placeholder="Tag name..." autocomplete="off" aria-label="Tag name">
                                     <div class="edit-entry-color-wrapper" id="tagEditorColorWrapper">
-                                        <button type="button" class="lore-tag-current-color edit-entry-color-swatch"
-                                            id="tagEditorColorSwatch" data-color="slate" aria-label="Tag color"
-                                            title="Select color"></button>
-                                        <div class="lore-tag-color-selector edit-entry-color-popover" role="group"
-                                            aria-label="Tag color options">
-                                            <button type="button" class="tag-color orange-red edit-entry-color-btn"
-                                                data-color="amber" title="Amber"></button>
-                                            <button type="button" class="tag-color orange edit-entry-color-btn"
-                                                data-color="orange" title="Orange"></button>
-                                            <button type="button" class="tag-color lime edit-entry-color-btn"
-                                                data-color="green" title="Green"></button>
-                                            <button type="button" class="tag-color aqua edit-entry-color-btn"
-                                                data-color="teal" title="Teal"></button>
-                                            <button type="button" class="tag-color blue edit-entry-color-btn"
-                                                data-color="blue" title="Blue"></button>
-                                            <button type="button" class="tag-color purple edit-entry-color-btn"
-                                                data-color="purple" title="Purple"></button>
-                                            <button type="button" class="tag-color magenta edit-entry-color-btn"
-                                                data-color="pink" title="Pink"></button>
-                                            <button type="button" class="tag-color slate edit-entry-color-btn selected"
-                                                data-color="slate" title="Slate"></button>
+                                        <button type="button" class="lore-tag-current-color edit-entry-color-swatch" id="tagEditorColorSwatch" data-color="slate" aria-label="Tag color" title="Select color"></button>
+                                        <div class="lore-tag-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
+                                            <button type="button" class="tag-color orange-red edit-entry-color-btn" data-color="amber" title="Amber"></button>
+                                            <button type="button" class="tag-color orange edit-entry-color-btn" data-color="orange" title="Orange"></button>
+                                            <button type="button" class="tag-color lime edit-entry-color-btn" data-color="green" title="Green"></button>
+                                            <button type="button" class="tag-color aqua edit-entry-color-btn" data-color="teal" title="Teal"></button>
+                                            <button type="button" class="tag-color blue edit-entry-color-btn" data-color="blue" title="Blue"></button>
+                                            <button type="button" class="tag-color purple edit-entry-color-btn" data-color="purple" title="Purple"></button>
+                                            <button type="button" class="tag-color magenta edit-entry-color-btn" data-color="pink" title="Pink"></button>
+                                            <button type="button" class="tag-color slate edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
                                         </div>
                                     </div>
                                 </div>
@@ -389,10 +339,8 @@
                                 <textarea id="tagTerms" class="tag-form-textarea"></textarea>
                             </div>
                             <div class="tag-form-buttons">
-                                <button type="button" onclick="submitTagForm()" id="tagFormSubmit" class="tag-btn"
-                                    style="flex: 1;">Create Tag</button>
-                                <button type="button" onclick="cancelTagForm()" class="tag-btn"
-                                    style="flex: 1;">Cancel</button>
+                                <button type="button" onclick="submitTagForm()" id="tagFormSubmit" class="tag-btn" style="flex: 1;">Create Tag</button>
+                                <button type="button" onclick="cancelTagForm()" class="tag-btn" style="flex: 1;">Cancel</button>
                             </div>
                         </div>
                     </div>
@@ -437,18 +385,14 @@
                     </button>
                 </div>
                 <div class="sidesheet-content">
-                    <button type="button" class="generic-ui-btn text-btn" onclick="downloadLoreJson()"
-                        style="margin-right: 8px;">Download JSON</button>
+                    <div class="sidesheet-footer">
+                        <button type="button" class="generic-ui-btn text-btn" onclick="discardLocalChanges()">Discard</button>
+                        <button type="button" class="generic-ui-btn magenta-btn text-btn" id="publishBtn" onclick="publishChanges()">Publish</button>
+                    </div>
+                    <button type="button" class="generic-ui-btn text-btn" onclick="downloadLoreJson()" style="margin-right: 8px;">Download JSON</button>
                     <div id="syncDiffContainer" class="sync-diff-container">
                         <!-- Diff content will be injected here -->
                     </div>
-                    <div class="sidesheet-footer">
-                        <button type="button" class="generic-ui-btn text-btn"
-                            onclick="discardLocalChanges()">Discard</button>
-                        <button type="button" class="generic-ui-btn magenta-btn text-btn" id="publishBtn"
-                            onclick="publishChanges()">Publish</button>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -461,44 +405,30 @@
             <div class="tray">
                 <div class="tray-header">
                     <h2>Lore entry</h2>
-                    <input type="number" id="addEntryNumber" class="tray-header-entry-num" step="any" min="0"
-                        placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
+                    <input type="number" id="addEntryNumber" class="tray-header-entry-num" step="any" min="0" placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
                 </div>
                 <div id="addEntryArcIndicator" class="editor-arc-badge"></div>
                 <div class="entry-content">
                     <h3>Content</h3>
-                    <textarea id="addEntryContent" placeholder="Add your lore entry here..." tabindex="0"
-                        autocomplete="off"></textarea>
+                    <textarea id="addEntryContent" placeholder="Add your lore entry here..." tabindex="0" autocomplete="off"></textarea>
                 </div>
                 <div class="enter-tag">
                     <h3>Tags</h3>
                     <div class="tag-input-row">
                         <div class="tag-input-wrapper">
-                            <input type="text" id="addEntryTagInput" placeholder="Add a tag..." tabindex="0"
-                                autocomplete="off">
+                            <input type="text" id="addEntryTagInput" placeholder="Add a tag..." tabindex="0" autocomplete="off">
                             <div id="addEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
                             <div class="edit-entry-color-wrapper" id="addEntryColorWrapper">
-                                <button type="button" class="lore-tag-current-color edit-entry-color-swatch"
-                                    id="addEntryColorSwatch" data-color="slate" aria-label="Tag color"
-                                    title="Select color" tabindex="0"></button>
-                                <div class="lore-tag-color-selector edit-entry-color-popover" role="group"
-                                    aria-label="Tag color options">
-                                    <button type="button" class="tag-color orange-red edit-entry-color-btn"
-                                        data-color="amber" title="Amber" tabindex="0"></button>
-                                    <button type="button" class="tag-color orange edit-entry-color-btn"
-                                        data-color="orange" title="Orange" tabindex="0"></button>
-                                    <button type="button" class="tag-color lime edit-entry-color-btn" data-color="green"
-                                        title="Green" tabindex="0"></button>
-                                    <button type="button" class="tag-color aqua edit-entry-color-btn" data-color="teal"
-                                        title="Teal" tabindex="0"></button>
-                                    <button type="button" class="tag-color blue edit-entry-color-btn" data-color="blue"
-                                        title="Blue" tabindex="0"></button>
-                                    <button type="button" class="tag-color purple edit-entry-color-btn"
-                                        data-color="purple" title="Purple" tabindex="0"></button>
-                                    <button type="button" class="tag-color magenta edit-entry-color-btn"
-                                        data-color="pink" title="Pink" tabindex="0"></button>
-                                    <button type="button" class="tag-color slate edit-entry-color-btn selected"
-                                        data-color="slate" title="Slate" tabindex="0"></button>
+                                <button type="button" class="lore-tag-current-color edit-entry-color-swatch" id="addEntryColorSwatch" data-color="slate" aria-label="Tag color" title="Select color" tabindex="0"></button>
+                                <div class="lore-tag-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
+                                    <button type="button" class="tag-color orange-red edit-entry-color-btn" data-color="amber" title="Amber" tabindex="0"></button>
+                                    <button type="button" class="tag-color orange edit-entry-color-btn" data-color="orange" title="Orange" tabindex="0"></button>
+                                    <button type="button" class="tag-color lime edit-entry-color-btn" data-color="green" title="Green" tabindex="0"></button>
+                                    <button type="button" class="tag-color aqua edit-entry-color-btn" data-color="teal" title="Teal" tabindex="0"></button>
+                                    <button type="button" class="tag-color blue edit-entry-color-btn" data-color="blue" title="Blue" tabindex="0"></button>
+                                    <button type="button" class="tag-color purple edit-entry-color-btn" data-color="purple" title="Purple" tabindex="0"></button>
+                                    <button type="button" class="tag-color magenta edit-entry-color-btn" data-color="pink" title="Pink" tabindex="0"></button>
+                                    <button type="button" class="tag-color slate edit-entry-color-btn selected" data-color="slate" title="Slate" tabindex="0"></button>
                                 </div>
                             </div>
                         </div>
@@ -508,8 +438,7 @@
                 <div id="addEntrySuggestedTags" class="suggest-tag">
                     <div class="suggest-tag-header">
                         <h3>Suggested tags</h3>
-                        <button type="button" class="add-all-tags-btn" id="addEntryAddAllSuggested"
-                            style="display: none;" tabindex="0">+ Add all tags</button>
+                        <button type="button" class="add-all-tags-btn" id="addEntryAddAllSuggested" style="display: none;" tabindex="0">+ Add all tags</button>
                     </div>
                     <div id="addEntrySuggestedTagsList" class="tag-list"></div>
                 </div>
@@ -517,8 +446,7 @@
                     <span class="tray-save-message" id="addTraySaveMessage" aria-live="polite"></span>
                     <div class="tray-footer-buttons">
                         <!-- <button type="button" class="generic-ui-btn text" data-action="cancel-add" tabindex="0">Cancel</button> -->
-                        <button type="button" class="generic-ui-btn text magenta-btn" data-action="submit-add"
-                            tabindex="0">Add Entry</button>
+                        <button type="button" class="generic-ui-btn text magenta-btn" data-action="submit-add" tabindex="0">Add Entry</button>
                     </div>
                 </div>
             </div>
