@@ -266,6 +266,7 @@ h1 {
     letter-spacing: 0.05em;
     font-weight: 500;
     transition: filter 0.2s;
+    pointer-events: none;
 }
 
 .sync-status:hover .sync-badge {
