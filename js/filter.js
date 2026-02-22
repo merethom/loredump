@@ -48,10 +48,10 @@ function filterData() {
 
     // Apply sorting
     if (currentSort === 'entry-desc') {
-        filteredData.sort((a, b) => parseInt(b.Number) - parseInt(a.Number));
+        filteredData.sort((a, b) => parseFloat(b.Number) - parseFloat(a.Number));
     } else {
         // entry-asc (default)
-        filteredData.sort((a, b) => parseInt(a.Number) - parseInt(b.Number));
+        filteredData.sort((a, b) => parseFloat(a.Number) - parseFloat(b.Number));
     }
 
     renderDatabase();
