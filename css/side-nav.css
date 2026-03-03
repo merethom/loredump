@@ -1,0 +1,92 @@
+nav.side-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    background: var(--dark-bg);
+    border-right: var(--border);
+    height: 100vh;
+    width: 50px;
+    z-index: 2000;
+
+}
+
+
+nav.side-nav a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 32px;
+    width: 32px;
+    border-radius: 6px;
+    background: none;
+    color: var(--text-color);
+    cursor: pointer;
+    background: none;
+    transition: background 0.2s ease-in-out;
+}
+
+nav.side-nav a:hover {
+    background: #1E1E48;
+}
+
+
+nav.side-nav a div.circle {
+    background: #46466A;
+    height: 22px;
+    width: 22px;
+    border-radius: 11px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s ease-in-out;
+}
+
+nav.side-nav a svg {
+    height: 0.875rem;
+    width: 0.875rem;
+    transition: transform 0.2s ease-in-out;
+}
+
+nav.side-nav a:hover div.circle {
+    transform: scale(1.05);
+
+}
+
+nav.side-nav a:hover svg {
+    transform: scale(1.05) rotate(-2deg);
+}
+
+nav.side-nav a.side-nav-add-btn {
+    position: relative;
+}
+
+.side-nav-tooltip {
+    position: absolute;
+    top: 50%;
+    left: 115%;
+    transform: translate(4px, -50%);
+    padding: 4px 8px;
+    border-radius: var(--border-radius);
+    background: #1E1E48;
+    color: var(--text-color);
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+nav.side-nav a.side-nav-add-btn:hover .side-nav-tooltip {
+    opacity: 1;
+    transform: translate(0, -50%);
+}
+
+.side-nav-tooltip span.tooltip-kbd {
+    font-family: Inter, sans-serif;
+    color: var(--lesser-text-color);
+}
