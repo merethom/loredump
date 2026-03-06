@@ -235,15 +235,19 @@ function setupEventListeners() {
         filterData();
     });
 
-    // Setup add entry button (toggle)
-    document.getElementById('addEntryBtn').addEventListener('click', () => {
-        if (document.getElementById('addEntryContainer').classList.contains('active')) {
-            closeAddEntryModal();
-        } else {
-            closeEditEntryModal();
-            openAddEntryModal();
-        }
-    });
+    // Setup add entry button (toggle) — side-nav is the only add-entry trigger
+    const addEntryBtn = document.getElementById('addEntryBtn');
+    if (addEntryBtn) {
+        addEntryBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (document.getElementById('addEntryContainer').classList.contains('active')) {
+                closeAddEntryModal();
+            } else {
+                closeEditEntryModal();
+                openAddEntryModal();
+            }
+        });
+    }
 
     // Setup tag editor button
     document.getElementById('tagEditorBtn').addEventListener('click', openTagEditor);
@@ -563,6 +567,11 @@ function initializeApp() {
     // Set up event delegation for database cards (prevents memory leaks)
     if (typeof setupDatabaseEventDelegation === 'function') {
         setupDatabaseEventDelegation();
+    }
+
+    // Set up arc header sort delegation (per-arc sort controls)
+    if (typeof setupArcHeaderSortDelegation === 'function') {
+        setupArcHeaderSortDelegation();
     }
 
     // Initial render

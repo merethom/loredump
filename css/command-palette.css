@@ -1,0 +1,353 @@
+/* ==========================================================================
+   COMMAND PALETTE
+   ========================================================================== */
+
+.cmd-palette-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(13, 9, 39, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: clamp(60px, 12vh, 140px);
+}
+
+.cmd-palette-overlay.active {
+    display: flex;
+}
+
+.cmd-palette-modal {
+    width: min(680px, calc(100vw - 48px));
+    background: #141230;
+    border: 1.5px solid #3E3D5D;
+    border-radius: 8px;
+    box-shadow:
+        0 0 0 1px rgba(145, 77, 245, 0.12),
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        0 2px 8px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    max-height: calc(100vh - clamp(60px, 12vh, 140px) - 40px);
+    display: flex;
+    flex-direction: column;
+    animation: cmd-palette-in 0.12s ease-out;
+}
+
+@keyframes cmd-palette-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ---- Input Row ---- */
+
+.cmd-palette-input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    border-bottom: 1.5px solid #2A2847;
+    flex-shrink: 0;
+}
+
+.cmd-palette-icon {
+    width: 16px;
+    height: 16px;
+    fill: var(--lesser-text-color);
+    flex-shrink: 0;
+}
+
+.cmd-palette-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-color);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    height: 52px;
+    caret-color: var(--color-purple);
+}
+
+.cmd-palette-input::placeholder {
+    color: var(--muted-text-color);
+}
+
+/* ---- Mode Badge ---- */
+
+.cmd-palette-mode-badge {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cmd-palette-mode-badge.visible {
+    display: flex;
+}
+
+.cmd-palette-mode-badge.mode-entry {
+    background: color-mix(in srgb, var(--color-aqua) 15%, transparent);
+    color: var(--color-aqua);
+    border: 1px solid color-mix(in srgb, var(--color-aqua) 30%, transparent);
+}
+
+.cmd-palette-mode-badge.mode-character {
+    background: color-mix(in srgb, var(--color-orange) 15%, transparent);
+    color: var(--color-orange);
+    border: 1px solid color-mix(in srgb, var(--color-orange) 30%, transparent);
+}
+
+.cmd-palette-mode-badge.mode-tag {
+    background: color-mix(in srgb, var(--color-purple) 15%, transparent);
+    color: var(--color-purple);
+    border: 1px solid color-mix(in srgb, var(--color-purple) 30%, transparent);
+}
+
+/* ---- Results Panel ---- */
+
+.cmd-palette-results {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    flex: 1;
+    min-height: 0;
+}
+
+.cmd-palette-results::-webkit-scrollbar {
+    width: 4px;
+}
+
+.cmd-palette-results::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cmd-palette-results::-webkit-scrollbar-thumb {
+    background: #3E3D5D;
+    border-radius: 2px;
+}
+
+/* ---- Hint & Empty ---- */
+
+.cmd-palette-hint,
+.cmd-palette-empty {
+    padding: 20px 20px;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--muted-text-color);
+    line-height: 1.6;
+}
+
+.cmd-prefix {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid #3E3D5D;
+    color: var(--lesser-text-color);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    vertical-align: baseline;
+    margin: 0 2px;
+}
+
+/* ---- Individual Result ---- */
+
+.cmd-palette-result {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(62, 61, 93, 0.4);
+    transition: background 0.07s;
+}
+
+.cmd-palette-result:last-child {
+    border-bottom: none;
+}
+
+.cmd-palette-result:hover,
+.cmd-palette-result--selected {
+    background: rgba(145, 77, 245, 0.1);
+}
+
+.cmd-result-num {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-purple);
+    min-width: 52px;
+    padding-top: 2px;
+    flex-shrink: 0;
+    letter-spacing: 0.03em;
+}
+
+.cmd-result-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.cmd-result-snippet {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--lesser-text-color);
+    line-height: 1.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+mark.cmd-highlight {
+    background: transparent;
+    color: var(--text-color);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--color-purple);
+    text-underline-offset: 2px;
+}
+
+.cmd-result-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+/* ---- Tag Pills in palette results ---- */
+
+.cmd-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 7px;
+    border-radius: 20px;
+    border: 1px solid #3E3D5D;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--lesser-text-color);
+    background: transparent;
+    line-height: 1.5;
+}
+
+.cmd-tag--match {
+    background: rgba(145, 77, 245, 0.15);
+    border-color: var(--color-purple);
+    color: var(--text-color);
+}
+
+.cmd-tag--purple {
+    border-color: var(--color-purple);
+    color: var(--color-purple);
+}
+
+.cmd-tag--green {
+    border-color: var(--color-lime);
+    color: var(--color-lime);
+}
+
+.cmd-tag--blue {
+    border-color: var(--color-blue);
+    color: var(--color-blue);
+}
+
+.cmd-tag--orange {
+    border-color: var(--color-orange);
+    color: var(--color-orange);
+}
+
+.cmd-tag--teal {
+    border-color: var(--color-aqua);
+    color: var(--color-aqua);
+}
+
+.cmd-tag--pink {
+    border-color: var(--color-magenta);
+    color: var(--color-magenta);
+}
+
+.cmd-tag--amber {
+    border-color: var(--color-orange-red);
+    color: var(--color-orange-red);
+}
+
+.cmd-tag--slate {
+    border-color: var(--color-slate);
+    color: var(--color-slate);
+}
+
+.cmd-tag--match.cmd-tag--purple {
+    background: color-mix(in srgb, var(--color-purple) 15%, transparent);
+}
+
+.cmd-tag--match.cmd-tag--green {
+    background: color-mix(in srgb, var(--color-lime) 15%, transparent);
+}
+
+.cmd-tag--match.cmd-tag--blue {
+    background: color-mix(in srgb, var(--color-blue) 15%, transparent);
+}
+
+.cmd-tag--match.cmd-tag--orange {
+    background: color-mix(in srgb, var(--color-orange) 15%, transparent);
+}
+
+.cmd-tag--match.cmd-tag--teal {
+    background: color-mix(in srgb, var(--color-aqua) 15%, transparent);
+}
+
+.cmd-tag--match.cmd-tag--pink {
+    background: color-mix(in srgb, var(--color-magenta) 15%, transparent);
+}
+
+.cmd-tag--match.cmd-tag--amber {
+    background: color-mix(in srgb, var(--color-orange-red) 15%, transparent);
+}
+
+.cmd-tag--match.cmd-tag--slate {
+    background: color-mix(in srgb, var(--color-slate) 15%, transparent);
+}
+
+/* ---- Footer / keyboard hints ---- */
+
+.cmd-palette-footer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 16px;
+    border-top: 1px solid #2A2847;
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.cmd-palette-footer-hint {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--muted-text-color);
+}
+
+.cmd-palette-footer-hint kbd {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid #3E3D5D;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    color: var(--lesser-text-color);
+}

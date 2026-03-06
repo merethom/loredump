@@ -10,9 +10,8 @@ nav.side-nav {
     background: var(--dark-bg);
     border-right: var(--border);
     height: 100vh;
-    width: 50px;
+    width: var(--side-nav-width, 50px);
     z-index: 2000;
-
 }
 
 
@@ -46,6 +45,10 @@ nav.side-nav a div.circle {
     transition: transform 0.2s ease-in-out;
 }
 
+nav.side-nav a div.circle svg {
+    color: var(--lesser-text-color);
+}
+
 nav.side-nav a svg {
     height: 0.875rem;
     width: 0.875rem;
@@ -70,7 +73,7 @@ nav.side-nav a.side-nav-add-btn {
     top: 50%;
     left: 115%;
     transform: translate(4px, -50%);
-    padding: 4px 8px;
+    padding: 4px 8px 5px;
     border-radius: var(--border-radius);
     background: #1E1E48;
     color: var(--text-color);
@@ -79,6 +82,7 @@ nav.side-nav a.side-nav-add-btn {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.15s ease, transform 0.15s ease;
+    
 }
 
 nav.side-nav a.side-nav-add-btn:hover .side-nav-tooltip {
@@ -87,6 +91,26 @@ nav.side-nav a.side-nav-add-btn:hover .side-nav-tooltip {
 }
 
 .side-nav-tooltip span.tooltip-kbd {
-    font-family: Inter, sans-serif;
+    font-family: var(--font-sans-flex);
     color: var(--lesser-text-color);
+}
+
+nav.side-nav a.side-nav-user {
+    margin-top: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease-in-out;
+}
+
+nav.side-nav a.side-nav-user.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.side-nav-user-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.18);
 }

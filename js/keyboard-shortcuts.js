@@ -2,7 +2,7 @@
  * Keyboard Shortcuts
  * Adds keyboard navigation to the lore dump app
  */
-(function () {
+(function() {
     'use strict';
 
     // Keyboard shortcut configuration
@@ -14,7 +14,7 @@
         NEW_ENTRY: ['n'],
         EDIT_TAGS: ['t'],
         TOGGLE_FILTERS: ['f'],
-        GOTO_ENTRY: ['g'],  // Focus jump-to-entry field
+        GOTO_ENTRY: ['g'], // Focus jump-to-entry field
 
         // Actions
         SAVE_ENTRY: ['ctrl+s', 'cmd+s', 'ctrl+enter', 'cmd+enter'],
@@ -97,7 +97,10 @@
         card.classList.add('card--selected');
 
         // Scroll into view
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
 
         // Update jump-to field with the entry number
         const entryNumber = card.getAttribute('data-entry-number');
@@ -350,13 +353,17 @@
 
         if (modalOpen) return;
 
-        // Search focus
+        // Search focus → open command palette if available, else fall back to searchInput
         if (matchesShortcut(e, SHORTCUTS.FOCUS_SEARCH)) {
             e.preventDefault();
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.focus();
-                searchInput.select();
+            if (typeof openCommandPalette === 'function') {
+                openCommandPalette();
+            } else {
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    searchInput.focus();
+                    searchInput.select();
+                }
             }
             resetSelection();
             return;

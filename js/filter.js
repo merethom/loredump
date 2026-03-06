@@ -1,5 +1,8 @@
 // Filtering and tag management
 
+// Per-arc sort state (falls back to global currentSort when unset)
+var arcSortState = arcSortState || {};
+
 function toggleTag(tag, element) {
     if (selectedTags.has(tag)) {
         selectedTags.delete(tag);
@@ -46,13 +49,9 @@ function filterData() {
         return true;
     });
 
-    // Apply sorting
-    if (currentSort === 'entry-desc') {
-        filteredData.sort((a, b) => parseFloat(b.Number) - parseFloat(a.Number));
-    } else {
-        // entry-asc (default)
-        filteredData.sort((a, b) => parseFloat(a.Number) - parseFloat(b.Number));
-    }
+    // Base ordering: by entry number ascending.
+    // Per-arc sort is applied in renderDatabase using arcSortState.
+    filteredData.sort((a, b) => parseFloat(a.Number) - parseFloat(b.Number));
 
     renderDatabase();
     updateStats();

@@ -71,10 +71,12 @@
 
     /* Typography */
     --font-mono: 'PPSupply Mono', ui-monospace, monospace;
+    --font-sans-flex: 'Google Sans Flex', sans-serif;
     /* Layout */
+    --side-nav-width: 50px;
     --border-radius: 3px;
     --box-padding: 24px 28px;
-    --border: solid 1.5px #3E3D5D;
+    --border: solid 1px #2A2A3E;
     --bg-gradient: linear-gradient(180deg, #191734 0%, #0D0927 100%);
     --btn-box-height: 36px;
 }
@@ -111,13 +113,14 @@ body.app-active {
 
 .app-layout.container {
     max-width: none;
-    margin: 0;
+    margin: 0 0 0 var(--side-nav-width);
 }
 
 .app-layout {
     display: grid;
-    width: 100vw;
-    max-width: 100vw;
+    margin-left: var(--side-nav-width);
+    width: calc(100vw - var(--side-nav-width));
+    max-width: calc(100vw - var(--side-nav-width));
     height: 100vh;
     overflow-x: hidden;
     grid-template-columns: 1fr 0;
@@ -157,6 +160,8 @@ body.app-active {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-left: var(--side-nav-width);
+    width: calc(100% - var(--side-nav-width));
     min-height: 80vh;
     padding: 20px;
 }
@@ -600,11 +605,6 @@ h1 {
     fill: var(--color-magenta);
 }
 
-
-#addEntryBtn {
-    flex-shrink: 0;
-    margin-left: auto;
-}
 
 #signOutBtn {
     display: flex;
@@ -1369,8 +1369,8 @@ h3.diff-section-title {
     height: 100%;
     max-height: 100vh;
     min-height: 0;
-    background: var(--bg-gradient);
-    border-left: 1px solid #3E3D5D;
+    background: var(--dark-bg);
+    border-left: var(--border);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -1380,20 +1380,22 @@ h3.diff-section-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px;
-    border-bottom: 1px solid #3E3D5D;
+    padding: 12px 18px;
+    border-bottom: var(--border);
 }
 
 .sidesheet-title {
     font-size: 1rem;
     font-weight: 500;
     color: var(--text-color);
+    font-family: var(--font-sans-flex);
+    letter-spacing: 0.025em;
 }
 
 .close-btn,
 .sidesheet-close {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1401,13 +1403,13 @@ h3.diff-section-title {
     background: transparent;
     color: var(--lesser-text-color);
     cursor: pointer;
-    border-radius: var(--border-radius);
+    border-radius: 6px;
 }
 
 .close-btn:hover,
 .sidesheet-close:hover {
     color: var(--text-color);
-    background: rgba(255, 255, 255, 0.08);
+    background: #1E1E48;
 }
 
 .sidesheet-close .icon {
@@ -1419,7 +1421,7 @@ h3.diff-section-title {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: var(--box-padding);
+    padding: 18px;
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -2475,6 +2477,9 @@ h3.diff-section-title {
     position: sticky;
     top: 70px;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .arc-header-label {
@@ -2483,6 +2488,10 @@ h3.diff-section-title {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-color);
+}
+
+.db-arc-header .arc-sort-control {
+    margin-left: 12px;
 }
 
 .editor-arc-badge {
@@ -2606,26 +2615,33 @@ h3.diff-section-title {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    margin-top: 24px;
 }
 
 .arc-item {
-    background: var(--bg-gradient);
+    background: #16162E;
     border: var(--border);
-    border-radius: var(--border-radius);
+    border-radius: 10px;
     padding: 16px;
 }
 
 .arc-item-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: grid;
+    grid-template-columns:  1fr auto auto;
     margin-bottom: 12px;
+    gap: 12px;
 }
 
 .arc-number {
-    font-weight: 700;
-    color: var(--text-color);
+    font-family: var(--font-sans-flex);
+    font-weight: 400;
+    color: var(--lesser-text-color);
+    font-size: 0.875rem;
+    letter-spacing: 0.025em;
+}
+
+.arc-number svg {
+    fill: #444466;
+    margin-right: 6px;
 }
 
 .arc-color-selector {
@@ -2679,6 +2695,59 @@ h3.diff-section-title {
     background-color: var(--color-slate);
 }
 
+.arc-item-header-actions button {
+    background: none;
+    border: none;
+    color: var(--muted-text-color);
+    transition: color 200ms ease-in-out;
+    cursor: pointer;
+}
+
+.arc-item-header-actions button svg {
+    height: 0.875rem;
+    width: 0.875rem;
+}
+
+.arc-item-header-actions button:first-of-type:hover {
+    color: var(--text-color);
+}
+
+.arc-item-header-actions button:last-of-type:hover {
+    color: var(--color-orange-red);
+}
+
+.arc-title {
+    display: flex;
+    align-items: stretch;
+    background: #0E0E22;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.arc-color-indicator {
+    flex-shrink: 0;
+    width: 7px;
+    background: var(--color-slate-33);
+    border-radius: 5px 0 0 5px;
+}
+
+.arc-title span {
+    flex: 1;
+    padding: 12px 18px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--text-color);
+}
+
+.arc-number-info {
+    font-size: 0.75rem;
+    color: #555577;
+    letter-spacing: 0.05em;
+    font-family: var(--font-sans-flex);
+    margin-top: 12px;
+}
+
 .arc-name-input {
     width: 100%;
     padding: 8px 12px;
@@ -2690,6 +2759,9 @@ h3.diff-section-title {
     font-size: 0.875rem;
 }
 
+
+
+
 .arc-name-input:focus {
     outline: none;
     border-color: var(--muted-text-color);
@@ -2699,5 +2771,4 @@ h3.diff-section-title {
     font-size: 0.8125rem;
     color: var(--lesser-text-color);
     line-height: 1.5;
-    margin-bottom: 24px;
 }

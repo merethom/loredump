@@ -60,42 +60,78 @@ function renderDatabase() {
     }
 
     emptyState.classList.remove('show');
-    let currentArc = null;
-    db.innerHTML = filteredData.map(entry => {
+
+    // Group entries by arc key
+    const arcsMap = new Map();
+    filteredData.forEach(entry => {
         const entryNum = parseFloat(entry.Number);
         const arcKey = Math.floor(entryNum).toString();
+        if (!arcsMap.has(arcKey)) arcsMap.set(arcKey, []);
+        arcsMap.get(arcKey).push(entry);
+    });
+
+    const sortedArcKeys = Array.from(arcsMap.keys()).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+
+    let html = '';
+
+    sortedArcKeys.forEach(arcKey => {
+        const entries = arcsMap.get(arcKey) || [];
         const arcData = allArcs[arcKey] || { name: '', color: 'slate' };
 
-        let arcHeader = '';
-        if (arcKey !== currentArc) {
-            currentArc = arcKey;
-            const arcDisplayName = arcData.name ? `Arc ${arcKey}: ${arcData.name}` : `Arc ${arcKey}`;
-            arcHeader = `
-                <div class="db-arc-header arc--header-${arcData.color}">
-                    <span class="arc-header-label">${arcDisplayName}</span>
-                </div>
-            `;
-        }
+        // Determine sort for this arc: per-arc override → global currentSort → default asc
+        const sortKey = (typeof arcSortState !== 'undefined' && arcSortState[arcKey]) || (typeof currentSort !== 'undefined' && currentSort) || 'entry-asc';
+        const sortLabel = sortKey === 'entry-desc' ? 'Newest First' : 'Oldest First';
 
-        const tags = getEntryTagsForDisplay(entry);
-        const tagsHtml = tags.map(t =>
-            `<span class="${getTagClass(t.color)}" data-name="${escapeHtml(t.name)}">${escapeHtml(t.name)}</span>`
-        ).join('');
+        const sortedEntries = entries.slice().sort((a, b) => {
+            const aNum = parseFloat(a.Number);
+            const bNum = parseFloat(b.Number);
+            return sortKey === 'entry-desc' ? bNum - aNum : aNum - bNum;
+        });
 
-        return `
-        ${arcHeader}
-        <div class="card arc--card-${arcData.color}" data-entry-number="${entry.Number}">
-            <div class="card-description">${escapeHtml(entry.Description)}</div>
-            <div class="card-divider"></div>
-            <div class="card-footer">
-                <span class="card-number">${entry.Number}</span>
-                <div class="card-tags">
-                    ${tagsHtml}
+        const arcDisplayName = arcData.name ? `Arc ${arcKey}: ${arcData.name}` : `Arc ${arcKey}`;
+
+        html += `
+            <div class="db-arc-header arc--header-${arcData.color}" data-arc-key="${arcKey}">
+                <span class="arc-header-label">${arcDisplayName}</span>
+                <div class="sort-control-wrapper arc-sort-control">
+                    <button class="generic-ui-btn text-btn dropdown-btn arc-sort-btn" data-arc-key="${arcKey}" title="Change sort order for this arc">
+                        <span class="arc-sort-label" data-arc-key="${arcKey}">${sortLabel}</span>
+                        <svg class="icon" aria-hidden="true">
+                            <use href="img/sprites/solid.svg#caret-down"></use>
+                        </svg>
+                    </button>
+                    <div class="controls-dropdown arc-sort-dropdown" data-arc-key="${arcKey}">
+                        <div class="controls-dropdown-content sort-dropdown-content">
+                            <button class="sort-option arc-sort-option" data-arc-key="${arcKey}" data-value="entry-asc">Oldest First</button>
+                            <button class="sort-option arc-sort-option" data-arc-key="${arcKey}" data-value="entry-desc">Newest First</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    `;
-    }).join('');
+        `;
+
+        sortedEntries.forEach(entry => {
+            const tags = getEntryTagsForDisplay(entry);
+            const tagsHtml = tags.map(t =>
+                `<span class="${getTagClass(t.color)}" data-name="${escapeHtml(t.name)}">${escapeHtml(t.name)}</span>`
+            ).join('');
+
+            html += `
+                <div class="card arc--card-${arcData.color}" data-entry-number="${entry.Number}">
+                    <div class="card-description">${escapeHtml(entry.Description)}</div>
+                    <div class="card-divider"></div>
+                    <div class="card-footer">
+                        <span class="card-number">${entry.Number}</span>
+                        <div class="card-tags">
+                            ${tagsHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    });
+
+    db.innerHTML = html;
 
     // Event delegation is set up once in setupDatabaseEventDelegation()
     // No need to add listeners here anymore!
@@ -190,6 +226,52 @@ function setupDatabaseEventDelegation() {
         if (entryNumber) {
             e.stopPropagation();
             openEditEntryModal(entryNumber);
+        }
+    });
+}
+
+function setupArcHeaderSortDelegation() {
+    const db = document.getElementById('database');
+    if (!db) return;
+
+    if (db._hasArcSortDelegation) return;
+    db._hasArcSortDelegation = true;
+
+    db.addEventListener('click', (e) => {
+        const sortBtn = e.target.closest('.arc-sort-btn');
+        if (sortBtn) {
+            e.stopPropagation();
+            const arcKey = sortBtn.getAttribute('data-arc-key');
+            if (!arcKey) return;
+
+            // Close other arc sort dropdowns
+            document.querySelectorAll('.arc-sort-dropdown').forEach(dd => {
+                if (dd.getAttribute('data-arc-key') !== arcKey) {
+                    dd.classList.remove('show');
+                }
+            });
+
+            const dropdown = document.querySelector(`.arc-sort-dropdown[data-arc-key="${arcKey}"]`);
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+            return;
+        }
+
+        const sortOption = e.target.closest('.arc-sort-option');
+        if (sortOption) {
+            e.preventDefault();
+            const arcKey = sortOption.getAttribute('data-arc-key');
+            const val = sortOption.getAttribute('data-value');
+            if (!arcKey || !val) return;
+
+            if (typeof arcSortState === 'undefined') {
+                window.arcSortState = {};
+            }
+            arcSortState[arcKey] = val;
+
+            // Re-render with updated per-arc sort
+            filterData();
         }
     });
 }

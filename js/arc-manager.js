@@ -81,7 +81,10 @@ function updateArcColor(key, color) {
 document.addEventListener('DOMContentLoaded', () => {
     const arcBtn = document.getElementById('arcEditorBtn');
     if (arcBtn) {
-        arcBtn.addEventListener('click', openArcEditor);
+        arcBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openArcEditor();
+        });
     }
 
     const closeBtn = document.getElementById('arcEditorSidesheetClose');

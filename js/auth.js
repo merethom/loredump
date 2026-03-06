@@ -30,6 +30,24 @@
     function updateUserDisplay(user) {
         const el = document.getElementById('userEmail');
         if (el) el.textContent = user ? user.email : '';
+
+        const avatarEl = document.getElementById('sideNavUserAvatar');
+        if (avatarEl) {
+            const avatarLink = avatarEl.parentElement;
+            if (user && user.photoURL) {
+                avatarEl.src = user.photoURL;
+                avatarEl.alt = user.displayName || user.email || 'User avatar';
+                if (avatarLink && avatarLink.classList.contains('side-nav-user')) {
+                    avatarLink.classList.add('is-visible');
+                }
+            } else {
+                avatarEl.removeAttribute('src');
+                avatarEl.alt = '';
+                if (avatarLink && avatarLink.classList.contains('side-nav-user')) {
+                    avatarLink.classList.remove('is-visible');
+                }
+            }
+        }
     }
 
     window.signInWithGoogle = function() {
