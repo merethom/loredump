@@ -11,7 +11,7 @@
     <link rel="icon" href="img/favicon.ico">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/keyboard-shortcuts.css">
+    <link rel="stylesheet" href="css/tag.css">
     <link rel="stylesheet" href="css/side-nav.css">
     <link rel="stylesheet" href="css/command-palette.css">
 </head>
@@ -107,7 +107,7 @@
     <div id="appContent" class="container app-layout" style="display: none;">
         <div class="app-main-content">
             <div class="controls">
-                <header>
+                <!-- <header>
                     <img src="img/raygun.svg" alt="raygun">
                     <h1>Noxsyphone Lore Dump</h1>
                     <div class="header-actions">
@@ -121,7 +121,7 @@
                             </svg>
                         </button>
                     </div>
-                </header>
+                </header> -->
                 <!-- Search bar removed — command palette replaces it (Cmd+K / search icon) -->
                 <!-- Hidden searchInput kept in DOM for backward compat with existing JS -->
                 <input type="text" id="searchInput" style="display:none" aria-hidden="true" autocomplete="off" tabindex="-1">
@@ -263,6 +263,18 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Inline filter bar: applied tags (no sidesheet needed to add/remove) -->
+            <div id="filterBar" class="filter-bar" aria-label="Active tag filters" style="display: none;">
+                <div id="filterBarTags" class="filter-bar-tags"></div>
+                <button type="button" id="filterBarAddTag" class="filter-bar-add" title="Add tag filter (or press ⌘K then type @)" aria-label="Add tag filter">
+                    <svg class="icon" aria-hidden="true">
+                        <use href="img/sprites/solid.svg#plus"></use>
+                    </svg>
+                    <span>Add tag</span>
+                </button>
+                <button type="button" id="filterBarClearAll" class="tag-filter-clear-all filter-bar-clear" title="Clear all tag filters" aria-label="Clear all tag filters">Clear all</button>
             </div>
 
             <div id="database" class="database-view"></div>

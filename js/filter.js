@@ -62,10 +62,6 @@ function filterByTag(event, tag) {
 
     if (typeof refreshTagFilter === 'function') refreshTagFilter();
 
-    // Open filter sidesheet when filtering by tag
-    filtersVisible = true;
-    if (typeof openFilterSidesheet === 'function') openFilterSidesheet();
-
     filterData();
     if (typeof closeModal === 'function') closeModal();
 }

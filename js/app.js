@@ -225,6 +225,32 @@ function setupEventListeners() {
         filterData();
     });
 
+    // Inline filter bar: remove tag from filter
+    document.getElementById('filterBar')?.addEventListener('click', (e) => {
+        const removeBtn = e.target.closest('.tag__remove');
+        if (!removeBtn) return;
+        const tagEl = removeBtn.closest('.tag[data-name]');
+        if (!tagEl) return;
+        const tagName = tagEl.getAttribute('data-name');
+        if (tagName && typeof toggleTag === 'function') {
+            toggleTag(tagName, tagEl);
+            refreshTagFilter();
+            filterData();
+        }
+    });
+
+    // Inline filter bar: "Add tag" opens command palette in tag mode
+    document.getElementById('filterBarAddTag')?.addEventListener('click', () => {
+        if (typeof openCommandPalette === 'function') openCommandPalette('@');
+    });
+
+    // Inline filter bar: "Clear all" removes all tag filters
+    document.getElementById('filterBarClearAll')?.addEventListener('click', () => {
+        selectedTags.clear();
+        refreshTagFilter();
+        filterData();
+    });
+
     // Setup add entry button (toggle) — side-nav is the only add-entry trigger
     const addEntryBtn = document.getElementById('addEntryBtn');
     if (addEntryBtn) {
@@ -546,6 +572,38 @@ function refreshTagFilter() {
         });
         tagFilterDiv._hasDelegator = true;
     }
+
+    refreshFilterBar();
+}
+
+function refreshFilterBar() {
+    const bar = document.getElementById('filterBar');
+    const container = document.getElementById('filterBarTags');
+    if (!bar || !container) return;
+
+    if (selectedTags.size === 0) {
+        bar.style.display = 'none';
+        container.innerHTML = '';
+        return;
+    }
+
+    bar.style.display = 'flex';
+    const tagColorMap = getTagColorMap();
+    container.innerHTML = '';
+
+    Array.from(selectedTags).sort((a, b) => a.localeCompare(b)).forEach(tagName => {
+        const color = tagColorMap.get(tagName) || 'slate';
+        const span = document.createElement('span');
+        span.className = `tag tag--${color}`;
+        span.setAttribute('data-name', tagName);
+        span.textContent = tagName;
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'tag__remove';
+        removeBtn.setAttribute('aria-label', `Remove ${tagName} from filter`);
+        span.appendChild(removeBtn);
+        container.appendChild(span);
+    });
 }
 
 function initializeApp() {

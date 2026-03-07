@@ -5,8 +5,8 @@
  * Search modes (detected by input prefix):
  *   No prefix   → full-text search across entry content
  *   #<num>      → jump directly to that entry number
- *   @<name>     → filter entries by character / entity tag
- *   /<tag>      → filter entries by any tag
+ *   @<tag>      → filter entries by tag name
+ *   /<arc>      → filter entries by arc (number or arc name)
  */
 (function() {
     'use strict';
@@ -18,7 +18,7 @@
        Public API
     ------------------------------------------------------------------ */
 
-    function openCommandPalette() {
+    function openCommandPalette(initialQuery) {
         const overlay = document.getElementById('cmdPaletteOverlay');
         if (!overlay) return;
 
@@ -27,13 +27,16 @@
         selectedResultIndex = -1;
 
         const input = document.getElementById('cmdPaletteInput');
+        const query = typeof initialQuery === 'string' ? initialQuery : '';
         if (input) {
-            input.value = '';
-            // Small delay ensures focus works after overlay display transition
-            requestAnimationFrame(() => input.focus());
+            input.value = query;
+            requestAnimationFrame(() => {
+                input.focus();
+                input.setSelectionRange(query.length, query.length);
+            });
         }
 
-        renderResults('');
+        renderResults(query);
     }
 
     function closeCommandPalette() {
@@ -54,11 +57,11 @@
             term: query.slice(1).trimStart()
         };
         if (query.startsWith('@')) return {
-            mode: 'character',
+            mode: 'tag',
             term: query.slice(1).trimStart()
         };
         if (query.startsWith('/')) return {
-            mode: 'tag',
+            mode: 'arc',
             term: query.slice(1).trimStart()
         };
         return {
@@ -151,17 +154,76 @@
                 const num = String(e.Number);
                 return num.startsWith(term) || parseFloat(num) === parseFloat(term);
             });
-        } else {
-            // 'character' or 'tag' — search by tag name
+        } else if (mode === 'tag') {
+            // Search by tag name
             const lower = term.toLowerCase();
             matches = allData.filter(e => {
                 if (!e.Tags) return false;
                 const tags = safeParseEntryTags(e.Tags);
                 return tags.some(t => t.name.toLowerCase().includes(lower));
             });
+        } else {
+            // mode === 'arc' — search by arc number or arc name
+            const lower = term.toLowerCase().trim();
+            const termTrim = term.trim();
+            matches = allData.filter(e => {
+                const n = parseFloat(e.Number);
+                if (isNaN(n)) return false;
+                const arcKey = Math.floor(n).toString();
+                const arcData = (typeof allArcs !== 'undefined' && allArcs[arcKey]) || { name: '', color: 'slate' };
+                const arcName = (arcData.name || '').toLowerCase();
+                const numMatch = arcKey === termTrim || arcKey.startsWith(termTrim);
+                const nameMatch = arcName.includes(lower);
+                return numMatch || nameMatch;
+            });
         }
 
         return matches.slice(0, MAX_RESULTS);
+    }
+
+    /** Tags whose name matches the term (unique by name). Empty term = all tags. */
+    function getMatchingTags(term) {
+        if (typeof allData === 'undefined' || !Array.isArray(allData)) return [];
+        const lower = (term || '').toLowerCase().trim();
+        const showAll = (lower === '');
+        const seen = new Set();
+        const out = [];
+        allData.forEach(e => {
+            if (!e.Tags) return;
+            const tags = safeParseEntryTags(e.Tags);
+            tags.forEach(t => {
+                if (!t.name) return;
+                const nameLower = t.name.toLowerCase();
+                if (!seen.has(nameLower) && (showAll || nameLower.includes(lower))) {
+                    seen.add(nameLower);
+                    out.push({ name: t.name, color: t.color || 'slate' });
+                }
+            });
+        });
+        return out.slice(0, showAll ? 100 : 15);
+    }
+
+    /** Arcs whose key or name matches the term */
+    function getMatchingArcs(term) {
+        if (!term || typeof allData === 'undefined' || !Array.isArray(allData)) return [];
+        const lower = term.toLowerCase().trim();
+        const termTrim = term.trim();
+        const arcKeys = new Set();
+        allData.forEach(e => {
+            const n = parseFloat(e.Number);
+            if (!isNaN(n)) arcKeys.add(Math.floor(n).toString());
+        });
+        const out = [];
+        arcKeys.forEach(key => {
+            const arcData = (typeof allArcs !== 'undefined' && allArcs[key]) || { name: '', color: 'slate' };
+            const name = (arcData.name || '').trim() || 'Untitled';
+            const nameMatch = name.toLowerCase().includes(lower);
+            const numMatch = key === termTrim || key.startsWith(termTrim);
+            if (nameMatch || numMatch) {
+                out.push({ key, name, color: arcData.color || 'slate' });
+            }
+        });
+        return out.sort((a, b) => parseInt(a.key, 10) - parseInt(b.key, 10)).slice(0, 15);
     }
 
     /* ------------------------------------------------------------------
@@ -174,8 +236,8 @@
 
         const labels = {
             entry: 'Entry #',
-            character: 'Character',
             tag: 'Tag',
+            arc: 'Arc',
         };
 
         if (mode === 'text' || !labels[mode]) {
@@ -187,30 +249,51 @@
         }
     }
 
-    function buildResultHTML(entry, index, mode, term) {
+    function buildResultHTML(entry, index, mode, term, showEntryNumber) {
         const desc = entry.Description || '';
         const snippet = getSnippet(desc, mode === 'text' ? term : '');
         const highlighted = mode === 'text' ? highlight(snippet, term) : escapeHtml(snippet);
         const entryNum = escapeHtml(String(entry.Number));
 
-        const tags = safeGetEntryTagsForDisplay(entry);
-        const lowerTerm = term.toLowerCase();
-
-        const tagsHtml = tags.slice(0, 6).map(t => {
-            const isMatch = (mode === 'character' || mode === 'tag') &&
-                t.name.toLowerCase().includes(lowerTerm);
-            const colorClass = `cmd-tag--${t.color || 'slate'}`;
-            const matchClass = isMatch ? ' cmd-tag--match' : '';
-            return `<span class="cmd-tag ${colorClass}${matchClass}">${escapeHtml(t.name)}</span>`;
-        }).join('');
-
         const selectedClass = index === selectedResultIndex ? ' cmd-palette-result--selected' : '';
+        const numBlock = showEntryNumber
+            ? `<div class="cmd-result-num">#${entryNum}</div>`
+            : '';
 
-        return `<div class="cmd-palette-result${selectedClass}" data-index="${index}" data-entry-number="${entryNum}">
-            <div class="cmd-result-num">#${entryNum}</div>
+        return `<div class="cmd-palette-result cmd-palette-result--entry${selectedClass}" data-type="entry" data-index="${index}" data-entry-number="${entryNum}">
+            ${numBlock}
             <div class="cmd-result-body">
                 <div class="cmd-result-snippet">${highlighted}</div>
-                ${tagsHtml ? `<div class="cmd-result-tags">${tagsHtml}</div>` : ''}
+            </div>
+        </div>`;
+    }
+
+    function buildTagRow(tag, index) {
+        const tagClass = typeof getTagClass === 'function' ? getTagClass(tag.color || 'slate') : 'tag tag--slate';
+        const loreClass = typeof getLoreTagColorClass === 'function' ? getLoreTagColorClass(tag.color || 'slate') : 'slate';
+        const selectedClass = index === selectedResultIndex ? ' cmd-palette-result--selected' : '';
+        const name = escapeHtml(tag.name);
+        return `<div class="cmd-palette-result cmd-palette-result--tag${selectedClass}" data-type="tag" data-index="${index}" data-tag-name="${escapeHtml(tag.name)}">
+            <span class="${tagClass} lore-tag ${loreClass}">${name}</span>
+        </div>`;
+    }
+
+    function buildArcRow(arc, index) {
+        const selectedClass = index === selectedResultIndex ? ' cmd-palette-result--selected' : '';
+        const label = arc.name && arc.name !== 'Untitled' ? `Arc ${arc.key}: ${escapeHtml(arc.name)}` : `Arc ${arc.key}`;
+        return `<div class="cmd-palette-result cmd-palette-result--arc${selectedClass}" data-type="arc" data-index="${index}" data-arc-key="${escapeHtml(arc.key)}">
+            <div class="cmd-result-body cmd-result-body--full">
+                <span class="cmd-result-arc-label">${label}</span>
+            </div>
+        </div>`;
+    }
+
+    function buildScrollRow(direction, index) {
+        const selectedClass = index === selectedResultIndex ? ' cmd-palette-result--selected' : '';
+        const label = direction === 'top' ? 'Scroll to top' : 'Scroll to end';
+        return `<div class="cmd-palette-result cmd-palette-result--scroll${selectedClass}" data-type="scroll" data-index="${index}" data-scroll-direction="${escapeHtml(direction)}">
+            <div class="cmd-result-body cmd-result-body--full">
+                <span class="cmd-result-arc-label">${escapeHtml(label)}</span>
             </div>
         </div>`;
     }
@@ -226,40 +309,123 @@
 
         updateModeBadge(mode);
 
-        if (!query || !term) {
+        if (!query) {
             list.innerHTML = [
                 '<div class="cmd-palette-hint">',
                 'Type to search, or use prefixes: ',
                 '<span class="cmd-prefix">#</span> entry number &nbsp;',
-                '<span class="cmd-prefix">@</span> character &nbsp;',
-                '<span class="cmd-prefix">/</span> tag',
+                '<span class="cmd-prefix">@</span> tag &nbsp;',
+                '<span class="cmd-prefix">/</span> arc',
                 '</div>',
             ].join('');
             selectedResultIndex = -1;
             return;
         }
 
-        const results = getResults(query);
+        const showEntryNumbers = true;
+        const termLower = term.trim().toLowerCase();
 
-        if (results.length === 0) {
+        // Special commands: "top" and "end" scroll to top or end of the list
+        if (termLower === 'top' || termLower === 'end') {
+            selectedResultIndex = 0;
+            list.innerHTML = '<div class="cmd-palette-section"><div class="cmd-palette-section-title">Commands</div>' +
+                buildScrollRow(termLower, 0) + '</div>';
+            list.querySelector('.cmd-palette-result').addEventListener('mousedown', e => {
+                e.preventDefault();
+                closeCommandPalette();
+                if (termLower === 'top') scrollToTop();
+                else scrollToEnd();
+            });
+            return;
+        }
+
+        // For prefixed modes, show only the matching category; for text search show all three
+        let matchingTags = [];
+        let matchingArcs = [];
+        let entries = [];
+
+        if (mode === 'text') {
+            matchingTags = getMatchingTags(term);
+            matchingArcs = getMatchingArcs(term);
+            entries = getResults(query);
+        } else if (mode === 'tag') {
+            matchingTags = getMatchingTags(term);
+        } else if (mode === 'arc') {
+            matchingArcs = getMatchingArcs(term);
+        } else {
+            entries = getResults(query);
+        }
+
+        // Build flat list of selectable items for keyboard nav
+        const allItems = [];
+        matchingTags.forEach(tag => allItems.push({ type: 'tag', tag }));
+        matchingArcs.forEach(arc => allItems.push({ type: 'arc', arc }));
+        entries.forEach(entry => allItems.push({ type: 'entry', entry }));
+
+        if (allItems.length === 0) {
             list.innerHTML = '<div class="cmd-palette-empty">No results</div>';
             selectedResultIndex = -1;
             return;
         }
 
-        list.innerHTML = results.map((entry, i) => buildResultHTML(entry, i, mode, term)).join('');
+        selectedResultIndex = selectedResultIndex >= allItems.length ? allItems.length - 1 : (selectedResultIndex < 0 ? 0 : selectedResultIndex);
+
+        let html = '';
+        let globalIndex = 0;
+
+        if (matchingTags.length > 0) {
+            html += '<div class="cmd-palette-section"><div class="cmd-palette-section-title">Tags</div><div class="cmd-palette-tags-inline">';
+            matchingTags.forEach(tag => {
+                html += buildTagRow(tag, globalIndex++);
+            });
+            html += '</div></div>';
+        }
+        if (matchingArcs.length > 0) {
+            html += '<div class="cmd-palette-section"><div class="cmd-palette-section-title">Arcs</div>';
+            matchingArcs.forEach(arc => {
+                html += buildArcRow(arc, globalIndex++);
+            });
+            html += '</div>';
+        }
+        if (entries.length > 0) {
+            html += '<div class="cmd-palette-section"><div class="cmd-palette-section-title">Entries</div>';
+            entries.forEach((entry, i) => {
+                html += buildResultHTML(entry, globalIndex++, mode, term, showEntryNumbers);
+            });
+            html += '</div>';
+        }
+
+        list.innerHTML = html;
 
         // Attach click handlers (use mousedown to beat blur)
         list.querySelectorAll('.cmd-palette-result').forEach(el => {
             el.addEventListener('mousedown', e => {
                 e.preventDefault();
-                const entryNum = el.getAttribute('data-entry-number');
+                const type = el.getAttribute('data-type');
                 const currentQuery = document.getElementById('cmdPaletteInput')?.value || '';
-                const {
-                    mode: m,
-                    term: t
-                } = detectMode(currentQuery);
-                applyResult(entryNum, m, t, results);
+                const { mode: m, term: t } = detectMode(currentQuery);
+
+                if (type === 'tag') {
+                    const tagName = el.getAttribute('data-tag-name');
+                    if (tagName && typeof selectedTags !== 'undefined') {
+                        selectedTags.add(tagName);
+                        if (typeof refreshTagFilter === 'function') refreshTagFilter();
+                        if (typeof filterData === 'function') filterData();
+                    }
+                    closeCommandPalette();
+                } else if (type === 'arc') {
+                    const arcKey = el.getAttribute('data-arc-key');
+                    closeCommandPalette();
+                    if (arcKey) scrollToArc(arcKey);
+                } else if (type === 'scroll') {
+                    const direction = el.getAttribute('data-scroll-direction');
+                    closeCommandPalette();
+                    if (direction === 'top') scrollToTop();
+                    else if (direction === 'end') scrollToEnd();
+                } else {
+                    const entryNum = el.getAttribute('data-entry-number');
+                    applyResult(entryNum);
+                }
             });
         });
     }
@@ -268,54 +434,12 @@
        Applying a result
     ------------------------------------------------------------------ */
 
-    function applyResult(entryNum, mode, term, results) {
-        if (mode === 'text') {
-            // Drive existing search via the hidden searchInput so all app.js
-            // listeners fire naturally (clear button visibility, filterData, etc.)
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.value = term;
-                searchInput.dispatchEvent(new Event('input', {
-                    bubbles: true
-                }));
-            } else {
-                // Fallback: set globals directly
-                if (typeof searchTerm !== 'undefined') {
-                    window.searchTerm = term.toLowerCase();
-                }
-                if (typeof filterData === 'function') filterData();
-            }
-        } else if (mode === 'entry') {
-            // No filter changes — just scroll to the entry
-        } else {
-            // character or tag — add the best matching exact tag name to selectedTags
-            // Find the entry and pick the matching tag name
-            const entry = (results || []).find(e => String(e.Number) === String(entryNum));
-            if (entry) {
-                const tags = safeParseEntryTags(entry.Tags);
-                const lowerTerm = term.toLowerCase();
-                const matchingTags = tags.filter(t => t.name.toLowerCase().includes(lowerTerm));
-
-                if (matchingTags.length > 0 && typeof selectedTags !== 'undefined') {
-                    matchingTags.forEach(t => selectedTags.add(t.name));
-                    if (typeof refreshTagFilter === 'function') refreshTagFilter();
-                    if (typeof filterData === 'function') filterData();
-
-                    // Also open the filter sidesheet so the user can see active filters
-                    if (typeof openFilterSidesheet === 'function') {
-                        window.filtersVisible = true;
-                        openFilterSidesheet();
-                    }
-                }
-            }
-        }
-
+    function applyResult(entryNum) {
         closeCommandPalette();
         scrollToEntry(entryNum);
     }
 
     function scrollToEntry(entryNum) {
-        // Wait a frame in case filterData re-rendered the list
         requestAnimationFrame(() => {
             const cards = document.querySelectorAll('.card');
             let found = null;
@@ -333,6 +457,30 @@
                 });
             }
         });
+    }
+
+    /** Scroll so the arc header sits at its sticky position (top of scroll area) */
+    const ARC_HEADER_STICKY_TOP = 125;
+    function scrollToArc(arcKey) {
+        requestAnimationFrame(() => {
+            const scrollEl = document.querySelector('.app-main-content');
+            const header = document.querySelector(`.db-arc-header[data-arc-key="${arcKey}"]`);
+            if (!scrollEl || !header) return;
+            const headerRect = header.getBoundingClientRect();
+            const scrollElRect = scrollEl.getBoundingClientRect();
+            const newScrollTop = scrollEl.scrollTop + (headerRect.top - scrollElRect.top) - ARC_HEADER_STICKY_TOP;
+            scrollEl.scrollTo({ top: Math.max(0, newScrollTop), behavior: 'smooth' });
+        });
+    }
+
+    function scrollToTop() {
+        const scrollEl = document.querySelector('.app-main-content');
+        if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function scrollToEnd() {
+        const scrollEl = document.querySelector('.app-main-content');
+        if (scrollEl) scrollEl.scrollTo({ top: scrollEl.scrollHeight - scrollEl.clientHeight, behavior: 'smooth' });
     }
 
     /* ------------------------------------------------------------------
@@ -364,15 +512,29 @@
             e.preventDefault();
             if (selectedResultIndex >= 0 && items[selectedResultIndex]) {
                 const el = items[selectedResultIndex];
-                const entryNum = el.getAttribute('data-entry-number');
-                const currentQuery = document.getElementById('cmdPaletteInput')?.value || '';
-                const {
-                    mode,
-                    term
-                } = detectMode(currentQuery);
-                // Gather results list for tag matching
-                const results = getResults(currentQuery);
-                applyResult(entryNum, mode, term, results);
+                const type = el.getAttribute('data-type');
+
+                if (type === 'tag') {
+                    const tagName = el.getAttribute('data-tag-name');
+                    if (tagName && typeof selectedTags !== 'undefined') {
+                        selectedTags.add(tagName);
+                        if (typeof refreshTagFilter === 'function') refreshTagFilter();
+                        if (typeof filterData === 'function') filterData();
+                    }
+                    closeCommandPalette();
+                } else if (type === 'arc') {
+                    const arcKey = el.getAttribute('data-arc-key');
+                    closeCommandPalette();
+                    if (arcKey) scrollToArc(arcKey);
+                } else if (type === 'scroll') {
+                    const direction = el.getAttribute('data-scroll-direction');
+                    closeCommandPalette();
+                    if (direction === 'top') scrollToTop();
+                    else if (direction === 'end') scrollToEnd();
+                } else {
+                    const entryNum = el.getAttribute('data-entry-number');
+                    applyResult(entryNum);
+                }
             }
         }
     }
@@ -410,7 +572,7 @@
                         type="text"
                         id="cmdPaletteInput"
                         class="cmd-palette-input"
-                        placeholder="Search entries, #1.03, @Character, /Tag\u2026"
+                        placeholder="Search entries, #1.03, @Tag, /Arc\u2026"
                         autocomplete="off"
                         spellcheck="false"
                         aria-label="Search"
@@ -427,6 +589,12 @@
                     </span>
                     <span class="cmd-palette-footer-hint">
                         <kbd>Esc</kbd> close
+                    </span>
+                    <span class="cmd-palette-footer-hint">
+                        <kbd>top</kbd> scroll to top
+                    </span>
+                    <span class="cmd-palette-footer-hint">
+                        <kbd>end</kbd> scroll to end
                     </span>
                 </div>
             </div>
