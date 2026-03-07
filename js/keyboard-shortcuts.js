@@ -19,14 +19,7 @@
         // Actions
         SAVE_ENTRY: ['ctrl+s', 'cmd+s', 'ctrl+enter', 'cmd+enter'],
         CLOSE_MODAL: ['escape', 'esc'],
-
-        // Card navigation (when viewing list)
-        NEXT_CARD: ['j'],
-        PREV_CARD: ['k'],
-        OPEN_CARD: ['enter', 'o'],
     };
-
-    let selectedCardIndex = -1;
 
     /**
      * Normalizes key combination for comparison
@@ -76,71 +69,6 @@
     }
 
     /**
-     * Gets all visible entry cards
-     */
-    function getVisibleCards() {
-        return Array.from(document.querySelectorAll('.card'));
-    }
-
-    /**
-     * Highlights a card, scrolls to it, and updates the jump-to field
-     */
-    function selectCard(index) {
-        const cards = getVisibleCards();
-        if (index < 0 || index >= cards.length) return;
-
-        // Remove previous highlight
-        cards.forEach(card => card.classList.remove('card--selected'));
-
-        // Add new highlight
-        const card = cards[index];
-        card.classList.add('card--selected');
-
-        // Scroll into view
-        card.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-        });
-
-        // Update jump-to field with the entry number
-        const entryNumber = card.getAttribute('data-entry-number');
-        const gotoEntry = document.getElementById('gotoEntry');
-        if (gotoEntry && entryNumber) {
-            gotoEntry.value = entryNumber;
-        }
-
-        selectedCardIndex = index;
-    }
-
-    /**
-     * Opens the currently selected card
-     */
-    function openSelectedCard() {
-        const cards = getVisibleCards();
-        if (selectedCardIndex < 0 || selectedCardIndex >= cards.length) return;
-
-        const card = cards[selectedCardIndex];
-        const entryNumber = card.getAttribute('data-entry-number');
-        if (entryNumber && typeof openEditEntryModal === 'function') {
-            openEditEntryModal(entryNumber);
-        }
-    }
-
-    /**
-     * Resets card selection
-     */
-    function resetSelection() {
-        selectedCardIndex = -1;
-        document.querySelectorAll('.card--selected').forEach(card => {
-            card.classList.remove('card--selected');
-        });
-        const gotoEntry = document.getElementById('gotoEntry');
-        if (gotoEntry) {
-            gotoEntry.value = '';
-        }
-    }
-
-    /**
      * Shows keyboard shortcuts help modal
      */
     function showKeyboardHelp() {
@@ -169,26 +97,6 @@
                     <div class="shortcut-row">
                         <kbd>T</kbd>
                         <span>Edit tags</span>
-                    </div>
-                    <div class="shortcut-row">
-                        <kbd>G</kbd>
-                        <span>Go to entry (jump-to mode)</span>
-                    </div>
-                </div>
-
-                <div style="margin: 20px 0;">
-                    <h4 style="color: var(--lesser-text-color); margin-bottom: 10px;">Entry Navigation</h4>
-                    <div class="shortcut-row">
-                        <kbd>J</kbd>
-                        <span>Next entry (highlights card, updates jump-to field)</span>
-                    </div>
-                    <div class="shortcut-row">
-                        <kbd>K</kbd>
-                        <span>Previous entry (highlights card, updates jump-to field)</span>
-                    </div>
-                    <div class="shortcut-row">
-                        <kbd>Enter</kbd> or <kbd>O</kbd>
-                        <span>Open highlighted entry</span>
                     </div>
                     <div class="shortcut-row">
                         <kbd>G</kbd>
@@ -321,28 +229,6 @@
             }
         }
 
-        // Handle Enter in goto field (existing app.js behavior)
-        const gotoEntry = document.getElementById('gotoEntry');
-        if (gotoEntry && document.activeElement === gotoEntry && e.key === 'Enter') {
-            // Let app.js handle this, but after it runs, select that card
-            setTimeout(() => {
-                const entryNum = gotoEntry.value;
-                if (!entryNum) return;
-
-                const cards = getVisibleCards();
-                const index = cards.findIndex(card =>
-                    card.getAttribute('data-entry-number') === entryNum
-                );
-
-                if (index >= 0) {
-                    selectedCardIndex = index;
-                    cards.forEach(card => card.classList.remove('card--selected'));
-                    cards[index].classList.add('card--selected');
-                }
-            }, 100);
-            return;
-        }
-
         // Don't handle other shortcuts when typing (except save/close)
         if (isTyping()) return;
 
@@ -365,13 +251,13 @@
                     searchInput.select();
                 }
             }
-            resetSelection();
             return;
         }
 
         // Jump to entry (focus goto field)
         if (matchesShortcut(e, SHORTCUTS.GOTO_ENTRY)) {
             e.preventDefault();
+            const gotoEntry = document.getElementById('gotoEntry');
             if (gotoEntry) {
                 gotoEntry.focus();
                 gotoEntry.select();
@@ -385,7 +271,6 @@
             if (typeof openAddEntryModal === 'function') {
                 openAddEntryModal();
             }
-            resetSelection();
             return;
         }
 
@@ -395,7 +280,6 @@
             if (typeof openTagEditor === 'function') {
                 openTagEditor();
             }
-            resetSelection();
             return;
         }
 
@@ -415,44 +299,6 @@
             return;
         }
 
-        // Card navigation - J (next)
-        if (matchesShortcut(e, SHORTCUTS.NEXT_CARD)) {
-            e.preventDefault();
-            const cards = getVisibleCards();
-            if (cards.length === 0) return;
-
-            if (selectedCardIndex < 0) {
-                // Nothing selected - select first card
-                selectCard(0);
-            } else if (selectedCardIndex < cards.length - 1) {
-                // Move to next card
-                selectCard(selectedCardIndex + 1);
-            }
-            return;
-        }
-
-        // Card navigation - K (previous)
-        if (matchesShortcut(e, SHORTCUTS.PREV_CARD)) {
-            e.preventDefault();
-            const cards = getVisibleCards();
-            if (cards.length === 0) return;
-
-            if (selectedCardIndex < 0) {
-                // Nothing selected - select first card
-                selectCard(0);
-            } else if (selectedCardIndex > 0) {
-                // Move to previous card
-                selectCard(selectedCardIndex - 1);
-            }
-            return;
-        }
-
-        // Open card - Enter or O
-        if (matchesShortcut(e, SHORTCUTS.OPEN_CARD)) {
-            e.preventDefault();
-            openSelectedCard();
-            return;
-        }
     }
 
     /**
@@ -460,12 +306,6 @@
      */
     function init() {
         document.addEventListener('keydown', handleKeydown);
-
-        // Reset selection when search/filter changes
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', resetSelection);
-        }
 
         // Add help button to UI
         addHelpButton();

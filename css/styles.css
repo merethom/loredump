@@ -36,6 +36,38 @@
     font-style: normal;
 }
 
+@font-face {
+    font-family: 'Menlo';
+    src: url('fonts/Menlo-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Menlo';
+    src: url('fonts/Menlo-Italic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Menlo';
+    src: url('fonts/Menlo-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Menlo';
+    src: url('fonts/Menlo-BoldItalic.ttf') format('truetype');
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -70,7 +102,7 @@
     --color-slate-33: #48496C;
 
     /* Typography */
-    --font-mono: 'PPSupply Mono', ui-monospace, monospace;
+    --font-mono: 'Menlo', Monaco, 'Courier New', monospace;
     --font-sans-flex: 'Google Sans Flex', sans-serif;
     /* Layout */
     --side-nav-width: 50px;
@@ -136,7 +168,7 @@ body.app-active {
 .app-main-content {
     grid-area: entries;
     min-width: 0;
-    width: min(1200px, 100%);
+    width: min(1000px, 100%);
     margin: 0 auto;
     min-height: 0;
     overflow-y: auto;
@@ -1672,54 +1704,42 @@ h3.diff-section-title {
     cursor: pointer;
     transition: all 0.2s;
     break-inside: avoid;
-    border-radius: var(--border-radius);
-    border: 1.5px solid #3E3D5D;
-    background: linear-gradient(180deg, #191734 0%, var(--dark-bg) 100%);
+    border-radius: 6px;
+    border: var(--border);
+    background: rgba(26, 26, 46, 0.5);
 }
 
-.card:hover {
-    background: linear-gradient(0deg, #191734 0%, var(--dark-bg) 100%);
-}
-
-.card.card--highlighted {
-    border-color: var(--color-magenta) !important;
-    box-shadow: 0 0 5px rgba(255, 0, 255, 0.3) !important;
-}
 
 .card-description {
-    font-size: 0.9375rem;
     font-synthesis: none;
-    line-height: 1.8;
-    color: var(--text-color);
     display: block;
     overflow: visible;
-    padding: 24px;
+    padding: 18px;
+    font-size: 0.8125rem;
+    color: var(--lesser-text-color);
+    line-height: 1.8;
 }
 
-.card-divider {
+/* .card-divider {
     height: 1px;
     background: #3E3D5C;
-}
+} */
 
 .card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    padding: 24px;
+    padding: 18px;
 }
 
 .card-number {
-    font-size: 14px;
-    color: var(--muted-text-color);
-    cursor: pointer;
-    user-select: none;
-    transition: color 0.2s ease;
+    font-size: 0.75rem;
+    color: #555577;
+    font-family: var(--font-mono);
+    letter-spacing: 0.0125rem;
 }
 
-.card-number:hover {
-    color: var(--primary-color);
-}
 
 .empty-state {
     text-align: center;
@@ -1835,7 +1855,7 @@ h3.diff-section-title {
 .tag-btn {
     padding: 8px 12px;
     background: #1E1B31;
-    border: 1.5px solid #38304D;
+    border: 1px solid #38304D;
     border-radius: var(--border-radius);
     color: var(--lesser-text-color);
     cursor: pointer;
@@ -1861,11 +1881,11 @@ h3.diff-section-title {
     gap: 6px;
     border-radius: 20px;
     cursor: pointer;
-    border: 1.5px solid;
-    color: var(--text-color);
-    font-size: 0.725rem;
-    padding: 5px 10px;
-    font-family: var(--font-mono);
+    border: 1px solid;
+    color: #A0A0C0;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    font-family: var(--font-sans-flex);
 }
 
 .tag:hover,

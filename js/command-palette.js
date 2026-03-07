@@ -331,8 +331,6 @@
                     behavior: 'smooth',
                     block: 'center'
                 });
-                found.classList.add('card--highlighted');
-                setTimeout(() => found.classList.remove('card--highlighted'), 3000);
             }
         });
     }

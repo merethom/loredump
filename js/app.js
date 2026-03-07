@@ -59,17 +59,7 @@ function setupEventListeners() {
             }
 
             if (foundCard) {
-                // Clear any existing highlights first
-                document.querySelectorAll('.card.card--highlighted').forEach(c => {
-                    c.classList.remove('card--highlighted');
-                });
-
                 foundCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                foundCard.classList.add('card--highlighted');
-
-                setTimeout(() => {
-                    foundCard.classList.remove('card--highlighted');
-                }, 3000);
             }
 
             e.preventDefault();

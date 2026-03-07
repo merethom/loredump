@@ -1,17 +1,5 @@
 /* Keyboard Shortcuts Styles */
 
-/* Selected card highlight (for keyboard navigation) */
-.card--selected {
-    /* box-shadow: 0 0 0 2px var(--color-purple) !important; */
-    border-color: var(--text-color) !important;
-    background: rgba(146, 77, 245, 0.05) !important;
-}
-
-.card--selected .card-number {
-    color: var(--text-color);
-    font-weight: 500;
-}
-
 /* Keyboard help modal styles */
 #keyboardHelpModal .shortcut-row {
     display: flex;
