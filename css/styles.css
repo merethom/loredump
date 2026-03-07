@@ -2549,39 +2549,6 @@ h3.diff-section-title {
     transform: translateY(4px);
 }
 
-/* Arc color on entry cards */
-.arc--card-purple {
-    border-left: 4px solid var(--color-purple);
-}
-
-.arc--card-green {
-    border-left: 4px solid var(--color-lime);
-}
-
-.arc--card-blue {
-    border-left: 4px solid var(--color-blue);
-}
-
-.arc--card-orange {
-    border-left: 4px solid var(--color-orange);
-}
-
-.arc--card-teal {
-    border-left: 4px solid var(--color-aqua);
-}
-
-.arc--card-pink {
-    border-left: 4px solid var(--color-magenta);
-}
-
-.arc--card-amber {
-    border-left: 4px solid var(--color-orange-red);
-}
-
-.arc--card-slate {
-    border-left: 4px solid var(--color-slate);
-}
-
 .arc--badge-purple {
     background: var(--color-purple-33);
     color: var(--color-purple);

@@ -114,7 +114,7 @@ function renderDatabase() {
             ).join('');
 
             html += `
-                <div class="card arc--card-${arcData.color}" data-entry-number="${entry.Number}">
+                <div class="card" data-entry-number="${entry.Number}">
                     <div class="card-description">${escapeHtml(entry.Description)}</div>
                     <div class="card-divider"></div>
                     <div class="card-footer">
