@@ -569,11 +569,6 @@ function initializeApp() {
         setupDatabaseEventDelegation();
     }
 
-    // Set up arc header sort delegation (per-arc sort controls)
-    if (typeof setupArcHeaderSortDelegation === 'function') {
-        setupArcHeaderSortDelegation();
-    }
-
     // Initial render
     filterData();
 }

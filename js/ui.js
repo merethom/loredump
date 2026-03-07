@@ -72,16 +72,14 @@ function renderDatabase() {
 
     const sortedArcKeys = Array.from(arcsMap.keys()).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
 
+    const collapsedArcKeys = (typeof window.collapsedArcKeys !== 'undefined' && window.collapsedArcKeys) || (window.collapsedArcKeys = new Set());
     let html = '';
 
     sortedArcKeys.forEach(arcKey => {
         const entries = arcsMap.get(arcKey) || [];
         const arcData = allArcs[arcKey] || { name: '', color: 'slate' };
 
-        // Determine sort for this arc: per-arc override → global currentSort → default asc
-        const sortKey = (typeof arcSortState !== 'undefined' && arcSortState[arcKey]) || (typeof currentSort !== 'undefined' && currentSort) || 'entry-asc';
-        const sortLabel = sortKey === 'entry-desc' ? 'Newest First' : 'Oldest First';
-
+        const sortKey = (typeof currentSort !== 'undefined' && currentSort) || 'entry-asc';
         const sortedEntries = entries.slice().sort((a, b) => {
             const aNum = parseFloat(a.Number);
             const bNum = parseFloat(b.Number);
@@ -89,25 +87,24 @@ function renderDatabase() {
         });
 
         const arcDisplayName = arcData.name ? `Arc ${arcKey}: ${arcData.name}` : `Arc ${arcKey}`;
+        const arcColorClass = arcData.color === 'amber' ? 'orange-red' : arcData.color === 'green' ? 'lime' : arcData.color === 'teal' ? 'aqua' : arcData.color === 'pink' ? 'magenta' : arcData.color;
+        const isCollapsed = collapsedArcKeys.has(arcKey);
+        const chevronIcon = isCollapsed ? 'chevron-up' : 'chevron-down';
 
         html += `
-            <div class="db-arc-header arc--header-${arcData.color}" data-arc-key="${arcKey}">
-                <span class="arc-header-label">${arcDisplayName}</span>
-                <div class="sort-control-wrapper arc-sort-control">
-                    <button class="generic-ui-btn text-btn dropdown-btn arc-sort-btn" data-arc-key="${arcKey}" title="Change sort order for this arc">
-                        <span class="arc-sort-label" data-arc-key="${arcKey}">${sortLabel}</span>
+            <div class="db-arc-header" data-arc-key="${arcKey}">
+                <div class="arc-title">
+                    <div class="arc-color-indicator arc-color--${arcColorClass}"></div>
+                    <button type="button" class="arc-chevron-btn" data-arc-key="${arcKey}" aria-expanded="${!isCollapsed}" aria-label="${isCollapsed ? 'Expand' : 'Collapse'} arc">
                         <svg class="icon" aria-hidden="true">
-                            <use href="img/sprites/solid.svg#caret-down"></use>
+                            <use href="img/sprites/regular.svg#${chevronIcon}"></use>
                         </svg>
                     </button>
-                    <div class="controls-dropdown arc-sort-dropdown" data-arc-key="${arcKey}">
-                        <div class="controls-dropdown-content sort-dropdown-content">
-                            <button class="sort-option arc-sort-option" data-arc-key="${arcKey}" data-value="entry-asc">Oldest First</button>
-                            <button class="sort-option arc-sort-option" data-arc-key="${arcKey}" data-value="entry-desc">Newest First</button>
-                        </div>
-                    </div>
+                    <span class="arc-header-label">${arcDisplayName}</span>
+                    <span class="arc-entry-count">${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}</span>
                 </div>
             </div>
+            <div class="db-arc-entries" data-arc-key="${arcKey}"${isCollapsed ? ' hidden' : ''}>
         `;
 
         sortedEntries.forEach(entry => {
@@ -129,6 +126,8 @@ function renderDatabase() {
                 </div>
             `;
         });
+
+        html += `</div>`;
     });
 
     db.innerHTML = html;
@@ -208,6 +207,36 @@ function setupDatabaseEventDelegation() {
     db._hasCardDelegation = true;
 
     db.addEventListener('click', (e) => {
+        const chevronBtn = e.target.closest('.arc-chevron-btn');
+        if (chevronBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const arcKey = chevronBtn.getAttribute('data-arc-key');
+            if (!arcKey) return;
+            const collapsedArcKeys = (typeof window.collapsedArcKeys !== 'undefined' && window.collapsedArcKeys) || (window.collapsedArcKeys = new Set());
+            const header = chevronBtn.closest('.db-arc-header');
+            const entriesEl = header && header.nextElementSibling;
+            if (entriesEl && entriesEl.classList.contains('db-arc-entries')) {
+                const isCollapsed = entriesEl.hidden;
+                if (isCollapsed) {
+                    collapsedArcKeys.delete(arcKey);
+                    entriesEl.hidden = false;
+                    const use = chevronBtn.querySelector('use');
+                    if (use) use.setAttribute('href', 'img/sprites/regular.svg#chevron-down');
+                    chevronBtn.setAttribute('aria-expanded', 'true');
+                    chevronBtn.setAttribute('aria-label', 'Collapse arc');
+                } else {
+                    collapsedArcKeys.add(arcKey);
+                    entriesEl.hidden = true;
+                    const use = chevronBtn.querySelector('use');
+                    if (use) use.setAttribute('href', 'img/sprites/regular.svg#chevron-up');
+                    chevronBtn.setAttribute('aria-expanded', 'false');
+                    chevronBtn.setAttribute('aria-label', 'Expand arc');
+                }
+            }
+            return;
+        }
+
         // Find the card that was clicked
         const card = e.target.closest('.card');
         if (!card) return;
@@ -226,52 +255,6 @@ function setupDatabaseEventDelegation() {
         if (entryNumber) {
             e.stopPropagation();
             openEditEntryModal(entryNumber);
-        }
-    });
-}
-
-function setupArcHeaderSortDelegation() {
-    const db = document.getElementById('database');
-    if (!db) return;
-
-    if (db._hasArcSortDelegation) return;
-    db._hasArcSortDelegation = true;
-
-    db.addEventListener('click', (e) => {
-        const sortBtn = e.target.closest('.arc-sort-btn');
-        if (sortBtn) {
-            e.stopPropagation();
-            const arcKey = sortBtn.getAttribute('data-arc-key');
-            if (!arcKey) return;
-
-            // Close other arc sort dropdowns
-            document.querySelectorAll('.arc-sort-dropdown').forEach(dd => {
-                if (dd.getAttribute('data-arc-key') !== arcKey) {
-                    dd.classList.remove('show');
-                }
-            });
-
-            const dropdown = document.querySelector(`.arc-sort-dropdown[data-arc-key="${arcKey}"]`);
-            if (dropdown) {
-                dropdown.classList.toggle('show');
-            }
-            return;
-        }
-
-        const sortOption = e.target.closest('.arc-sort-option');
-        if (sortOption) {
-            e.preventDefault();
-            const arcKey = sortOption.getAttribute('data-arc-key');
-            const val = sortOption.getAttribute('data-value');
-            if (!arcKey || !val) return;
-
-            if (typeof arcSortState === 'undefined') {
-                window.arcSortState = {};
-            }
-            arcSortState[arcKey] = val;
-
-            // Re-render with updated per-arc sort
-            filterData();
         }
     });
 }
