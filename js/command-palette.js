@@ -746,6 +746,19 @@
 
         document.body.appendChild(overlay);
 
+        // Scrollbar visible only while scrolling
+        const resultsEl = document.getElementById('cmdPaletteResults');
+        if (resultsEl) {
+            let scrollHideTimer;
+            resultsEl.addEventListener('scroll', () => {
+                resultsEl.classList.add('is-scrolling');
+                clearTimeout(scrollHideTimer);
+                scrollHideTimer = setTimeout(() => {
+                    resultsEl.classList.remove('is-scrolling');
+                }, 400);
+            });
+        }
+
         // Input events
         const input = document.getElementById('cmdPaletteInput');
         input.addEventListener('input', e => {

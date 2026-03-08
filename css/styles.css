@@ -1211,6 +1211,32 @@ h3.diff-section-title {
     display: flex;
     flex-direction: column;
     gap: 24px;
+    scrollbar-color: transparent transparent; /* Firefox: hidden by default */
+}
+
+/* --------------------------------------------------------------------------
+   Sidesheet scrollbar (visible only while scrolling)
+   Same style/behavior as command palette
+   -------------------------------------------------------------------------- */
+.sidesheet-content.is-scrolling {
+    scrollbar-color: #555578 transparent; /* Firefox: visible while scrolling */
+}
+
+.sidesheet-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidesheet-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidesheet-content::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 2px;
+}
+
+.sidesheet-content.is-scrolling::-webkit-scrollbar-thumb {
+    background: #555578;
 }
 
 /* Filter sidesheet (uses shared sidesheet classes) */

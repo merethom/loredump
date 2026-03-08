@@ -218,6 +218,16 @@ function setupEventListeners() {
     document.getElementById('filterSidesheetClose')?.addEventListener('click', closeFilterSidesheet);
     document.getElementById('tagEditorSidesheetClose')?.addEventListener('click', closeTagEditor);
 
+    // Sidesheet scrollbar visible only while scrolling (same as command palette)
+    document.querySelectorAll('.sidesheet-content').forEach((el) => {
+        let scrollHideTimer;
+        el.addEventListener('scroll', () => {
+            el.classList.add('is-scrolling');
+            clearTimeout(scrollHideTimer);
+            scrollHideTimer = setTimeout(() => el.classList.remove('is-scrolling'), 400);
+        });
+    });
+
     // Clear all tags button
     document.getElementById('tagFilterClearAll')?.addEventListener('click', () => {
         selectedTags.clear();
