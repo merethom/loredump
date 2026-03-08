@@ -886,7 +886,19 @@
         if (e.key === 'Escape' || e.key === 'Esc') {
             e.preventDefault();
             e.stopPropagation();
-            closeCommandPalette();
+            if (fullQuery.trim()) {
+                fullQuery = '';
+                const input = document.getElementById('cmdPaletteInput');
+                const tokensEl = document.getElementById('cmdPaletteTokens');
+                if (input) {
+                    input.value = '';
+                    input.blur();
+                }
+                if (tokensEl) tokensEl.innerHTML = '';
+                renderResults('');
+            } else {
+                closeCommandPalette();
+            }
             return;
         }
 

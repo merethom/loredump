@@ -203,8 +203,8 @@
 .cmd-palette-hint,
 .cmd-palette-empty {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: #9999BA;
+    font-size: 0.825rem;
+    color: var(--lesser-text-color);
     line-height: 1.6;
 }
 
@@ -347,7 +347,7 @@
 
 .cmd-palette-action-label,
 .cmd-palette-recent-label {
-    font-family: var(--font-sans-flex);
+    font-family: var(--font-mono);
     font-size: 0.875rem;
     color: var(--lesser-text-color);
 }
