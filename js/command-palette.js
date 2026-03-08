@@ -305,9 +305,12 @@
             }
         }
 
-        const numPrefixHtml = mode === 'entry'
-            ? `<span class="cmd-entry-num-prefix cmd-entry-num-prefix--${arcColorClass}">#${entryNum}</span> `
-            : '';
+        let numPrefixHtml = '';
+        if (mode === 'entry') {
+            numPrefixHtml = `<span class="cmd-entry-num-prefix cmd-entry-num-prefix--${arcColorClass}">#${entryNum}</span> `;
+        } else if (mode === 'text') {
+            numPrefixHtml = `<span class="cmd-entry-num-prefix cmd-entry-num-prefix--keyword">#${entryNum}</span> `;
+        }
 
         return `<div class="cmd-palette-result cmd-palette-result--entry cmd-result-arc--${arcColorClass}${selectedClass}" data-type="entry" data-index="${index}" data-entry-number="${entryNum}">
             <div class="cmd-result-arc-bar arc-color--${arcColorClass}"></div>
@@ -388,10 +391,10 @@
         if (!query) {
             list.innerHTML = [
                 '<div class="cmd-palette-hint">',
-                'Type to search, or use prefixes: ',
-                '<span class="cmd-prefix">#</span> entry number &nbsp;',
-                '<span class="cmd-prefix">@</span> tag &nbsp;',
-                '<span class="cmd-prefix">/</span> arc',
+                '<span class="cmd-palette-footer-hint">This is a spot for the hint<kbd>#</kbd> Entry number</span>',
+                '<span class="cmd-palette-footer-hint"><kbd>#</kbd> Entry number</span>',
+                '<span class="cmd-palette-footer-hint"><kbd>@</kbd> Tag</span>',
+                '<span class="cmd-palette-footer-hint"><kbd>/</kbd> Arc</span>',
                 '</div>',
             ].join('');
             selectedResultIndex = -1;
