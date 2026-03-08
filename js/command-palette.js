@@ -346,26 +346,10 @@
         const selectedClass = index === selectedResultIndex ? ' cmd-palette-result--selected' : '';
         const key = arc.key;
         const displayName = (arc.name && arc.name !== 'Untitled') ? arc.name : 'Untitled';
-        const titleUpper = `ARC ${key}: ${escapeHtml(displayName.toUpperCase())}`;
         const colorClass = arc.color === 'amber' ? 'orange-red' : arc.color === 'green' ? 'lime' : arc.color === 'teal' ? 'aqua' : arc.color === 'pink' ? 'magenta' : arc.color;
         const count = typeof getArcEntryCount === 'function' ? getArcEntryCount(key) : 0;
-        const range = typeof getArcNumberRange === 'function' ? getArcNumberRange(key) : { min: '', max: '' };
-        const rangeStr = range.min !== '' && range.max !== '' ? `${range.min} to ${range.max}` : '';
-        const infoStr = rangeStr ? `${count} entries // ${rangeStr}` : `${count} entries`;
-        const colorBtns = buildArcColorBtns(key, arc.color);
-        const fullEditorHtml = `
-            <div class="arc-item cmd-palette-arc-item">
-                <div class="arc-item-header">
-                    <span class="arc-number">Arc ${escapeHtml(key)}</span>
-                    <div class="arc-color-selector">${colorBtns}</div>
-                </div>
-                <div class="arc-title" data-arc-key="${escapeHtml(key)}" role="button" tabindex="0">
-                    <div class="arc-color-indicator arc-color--${colorClass}"></div>
-                    <span class="arc-title-text">${escapeHtml(displayName)}</span>
-                </div>
-                <div class="arc-number-info">${infoStr}</div>
-            </div>`;
-        return `<div class="cmd-palette-result cmd-palette-result--arc${selectedClass}" data-type="arc" data-index="${index}" data-arc-key="${escapeHtml(key)}">
+        const titleUpper = `ARC ${key}: ${escapeHtml(displayName.toUpperCase())}`;
+        return `<div class="cmd-palette-result cmd-palette-result--arc${selectedClass}" data-type="arc" data-index="${index}" data-arc-key="${escapeHtml(key)}" data-arc-name="${escapeHtml(displayName)}" data-arc-color="${escapeHtml(arc.color || 'slate')}">
             <div class="cmd-arc-bar-row">
                 <div class="cmd-result-arc-bar arc-color--${colorClass}"></div>
                 <div class="cmd-arc-bar">
@@ -376,7 +360,17 @@
                     </button>
                 </div>
             </div>
-            <div class="cmd-arc-editor" hidden>${fullEditorHtml}</div>
+            <div class="cmd-arc-bar-row cmd-arc-bar-edit-mode" hidden>
+                <div class="cmd-result-arc-bar arc-color--${colorClass}"></div>
+                <div class="cmd-arc-bar">
+                    <input type="text" class="cmd-arc-bar-title-input" value="${escapeHtml(displayName)}" data-arc-key="${escapeHtml(key)}" placeholder="Arc name" autocomplete="off">
+                    <span class="cmd-arc-bar-count">${count} entries</span>
+                    <div class="arc-color-selector">${buildArcColorBtns(key, arc.color)}</div>
+                    <button type="button" class="cmd-arc-bar-save" aria-label="Save arc" title="Save arc">
+                        <svg class="icon" aria-hidden="true"><use href="img/sprites/light.svg#floppy-disk"></use></svg>
+                    </button>
+                </div>
+            </div>
         </div>`;
     }
 
@@ -490,6 +484,33 @@
 
         list.innerHTML = html;
 
+        // Enter = save, Escape = revert (arc edit mode)
+        list.addEventListener('keydown', (e) => {
+            const editMode = document.activeElement?.closest('.cmd-arc-bar-edit-mode');
+            const isVisibleEdit = editMode && !editMode.hasAttribute('hidden');
+            if (e.key === 'Escape' && isVisibleEdit) {
+                e.preventDefault();
+                const row = editMode.closest('.cmd-palette-result');
+                const viewRow = row?.querySelector('.cmd-arc-bar-row:not(.cmd-arc-bar-edit-mode)');
+                if (viewRow) {
+                    editMode.setAttribute('hidden', '');
+                    viewRow.removeAttribute('hidden');
+                    document.activeElement?.blur();
+                }
+                return;
+            }
+            if (e.key !== 'Enter') return;
+            const input = e.target.closest('.cmd-arc-bar-title-input');
+            if (!input) return;
+            const row = input.closest('.cmd-palette-result');
+            const arcKey = row?.getAttribute('data-arc-key');
+            if (arcKey && typeof updateArcName === 'function') {
+                e.preventDefault();
+                updateArcName(arcKey, input.value.trim() || 'Untitled');
+                renderResults(document.getElementById('cmdPaletteInput')?.value || '');
+            }
+        });
+
         // Attach click handlers (use mousedown to beat blur)
         list.querySelectorAll('.cmd-palette-result').forEach(el => {
             el.addEventListener('mousedown', e => {
@@ -498,35 +519,56 @@
 
                 if (type === 'arc') {
                     const arcKey = el.getAttribute('data-arc-key');
+                    const viewRow = el.querySelector('.cmd-arc-bar-row:not(.cmd-arc-bar-edit-mode)');
+                    const editRow = el.querySelector('.cmd-arc-bar-edit-mode');
+                    const isEditing = editRow && !editRow.hasAttribute('hidden');
                     const editBtn = e.target.closest('.cmd-arc-bar-edit');
+                    const saveBtn = e.target.closest('.cmd-arc-bar-save');
                     const colorBtn = e.target.closest('.arc-color-btn');
-                    const titleEl = e.target.closest('.arc-title');
-                    const isEditing = titleEl && titleEl.classList.contains('arc-title--editing');
-                    const isTitleInteractive = titleEl && (e.target.closest('.arc-title-input') || e.target.closest('.arc-title-confirm'));
-                    if (editBtn) {
+                    const titleInput = e.target.closest('.cmd-arc-bar-title-input');
+                    if (editBtn && !isEditing) {
                         e.preventDefault();
                         e.stopPropagation();
-                        const editor = el.querySelector('.cmd-arc-editor');
-                        if (editor) {
-                            const isHidden = editor.hasAttribute('hidden');
-                            editor.toggleAttribute('hidden', !isHidden);
+                        viewRow.setAttribute('hidden', '');
+                        editRow.removeAttribute('hidden');
+                        const input = editRow.querySelector('.cmd-arc-bar-title-input');
+                        if (input) {
+                            input.focus();
+                            input.select();
                         }
                         return;
                     }
-                    if (colorBtn && arcKey) {
+                    if (saveBtn && arcKey) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const input = el.querySelector('.cmd-arc-bar-title-input');
+                        const newName = input ? input.value.trim() : '';
+                        if (typeof updateArcName === 'function') {
+                            updateArcName(arcKey, newName || 'Untitled');
+                        }
+                        renderResults(currentQuery);
+                        return;
+                    }
+                    if (colorBtn && arcKey && isEditing) {
                         e.preventDefault();
                         e.stopPropagation();
                         const color = colorBtn.getAttribute('data-color');
                         if (color && typeof updateArcColor === 'function') {
                             updateArcColor(arcKey, color);
-                            renderResults(currentQuery);
+                            const colorClass = color === 'amber' ? 'orange-red' : color === 'green' ? 'lime' : color === 'teal' ? 'aqua' : color === 'pink' ? 'magenta' : color;
+                            editRow.querySelector('.cmd-result-arc-bar').className = `cmd-result-arc-bar arc-color--${colorClass}`;
+                            editRow.querySelectorAll('.arc-color-btn').forEach(btn => {
+                                btn.classList.toggle('selected', btn.getAttribute('data-color') === color);
+                            });
                         }
                         return;
                     }
-                    if (titleEl && !isEditing && !isTitleInteractive && arcKey && typeof enterArcTitleEdit === 'function') {
+                    if (titleInput) return;
+                    if (isEditing) {
                         e.preventDefault();
                         e.stopPropagation();
-                        enterArcTitleEdit(arcKey, titleEl);
+                        editRow.setAttribute('hidden', '');
+                        viewRow.removeAttribute('hidden');
                         return;
                     }
                     e.preventDefault();
@@ -745,6 +787,21 @@
         `;
 
         document.body.appendChild(overlay);
+
+        // Click outside arc edit mode: revert without saving
+        overlay.addEventListener('mousedown', (e) => {
+            const clickedInsideVisibleEdit = e.target.closest('.cmd-arc-bar-edit-mode:not([hidden])');
+            if (clickedInsideVisibleEdit) return;
+            const visibleEdit = overlay.querySelector('.cmd-arc-bar-edit-mode:not([hidden])');
+            if (!visibleEdit) return;
+            const row = visibleEdit.closest('.cmd-palette-result');
+            const viewRow = row?.querySelector('.cmd-arc-bar-row:not(.cmd-arc-bar-edit-mode)');
+            if (viewRow) {
+                visibleEdit.setAttribute('hidden', '');
+                viewRow.removeAttribute('hidden');
+                document.activeElement?.blur();
+            }
+        }, true);
 
         // Scrollbar visible only while scrolling
         const resultsEl = document.getElementById('cmdPaletteResults');

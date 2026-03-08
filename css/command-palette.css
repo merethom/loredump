@@ -467,8 +467,6 @@ mark.cmd-highlight {
     border-radius: 0 6px 6px 0;
 }
 
-
-
 .cmd-arc-bar-title {
     flex: 1;
     min-width: 0;
@@ -481,13 +479,6 @@ mark.cmd-highlight {
     font-weight: 500;
     letter-spacing: 0.2em;
     color: var(--text-color);
-}
-
-.cmd-arc-bar-count {
-    flex-shrink: 0;
-    font-family: var(--font-sans-flex);
-    font-size: 0.75rem;
-    color: #555578;
 }
 
 .cmd-arc-bar-edit {
@@ -513,24 +504,60 @@ mark.cmd-highlight {
     height: 14px;
 }
 
-.cmd-arc-editor {
-    padding: 12px 16px;
-    background: #16162E;
-    border-top: 1px solid rgba(62, 61, 93, 0.4);
-    border-radius: 0 0 6px 6px;
+.cmd-arc-bar-row[hidden],
+.cmd-arc-bar-edit-mode[hidden] {
+    display: none !important;
 }
 
-.cmd-arc-editor[hidden] {
-    display: none;
+.cmd-arc-bar-title-input {
+    flex: 1;
+    min-width: 0;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: #ABA4C5;
+    caret-color: var(--text-color);
+    background: none;
+    border: none;
+    outline: none;
 }
 
-.cmd-palette-arc-item {
-    cursor: default;
-    pointer-events: auto;
+.cmd-arc-bar-title-input::placeholder {
+    color: #555578;
 }
 
-.cmd-palette-arc-item .arc-number svg {
-    display: none;
+/* Reuses .arc-color-selector + .arc-color-btn from styles.css */
+.cmd-arc-bar .arc-color-selector {
+    flex-shrink: 0;
+}
+
+.cmd-arc-bar-count {
+    flex-shrink: 0;
+    font-family: var(--font-sans-flex);
+    font-size: 0.75rem;
+    color: #555578;
+}
+
+.cmd-arc-bar-save {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    color: #8888AB;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+
+.cmd-arc-bar-save:hover {
+    color: var(--text-color);
+}
+
+.cmd-arc-bar-save .icon {
+    width: 14px;
+    height: 14px;
 }
 
 /* ---- Footer / keyboard hints ---- */
