@@ -413,8 +413,8 @@ function openEditEntryModal(entryNumber) {
 
     const editContainer = document.getElementById('editEntryContainer');
     const card = document.querySelector(`.card[data-entry-number="${entryNumber}"]`);
-    const controls = document.querySelector('.controls');
-    if (card && editContainer && controls && card.parentNode) {
+    const mainContent = document.querySelector('.app-main-content');
+    if (card && editContainer && mainContent && card.parentNode) {
         editContainer.remove();
         card.parentNode.insertBefore(editContainer, card);
         card.remove();
@@ -433,12 +433,12 @@ function updateEditEntryColorSelector() {
 
 function closeEditEntryModal() {
     const editContainer = document.getElementById('editEntryContainer');
-    const controls = document.querySelector('.controls');
-    if (editContainer && controls) {
+    const mainContent = document.querySelector('.app-main-content');
+    if (editContainer && mainContent) {
         editContainer.classList.remove('show');
-        if (editContainer.parentNode !== controls) {
+        if (editContainer.parentNode !== mainContent) {
             editContainer.remove();
-            controls.appendChild(editContainer);
+            mainContent.appendChild(editContainer);
         }
         if (typeof refreshTagFilter === 'function') refreshTagFilter();
         filterData();

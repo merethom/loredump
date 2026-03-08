@@ -66,7 +66,7 @@
                 Edit arcs <span class="tooltip-kbd">⇧⌘A</span>
             </span>
         </a>
-        <a href="#" class="side-nav-add-btn">
+        <a href="#" class="side-nav-add-btn" id="tagEditorBtn" title="Edit tags">
             <svg class="icon" aria-hidden="true">
                 <use href="img/sprites/regular.svg#tag"></use>
             </svg>
@@ -74,14 +74,14 @@
                 Edit tags <span class="tooltip-kbd">⇧⌘T</span>
             </span>
         </a>
-        <a href="#" class="side-nav-add-btn">
+        <!-- <a href="#" class="side-nav-add-btn">
             <svg class="icon" aria-hidden="true">
                 <use href="img/sprites/regular.svg#filter"></use>
             </svg>
             <span class="side-nav-tooltip">
                 Filter by tag
             </span>
-        </a>
+        </a> -->
         <a href="#" class="side-nav-add-btn" id="syncStatusBtn" title="View unsaved changes">
             <svg class="icon" aria-hidden="true">
                 <use href="img/sprites/regular.svg#floppy-disk"></use>
@@ -106,72 +106,15 @@
     <!-- Main app (shown when authenticated) -->
     <div id="appContent" class="container app-layout" style="display: none;">
         <div class="app-main-content">
-            <div class="controls">
-                <!-- <header>
-                    <img src="img/raygun.svg" alt="raygun">
-                    <h1>Noxsyphone Lore Dump</h1>
-                    <div class="header-actions">
-                        <div id="syncStatus" class="sync-status" style="display: none;">
-                            <span class="sync-badge">Unpublished Changes</span>
-                        </div>
-                        <span id="userEmail" class="user-email"></span>
-                        <button id="signOutBtn" class="generic-ui-btn" title="Sign out">
-                            <svg class="icon" aria-hidden="true">
-                                <use href="img/sprites/duotone.svg#arrow-right-from-bracket"></use>
-                            </svg>
-                        </button>
-                    </div>
-                </header> -->
-                <!-- Search bar removed — command palette replaces it (Cmd+K / search icon) -->
-                <!-- Hidden searchInput kept in DOM for backward compat with existing JS -->
-                <input type="text" id="searchInput" style="display:none" aria-hidden="true" autocomplete="off" tabindex="-1">
-                <!-- (searchClear kept for backward compat) -->
-                <button type="button" id="searchClear" style="display:none" aria-hidden="true"></button>
-                <div class="controls-row">
-                    <button class="generic-ui-btn" id="filtersBtn" title="Filters">
-                        <svg class="icon" aria-hidden="true">
-                            <use href="img/sprites/solid.svg#filter"></use>
-                        </svg>
-                    </button>
-                    <div class="goto-entry-wrapper">
-                        <input type="number" id="gotoEntry" class="goto-entry-input" placeholder="Entry #" step="any" min="0">
-                    </div>
-                    <select id="sortBy" class="sort-dropdown-native" aria-hidden="true" tabindex="-1" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
-                        <option value="entry-asc">Oldest</option>
-                        <option value="entry-desc">Newest</option>
-                    </select>
-                    <button class="generic-ui-btn" id="tagEditorBtn" title="Edit Tags">
-                        <svg class="icon" aria-hidden="true">
-                            <use href="img/sprites/duotone.svg#pen"></use>
-                        </svg>
-                    </button>
-                    <div class="sort-control-wrapper">
-                        <button class="generic-ui-btn text-btn dropdown-btn" id="sortBtn" title="Change Sort Order">
-                            <span id="sortBtnText">Oldest First</span>
-                            <svg class="icon" aria-hidden="true">
-                                <use href="img/sprites/solid.svg#caret-down"></use>
-                            </svg>
-                        </button>
-                        <!-- Sort Dropdown Menu -->
-                        <div id="sortDropdown" class="controls-dropdown">
-                            <div class="controls-dropdown-content sort-dropdown-content">
-                                <button class="sort-option" data-value="entry-asc">Oldest First</button>
-                                <button class="sort-option" data-value="entry-desc">Newest First</button>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="generic-ui-btn" id="scrollToTopBtn" title="To top" aria-label="Scroll to top">
-                        <svg class="icon" aria-hidden="true">
-                            <use href="img/sprites/solid.svg#chevron-up"></use>
-                        </svg>
-                    </button>
-                    <button class="generic-ui-btn" id="scrollToBottomBtn" title="To bottom" aria-label="Scroll to bottom">
-                        <svg class="icon" aria-hidden="true">
-                            <use href="img/sprites/solid.svg#chevron-down"></use>
-                        </svg>
-                    </button>
-                </div>
-                <div id="tagEditContainer" class="controls-dropdown">
+            <!-- Hidden searchInput kept in DOM for backward compat with existing JS -->
+            <input type="text" id="searchInput" style="display:none" aria-hidden="true" autocomplete="off" tabindex="-1">
+            <button type="button" id="searchClear" style="display:none" aria-hidden="true"></button>
+            <!-- Hidden sort state for sidesheet sync (sort order still applied via sidesheet) -->
+            <select id="sortBy" class="sort-dropdown-native" aria-hidden="true" tabindex="-1" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
+                <option value="entry-asc">Oldest</option>
+                <option value="entry-desc">Newest</option>
+            </select>
+            <div id="tagEditContainer" class="controls-dropdown">
                     <div class="controls-dropdown-content">
                         <div class="modal-header">
                             <h2 class="modal-title">Edit Tag</h2>
@@ -263,7 +206,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
             <!-- Inline filter bar: applied tags (no sidesheet needed to add/remove) -->
             <div id="filterBar" class="filter-bar" aria-label="Active tag filters" style="display: none;">

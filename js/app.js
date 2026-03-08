@@ -39,47 +39,8 @@ function setupEventListeners() {
         searchInput.focus();
     });
 
-    // Jump to entry logic
-    const gotoEntry = document.getElementById('gotoEntry');
-    gotoEntry?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            const num = e.target.value;
-            if (!num) return;
-
-            // Search for the card with the matching entry number
-            const cards = document.querySelectorAll('.card');
-            let foundCard = null;
-
-            for (const card of cards) {
-                const cardNum = card.getAttribute('data-entry-number');
-                if (cardNum === num || parseFloat(cardNum) === parseFloat(num)) {
-                    foundCard = card;
-                    break;
-                }
-            }
-
-            if (foundCard) {
-                foundCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-
-            e.preventDefault();
-        }
-    });
-
-    // Setup filters button - toggles sidesheet (use delegation so it works even if element isn't ready)
     // Setup global clicks for dropdowns and sidesheet
     document.addEventListener('click', (e) => {
-        // Toggle filters sidesheet
-        if (e.target.closest('#filtersBtn')) {
-            const sidesheet = document.getElementById('filterSidesheet');
-            if (sidesheet?.classList.contains('open')) {
-                closeFilterSidesheet();
-            } else {
-                openFilterSidesheet();
-            }
-            return;
-        }
-
         // Close dropdowns if clicking outside
         if (!e.target.closest('.generic-ui-btn') && !e.target.closest('.controls-dropdown')) {
             const editContainer = document.getElementById('editEntryContainer');
@@ -124,44 +85,16 @@ function setupEventListeners() {
         }
     }
 
-    // Setup sort logic
+    // Setup sort logic (sortBy kept in DOM for sidesheet sync; header sort UI removed)
     const sortBy = document.getElementById('sortBy');
-    const sortBtn = document.getElementById('sortBtn');
     const sortBtnText = document.getElementById('sortBtnText');
-    const sortDropdown = document.getElementById('sortDropdown');
 
     function updateSortUI(val) {
-        if (!sortBtnText) return;
-        sortBtnText.textContent = val === 'entry-desc' ? 'Newest First' : 'Oldest First';
-
-        // Update active class in dropdown
+        if (sortBtnText) sortBtnText.textContent = val === 'entry-desc' ? 'Newest First' : 'Oldest First';
         document.querySelectorAll('.sort-option').forEach(opt => {
             opt.classList.toggle('active', opt.dataset.value === val);
         });
     }
-
-    sortBtn?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isOpen = sortDropdown.classList.contains('show');
-        // Close other dropdowns
-        document.querySelectorAll('.controls-dropdown').forEach(d => d.classList.remove('show'));
-        if (!isOpen) sortDropdown.classList.add('show');
-    });
-
-    document.querySelectorAll('.sort-option').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const val = btn.dataset.value;
-            if (sortBy && val) {
-                sortBy.value = val;
-                sortBy.dispatchEvent(new Event('change'));
-
-                // Sync sidesheet radio
-                const radio = document.querySelector(`input[name="sidesheetSort"][value="${val}"]`);
-                if (radio) radio.checked = true;
-            }
-            sortDropdown.classList.remove('show');
-        });
-    });
 
     sortBy?.addEventListener('change', (e) => {
         currentSort = e.target.value;
@@ -179,9 +112,6 @@ function setupEventListeners() {
         });
     });
 
-    // Initialize sort UI
-    updateSortUI(currentSort);
-
     // Sync sidesheet sort with currentSort on open
     function syncSidesheetSort() {
         const radio = document.querySelector(`input[name="sidesheetSort"][value="${currentSort}"]`);
@@ -197,7 +127,7 @@ function setupEventListeners() {
         filtersVisible = true;
         document.getElementById('filterSidesheet').classList.add('open');
         document.getElementById('filterSidesheet').setAttribute('aria-hidden', 'false');
-        document.getElementById('filtersBtn').classList.add('active');
+        document.getElementById('filtersBtn')?.classList.add('active');
         const searchEl = document.getElementById('tagFilterSearch');
         if (searchEl) {
             searchEl.value = '';
@@ -212,7 +142,7 @@ function setupEventListeners() {
         filtersVisible = false;
         document.getElementById('filterSidesheet').classList.remove('open');
         document.getElementById('filterSidesheet').setAttribute('aria-hidden', 'true');
-        document.getElementById('filtersBtn').classList.remove('active');
+        document.getElementById('filtersBtn')?.classList.remove('active');
     };
 
     document.getElementById('filterSidesheetClose')?.addEventListener('click', closeFilterSidesheet);
@@ -275,18 +205,10 @@ function setupEventListeners() {
         });
     }
 
-    // Setup tag editor button
-    document.getElementById('tagEditorBtn').addEventListener('click', openTagEditor);
-
-    // Scroll to top / bottom (main content is the scroll container, not window)
-    const scrollEl = () => document.querySelector('.app-main-content') || window;
-    document.getElementById('scrollToTopBtn')?.addEventListener('click', () => {
-        scrollEl().scrollTo({ top: 0, behavior: 'smooth' });
-    });
-    document.getElementById('scrollToBottomBtn')?.addEventListener('click', () => {
-        const el = scrollEl();
-        const bottom = el === window ? document.documentElement.scrollHeight - window.innerHeight : el.scrollHeight - el.clientHeight;
-        el.scrollTo({ top: bottom, behavior: 'smooth' });
+    // Setup tag editor button (side nav)
+    document.getElementById('tagEditorBtn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        openTagEditor();
     });
 
     // Setup modal event listeners
@@ -631,9 +553,10 @@ function initializeApp() {
     filterData();
 }
 
-// Close modals on Escape key
+// Close modals on Escape key (bubble phase; command-palette handles its own via capture)
 document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
+    if (document.getElementById('cmdPaletteOverlay')?.classList.contains('active')) return;
     if (document.getElementById('tagEditContainer')?.classList.contains('show')) {
         typeof closeTagEditDropdown === 'function' && closeTagEditDropdown();
     } else if (document.getElementById('addEntryContainer')?.classList.contains('active')) {

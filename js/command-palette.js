@@ -883,25 +883,6 @@
     ------------------------------------------------------------------ */
 
     function handlePaletteKeydown(e) {
-        if (e.key === 'Escape' || e.key === 'Esc') {
-            e.preventDefault();
-            e.stopPropagation();
-            if (fullQuery.trim()) {
-                fullQuery = '';
-                const input = document.getElementById('cmdPaletteInput');
-                const tokensEl = document.getElementById('cmdPaletteTokens');
-                if (input) {
-                    input.value = '';
-                    input.blur();
-                }
-                if (tokensEl) tokensEl.innerHTML = '';
-                renderResults('');
-            } else {
-                closeCommandPalette();
-            }
-            return;
-        }
-
         if (e.key === 'Backspace') {
             const input = document.getElementById('cmdPaletteInput');
             const { committed } = splitCommittedAndInProgress(fullQuery);
@@ -1128,8 +1109,27 @@
     }
 
     function wireGlobalShortcut() {
-        // Use capture so we intercept before keyboard-shortcuts.js bubble handlers
+        // Use capture so we intercept before app.js / keyboard-shortcuts.js
         document.addEventListener('keydown', e => {
+            if (paletteOpen && (e.key === 'Escape' || e.key === 'Esc')) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (fullQuery.trim()) {
+                    fullQuery = '';
+                    const input = document.getElementById('cmdPaletteInput');
+                    const tokensEl = document.getElementById('cmdPaletteTokens');
+                    if (input) {
+                        input.value = '';
+                        input.blur();
+                    }
+                    if (tokensEl) tokensEl.innerHTML = '';
+                    renderResults('');
+                } else {
+                    closeCommandPalette();
+                }
+                return;
+            }
+
             // Cmd+K / Ctrl+K (with or without Shift for backward compat)
             if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
                 if (e.repeat) return; // Ignore key repeat so palette doesn't close immediately
