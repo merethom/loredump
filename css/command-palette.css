@@ -82,6 +82,44 @@
     color: #555578;
 }
 
+/* ---- Compound input: chips inline with input (Gmail-style) ---- */
+
+.cmd-palette-input-wrap {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-height: 60px;
+    padding: 0 4px;
+    border-radius: 4px;
+    min-width: 0;
+}
+
+.cmd-palette-tokens {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.cmd-palette-tokens + .cmd-palette-input {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* Pills match the input: same font, size, color, and bg treatment */
+.cmd-palette-input-wrap .cmd-query-token {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--text-color);
+    background: transparent;
+    border-radius: 3px;
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #76769E;
+}
+
 /* ---- Mode Badge ---- */
 
 .cmd-palette-mode-badge {
@@ -239,6 +277,78 @@
 .cmd-result-arc-label {
     font-family: var(--font-mono);
     font-size: 0.8125rem;
+    color: var(--lesser-text-color);
+}
+
+/* ---- Quick actions & Recents (default empty state) ---- */
+
+.cmd-palette-result--action,
+.cmd-palette-result--recent {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 200ms ease-in-out;
+    margin-bottom: 6px;
+}
+
+.cmd-palette-result--action:last-child,
+.cmd-palette-result--recent:last-child {
+    margin-bottom: 0;
+}
+
+.cmd-palette-result--action:hover,
+.cmd-palette-result--recent:hover,
+.cmd-palette-result--action.cmd-palette-result--selected,
+.cmd-palette-result--recent.cmd-palette-result--selected {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.cmd-palette-recent-remove {
+    flex-shrink: 0;
+    width: 0.825rem;
+    height: 0.825rem;
+    padding: 0;
+    margin: 0;
+    margin-left: auto;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #8888AB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+}
+
+.cmd-palette-recent-remove:hover {
+    color: var(--text-color);
+}
+
+.cmd-palette-recent-remove .icon {
+    width: 0.825rem;
+    height: 0.825rem;
+    display: block;
+}
+
+.cmd-palette-result--recent .cmd-palette-recent-remove {
+    align-self: center;
+}
+
+.cmd-palette-action-icon,
+.cmd-palette-recent-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: #76769E;
+}
+
+.cmd-palette-action-label,
+.cmd-palette-recent-label {
+    font-family: var(--font-sans-flex);
+    font-size: 0.875rem;
     color: var(--lesser-text-color);
 }
 
@@ -514,9 +624,10 @@ mark.cmd-highlight {
     min-width: 0;
     font-family: var(--font-mono);
     font-size: 0.875rem;
+    letter-spacing: 0.1em;
     color: #ABA4C5;
     caret-color: var(--text-color);
-    background: #1E1E36;
+    background: #0E0E22;
     border: none;
     outline: none;
     padding: 6px 10px;

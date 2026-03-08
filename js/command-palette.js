@@ -13,6 +13,7 @@
 
     let paletteOpen = false;
     let selectedResultIndex = -1;
+    let fullQuery = '';
 
     /* ------------------------------------------------------------------
        Public API
@@ -26,17 +27,16 @@
         paletteOpen = true;
         selectedResultIndex = -1;
 
+        fullQuery = typeof initialQuery === 'string' ? initialQuery : '';
         const input = document.getElementById('cmdPaletteInput');
-        const query = typeof initialQuery === 'string' ? initialQuery : '';
         if (input) {
-            input.value = query;
             requestAnimationFrame(() => {
                 input.focus();
-                input.setSelectionRange(query.length, query.length);
+                input.setSelectionRange(input.value.length, input.value.length);
             });
         }
 
-        renderResults(query);
+        renderResults(fullQuery);
     }
 
     function closeCommandPalette() {
@@ -48,26 +48,135 @@
     }
 
     /* ------------------------------------------------------------------
-       Mode detection
+       Recent searches (localStorage)
+    ------------------------------------------------------------------ */
+
+    const RECENT_SEARCHES_KEY = 'cmdPaletteRecentSearches';
+    const RECENT_SEARCHES_MAX = 10;
+
+    function getRecentSearches() {
+        try {
+            const raw = localStorage.getItem(RECENT_SEARCHES_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch (_) {
+            return [];
+        }
+    }
+
+    function addRecentSearch(query) {
+        const q = (query || '').trim();
+        if (!q) return;
+        let arr = getRecentSearches();
+        arr = arr.filter(s => s !== q);
+        arr.unshift(q);
+        arr = arr.slice(0, RECENT_SEARCHES_MAX);
+        try {
+            localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(arr));
+        } catch (_) {}
+    }
+
+    function removeRecentSearch(query) {
+        const q = (query || '').trim();
+        if (!q) return;
+        let arr = getRecentSearches().filter(s => s !== q);
+        try {
+            localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(arr));
+        } catch (_) {}
+    }
+
+    /* ------------------------------------------------------------------
+       Mode detection & multi-search token parsing
     ------------------------------------------------------------------ */
 
     function detectMode(query) {
-        if (query.startsWith('#')) return {
-            mode: 'entry',
-            term: query.slice(1).trimStart()
-        };
-        if (query.startsWith('@')) return {
-            mode: 'tag',
-            term: query.slice(1).trimStart()
-        };
-        if (query.startsWith('/')) return {
-            mode: 'arc',
-            term: query.slice(1).trimStart()
-        };
-        return {
-            mode: 'text',
-            term: query.trim()
-        };
+        const q = (query || '').trim();
+        if (q.startsWith('#')) return { mode: 'entry', term: q.slice(1).trimStart() };
+        if (q.startsWith('@')) return { mode: 'tag', term: q.slice(1).trimStart() };
+        if (q.startsWith('/')) return { mode: 'arc', term: q.slice(1).trimStart() };
+        return { mode: 'text', term: q };
+    }
+
+    /** Split by spaces but keep double-quoted phrases as a single part.
+     *  Unclosed quotes (no matching ") are kept as-is so the user can type inside. */
+    function splitBySpacesRespectingQuotes(str) {
+        const result = [];
+        let i = 0;
+        const s = String(str || '').trim();
+        while (i < s.length) {
+            while (i < s.length && /\s/.test(s[i])) i++;
+            if (i >= s.length) break;
+            if (s[i] === '"') {
+                i++;
+                let end = i;
+                while (end < s.length && s[end] !== '"') end++;
+                if (end < s.length) {
+                    result.push('"' + s.slice(i, end) + '"');
+                    i = end + 1;
+                } else {
+                    result.push(s.slice(i - 1));
+                    break;
+                }
+            } else {
+                let end = i;
+                while (end < s.length && !/\s/.test(s[end])) end++;
+                result.push(s.slice(i, end));
+                i = end;
+            }
+        }
+        return result;
+    }
+
+    /** Parse query into tokens: keyword, @tag, /arc, #entry. Quoted strings become one keyword (phrase). */
+    function parseQueryTokens(query) {
+        const q = (query || '').trim();
+        if (!q) return [];
+        const parts = splitBySpacesRespectingQuotes(q);
+        return parts.map(p => {
+            if (p.startsWith('#')) return { type: 'entry', value: p.slice(1).trimStart(), raw: p };
+            if (p.startsWith('@')) return { type: 'tag', value: p.slice(1).trimStart(), raw: p };
+            if (p.startsWith('/')) return { type: 'arc', value: p.slice(1).trimStart(), raw: p };
+            if (p.length >= 2 && p.startsWith('"') && p.endsWith('"')) {
+                return { type: 'keyword', value: p.slice(1, -1).trim(), raw: p };
+            }
+            return { type: 'keyword', value: p, raw: p };
+        }).filter(t => t.value !== '');
+    }
+
+    /** Split query into committed tokens (shown as chips) and in-progress part (shown in input).
+     *  Trailing space commits the last token as a chip. Respects quoted phrases. */
+    function splitCommittedAndInProgress(query) {
+        const raw = (query || '');
+        const hasTrailingSpace = /\s$/.test(raw);
+        const parts = splitBySpacesRespectingQuotes(raw).filter(Boolean);
+        let committedParts;
+        let inProgress;
+        if (hasTrailingSpace && parts.length > 0) {
+            committedParts = parts;
+            inProgress = '';
+        } else if (parts.length > 1) {
+            committedParts = parts.slice(0, -1);
+            inProgress = parts[parts.length - 1];
+        } else {
+            committedParts = [];
+            inProgress = parts[0] || '';
+        }
+        const committed = committedParts.map(p => ({
+            type: p.startsWith('#') ? 'entry' : p.startsWith('@') ? 'tag' : p.startsWith('/') ? 'arc' : 'keyword',
+            value: p.startsWith('#') ? p.slice(1) : p.startsWith('@') ? p.slice(1) : p.startsWith('/') ? p.slice(1) : (p.length >= 2 && p.startsWith('"') && p.endsWith('"') ? p.slice(1, -1).trim() : p),
+            raw: p
+        }));
+        return { committed, inProgress };
+    }
+
+    /** Get primary term for backward compat (first token's value) and whether we're in multi-search. */
+    function getPrimaryFromTokens(tokens) {
+        const keyword = tokens.find(t => t.type === 'keyword');
+        const tag = tokens.find(t => t.type === 'tag');
+        const arc = tokens.find(t => t.type === 'arc');
+        const entry = tokens.find(t => t.type === 'entry');
+        const isMulti = tokens.length > 1 || (keyword && (tag || arc));
+        const primary = entry || tag || arc || keyword;
+        return { tokens, isMulti, keyword: keyword?.value, tag: tag?.value, arc: arc?.value, entry: entry?.value, primaryTerm: primary?.value, primaryType: primary?.type };
     }
 
     /* ------------------------------------------------------------------
@@ -133,62 +242,84 @@
 
     function getResults(query) {
         if (!query) return [];
-        const {
-            mode,
-            term
-        } = detectMode(query);
-        if (!term) return [];
+        const tokens = parseQueryTokens(query);
+        if (!tokens.length) return [];
+        const { tag, arc, entry, keyword } = getPrimaryFromTokens(tokens);
 
-        // allData is the global array defined in index.html
         if (typeof allData === 'undefined' || !Array.isArray(allData)) return [];
 
-        let matches;
+        let matches = allData;
 
-        if (mode === 'text') {
-            const lower = term.toLowerCase();
-            matches = allData.filter(e =>
-                e.Description && e.Description.toLowerCase().includes(lower)
-            );
-        } else if (mode === 'entry') {
-            matches = allData.filter(e => {
+        if (entry && tokens.length === 1 && tokens[0].type === 'entry') {
+            matches = matches.filter(e => {
                 const num = String(e.Number);
-                return num.startsWith(term) || parseFloat(num) === parseFloat(term);
+                return num.startsWith(entry) || parseFloat(num) === parseFloat(entry);
             });
-        } else if (mode === 'tag') {
-            // Search by tag name
-            const lower = term.toLowerCase();
-            matches = allData.filter(e => {
+        } else if (tag && !keyword && !arc && tokens.every(t => t.type === 'tag')) {
+            const lower = tag.toLowerCase();
+            matches = matches.filter(e => {
                 if (!e.Tags) return false;
                 const tags = safeParseEntryTags(e.Tags);
                 return tags.some(t => t.name.toLowerCase().includes(lower));
             });
-        } else {
-            // mode === 'arc' — search by arc number or arc name
-            const lower = term.toLowerCase().trim();
-            const termTrim = term.trim();
-            matches = allData.filter(e => {
+        } else if (arc && !keyword && !tag && tokens.every(t => t.type === 'arc')) {
+            const lower = arc.toLowerCase().trim();
+            const termTrim = arc.trim();
+            matches = matches.filter(e => {
                 const n = parseFloat(e.Number);
                 if (isNaN(n)) return false;
                 const arcKey = Math.floor(n).toString();
                 const arcData = (typeof allArcs !== 'undefined' && allArcs[arcKey]) || { name: '', color: 'slate' };
                 const arcName = (arcData.name || '').toLowerCase();
-                const numMatch = arcKey === termTrim || arcKey.startsWith(termTrim);
-                const nameMatch = arcName.includes(lower);
-                return numMatch || nameMatch;
+                return arcKey === termTrim || arcKey.startsWith(termTrim) || arcName.includes(lower);
+            });
+        } else {
+            const keywords = tokens.filter(t => t.type === 'keyword').map(t => t.value.toLowerCase());
+            const tagVal = tokens.find(t => t.type === 'tag')?.value;
+            const arcVal = tokens.find(t => t.type === 'arc')?.value;
+            matches = matches.filter(e => {
+                if (keywords.length) {
+                    const desc = (e.Description || '').toLowerCase();
+                    if (!keywords.every(kw => desc.includes(kw))) return false;
+                }
+                if (tagVal) {
+                    const tagLower = tagVal.toLowerCase();
+                    if (!e.Tags) return false;
+                    const tags = safeParseEntryTags(e.Tags);
+                    if (!tags.some(t => t.name.toLowerCase().includes(tagLower))) return false;
+                }
+                if (arcVal) {
+                    const n = parseFloat(e.Number);
+                    if (isNaN(n)) return false;
+                    const arcKey = Math.floor(n).toString();
+                    const arcData = (typeof allArcs !== 'undefined' && allArcs[arcKey]) || { name: '', color: 'slate' };
+                    const arcName = (arcData.name || '').toLowerCase();
+                    const termTrim = arcVal.trim().toLowerCase();
+                    const numMatch = arcKey === termTrim || arcKey.startsWith(termTrim);
+                    const nameMatch = arcName.includes(termTrim);
+                    if (!numMatch && !nameMatch) return false;
+                }
+                return true;
             });
         }
 
         return matches.slice(0, MAX_RESULTS);
     }
 
-    /** Tags whose name matches the term (unique by name). Empty term = all tags. */
-    function getMatchingTags(term) {
-        if (typeof allData === 'undefined' || !Array.isArray(allData)) return [];
+    /** Tags whose name matches the term (unique by name).
+     *  - When entriesScope is provided, suggestions are limited to those entries.
+     *  - Empty term = all tags within the chosen scope.
+     */
+    function getMatchingTags(term, entriesScope) {
+        const sourceEntries = Array.isArray(entriesScope)
+            ? entriesScope
+            : (Array.isArray(allData) ? allData : []);
+        if (!sourceEntries.length) return [];
         const lower = (term || '').toLowerCase().trim();
         const showAll = (lower === '');
         const seen = new Set();
         const out = [];
-        allData.forEach(e => {
+        sourceEntries.forEach(e => {
             if (!e.Tags) return;
             const tags = safeParseEntryTags(e.Tags);
             tags.forEach(t => {
@@ -203,11 +334,17 @@
         return out.slice(0, showAll ? 100 : 15);
     }
 
-    /** Arcs whose key or name matches the term. Empty term = all arcs. */
-    function getMatchingArcs(term) {
-        if (typeof allData === 'undefined' || !Array.isArray(allData)) return [];
+    /** Arcs whose key or name matches the term.
+     *  - When entriesScope is provided, suggestions are limited to those entries.
+     *  - Empty term = all arcs within the chosen scope.
+     */
+    function getMatchingArcs(term, entriesScope) {
+        const sourceEntries = Array.isArray(entriesScope)
+            ? entriesScope
+            : (Array.isArray(allData) ? allData : []);
+        if (!sourceEntries.length) return [];
         const arcKeys = new Set();
-        allData.forEach(e => {
+        sourceEntries.forEach(e => {
             const n = parseFloat(e.Number);
             if (!isNaN(n)) arcKeys.add(Math.floor(n).toString());
         });
@@ -384,34 +521,100 @@
         </div>`;
     }
 
+    function attachDefaultHandlers(listEl) {
+        if (!listEl) return;
+        listEl.querySelectorAll('.cmd-palette-recent-remove').forEach(btn => {
+            btn.addEventListener('mousedown', e => {
+                e.preventDefault();
+                e.stopPropagation();
+                const query = btn.getAttribute('data-query') || '';
+                removeRecentSearch(query);
+                renderResults('');
+            });
+        });
+        listEl.querySelectorAll('.cmd-palette-result').forEach(el => {
+            el.addEventListener('mousedown', e => {
+                if (e.target.closest('.cmd-palette-recent-remove')) return;
+                e.preventDefault();
+                const type = el.getAttribute('data-type');
+                if (type === 'action') {
+                    const action = el.getAttribute('data-action');
+                    if (action === 'add-entry' && typeof openAddEntryModal === 'function') {
+                        closeCommandPalette();
+                        openAddEntryModal();
+                    }
+                } else if (type === 'recent') {
+                    const query = el.getAttribute('data-query') || '';
+                    fullQuery = query;
+                    const input = document.getElementById('cmdPaletteInput');
+                    const tokensEl = document.getElementById('cmdPaletteTokens');
+                    if (input) {
+                        const { committed, inProgress } = splitCommittedAndInProgress(query);
+                        input.value = inProgress;
+                        if (tokensEl) tokensEl.innerHTML = committed.map(t => `<kbd class="cmd-query-token">${escapeHtml(t.raw)}</kbd>`).join('');
+                    }
+                    renderResults(fullQuery);
+                }
+            });
+        });
+    }
+
     function renderResults(query) {
         const list = document.getElementById('cmdPaletteResults');
         if (!list) return;
 
-        const {
-            mode,
-            term
-        } = detectMode(query);
+        const tokens = parseQueryTokens(query);
+        const { isMulti } = getPrimaryFromTokens(tokens);
+        const { mode, term } = detectMode(query);
 
         updateModeBadge(mode);
 
+        const { committed } = splitCommittedAndInProgress(query);
+        const tokensEl = document.getElementById('cmdPaletteTokens');
+        const inputEl = document.getElementById('cmdPaletteInput');
+        if (tokensEl) {
+            tokensEl.innerHTML = committed.map(t => `<kbd class="cmd-query-token">${escapeHtml(t.raw)}</kbd>`).join('');
+        }
+        if (inputEl) {
+            const { inProgress } = splitCommittedAndInProgress(query);
+            inputEl.value = inProgress;
+            inputEl.placeholder = committed.length ? '' : 'Search: keyword, @tag, /arc...';
+        }
+
         if (!query) {
-            list.innerHTML = [
-                '<div class="cmd-palette-hint">',
-                '<span class="cmd-palette-footer-hint">This is a spot for the hint<kbd>#</kbd> Entry number</span>',
-                '<span class="cmd-palette-footer-hint"><kbd>#</kbd> Entry number</span>',
-                '<span class="cmd-palette-footer-hint"><kbd>@</kbd> Tag</span>',
-                '<span class="cmd-palette-footer-hint"><kbd>/</kbd> Arc</span>',
-                '</div>',
-            ].join('');
-            selectedResultIndex = -1;
+            const recents = getRecentSearches();
+            let html = '<div class="cmd-palette-section"><div class="cmd-palette-section-title">Quick actions</div>';
+            html += '<div class="cmd-palette-result cmd-palette-result--action cmd-palette-result--selected" data-type="action" data-action="add-entry" data-index="0">';
+            html += '<svg class="icon cmd-palette-action-icon" aria-hidden="true"><use href="img/sprites/regular.svg#plus"></use></svg>';
+            html += '<span class="cmd-palette-action-label">New entry</span>';
+            html += '</div></div>';
+
+            if (recents.length > 0) {
+                html += '<div class="cmd-palette-section"><div class="cmd-palette-section-title">Recent searches</div>';
+                recents.forEach((term, i) => {
+                    const idx = i + 1;
+                    const sel = idx === 1 ? '' : '';
+                    const qEsc = escapeHtml(term);
+                    html += `<div class="cmd-palette-result cmd-palette-result--recent${sel}" data-type="recent" data-index="${idx}" data-query="${qEsc}">`;
+                    html += '<svg class="icon cmd-palette-recent-icon" aria-hidden="true"><use href="img/sprites/regular.svg#magnifying-glass"></use></svg>';
+                    html += `<span class="cmd-palette-recent-label">${qEsc}</span>`;
+                    html += `<button type="button" class="cmd-palette-recent-remove" data-query="${qEsc}" aria-label="Remove from recent searches">`;
+                    html += '<svg class="icon" aria-hidden="true"><use href="img/sprites/regular.svg#xmark"></use></svg>';
+                    html += '</button>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+
+            list.innerHTML = html;
+            selectedResultIndex = 0;
+            attachDefaultHandlers(list);
             return;
         }
 
         const showEntryNumbers = true;
         const termLower = term.trim().toLowerCase();
 
-        // Special commands: "top" and "end" scroll to top or end of the list
         if (termLower === 'top' || termLower === 'end') {
             selectedResultIndex = 0;
             list.innerHTML = '<div class="cmd-palette-section"><div class="cmd-palette-section-title">Commands</div>' +
@@ -425,21 +628,38 @@
             return;
         }
 
-        // For prefixed modes, show only the matching category; for text search show all three
+        const tagToken = tokens.find(t => t.type === 'tag');
+        const arcToken = tokens.find(t => t.type === 'arc');
+        const tagTerm = tagToken ? tagToken.value : (mode === 'tag' ? term : '');
+        const arcTerm = arcToken ? arcToken.value : (mode === 'arc' ? term : '');
+        const keywords = tokens.filter(t => t.type === 'keyword').map(t => t.value);
+        const keywordForHighlight = keywords[0] || (mode === 'text' ? term : '');
+
+        const hasTagToken = !!tagToken;
+        const hasArcToken = !!arcToken;
+
         let matchingTags = [];
         let matchingArcs = [];
         let entries = [];
 
-        if (mode === 'text') {
-            matchingTags = getMatchingTags(term);
-            matchingArcs = getMatchingArcs(term);
+        if (tokens.length === 1 && tokens[0].type === 'tag') {
+            matchingTags = getMatchingTags(tagTerm);
+        } else if (tokens.length === 1 && tokens[0].type === 'arc') {
+            matchingArcs = getMatchingArcs(arcTerm);
+        } else if (tokens.length === 1 && tokens[0].type === 'entry') {
             entries = getResults(query);
-        } else if (mode === 'tag') {
-            matchingTags = getMatchingTags(term);
-        } else if (mode === 'arc') {
-            matchingArcs = getMatchingArcs(term);
         } else {
+            // General case: entries come from full multi-search.
             entries = getResults(query);
+
+            // Tags/Arcs sections only when @ or / is present (avoids confusion for plain keyword).
+            // Plain keyword → Entries only. @tag or /arc (including chips) → show Tag/Arc sections.
+            if (hasTagToken || mode === 'tag') {
+                matchingTags = getMatchingTags(tagTerm);
+            }
+            if (hasArcToken || mode === 'arc') {
+                matchingArcs = getMatchingArcs(arcTerm);
+            }
         }
 
         // Build flat list of selectable items for keyboard nav
@@ -474,10 +694,10 @@
             html += '</div>';
         }
         if (entries.length > 0) {
-            const entrySectionTitle = mode === 'text' ? 'Keyword' : 'Entries';
-            html += `<div class="cmd-palette-section"><div class="cmd-palette-section-title">${entrySectionTitle}</div>`;
+            const entryMode = mode === 'entry' ? 'entry' : (keywordForHighlight ? 'text' : mode);
+            html += `<div class="cmd-palette-section"><div class="cmd-palette-section-title">Entries</div>`;
             entries.forEach((entry, i) => {
-                html += buildResultHTML(entry, globalIndex++, mode, term, showEntryNumbers);
+                html += buildResultHTML(entry, globalIndex++, entryMode, keywordForHighlight || term, showEntryNumbers);
             });
             html += '</div>';
         }
@@ -507,7 +727,7 @@
             if (arcKey && typeof updateArcName === 'function') {
                 e.preventDefault();
                 updateArcName(arcKey, input.value.trim() || 'Untitled');
-                renderResults(document.getElementById('cmdPaletteInput')?.value || '');
+                        renderResults(fullQuery);
             }
         });
 
@@ -515,7 +735,7 @@
         list.querySelectorAll('.cmd-palette-result').forEach(el => {
             el.addEventListener('mousedown', e => {
                 const type = el.getAttribute('data-type');
-                const currentQuery = document.getElementById('cmdPaletteInput')?.value || '';
+                const currentQuery = fullQuery;
 
                 if (type === 'arc') {
                     const arcKey = el.getAttribute('data-arc-key');
@@ -572,6 +792,7 @@
                         return;
                     }
                     e.preventDefault();
+                    addRecentSearch(currentQuery);
                     closeCommandPalette();
                     if (arcKey) scrollToArc(arcKey);
                     return;
@@ -581,6 +802,7 @@
                 const { mode: m, term: t } = detectMode(currentQuery);
 
                 if (type === 'tag') {
+                    addRecentSearch(currentQuery);
                     const tagName = el.getAttribute('data-tag-name');
                     if (tagName && typeof selectedTags !== 'undefined') {
                         selectedTags.add(tagName);
@@ -589,11 +811,13 @@
                     }
                     closeCommandPalette();
                 } else if (type === 'scroll') {
+                    addRecentSearch(currentQuery);
                     const direction = el.getAttribute('data-scroll-direction');
                     closeCommandPalette();
                     if (direction === 'top') scrollToTop();
                     else if (direction === 'end') scrollToEnd();
                 } else {
+                    addRecentSearch(currentQuery);
                     const entryNum = el.getAttribute('data-entry-number');
                     applyResult(entryNum);
                 }
@@ -666,6 +890,20 @@
             return;
         }
 
+        if (e.key === 'Backspace') {
+            const input = document.getElementById('cmdPaletteInput');
+            const { committed } = splitCommittedAndInProgress(fullQuery);
+            if (input && input.value === '' && committed.length > 0) {
+                e.preventDefault();
+                const withoutLast = committed.slice(0, -1).map(t => t.raw).join(' ');
+                const lastRaw = committed[committed.length - 1].raw;
+                fullQuery = withoutLast ? withoutLast + ' ' + lastRaw : lastRaw;
+                renderResults(fullQuery);
+                input.focus();
+                return;
+            }
+        }
+
         const list = document.getElementById('cmdPaletteResults');
         const items = list ? Array.from(list.querySelectorAll('.cmd-palette-result')) : [];
 
@@ -685,7 +923,25 @@
                 const el = items[selectedResultIndex];
                 const type = el.getAttribute('data-type');
 
-                if (type === 'tag') {
+                if (type === 'action') {
+                    const action = el.getAttribute('data-action');
+                    if (action === 'add-entry' && typeof openAddEntryModal === 'function') {
+                        closeCommandPalette();
+                        openAddEntryModal();
+                    }
+                } else if (type === 'recent') {
+                    const query = el.getAttribute('data-query') || '';
+                    fullQuery = query;
+                    const input = document.getElementById('cmdPaletteInput');
+                    const tokensEl = document.getElementById('cmdPaletteTokens');
+                    if (input) {
+                        const { committed, inProgress } = splitCommittedAndInProgress(query);
+                        input.value = inProgress;
+                        if (tokensEl) tokensEl.innerHTML = committed.map(t => `<kbd class="cmd-query-token">${escapeHtml(t.raw)}</kbd>`).join('');
+                    }
+                    renderResults(fullQuery);
+                } else if (type === 'tag') {
+                    addRecentSearch(fullQuery);
                     const tagName = el.getAttribute('data-tag-name');
                     if (tagName && typeof selectedTags !== 'undefined') {
                         selectedTags.add(tagName);
@@ -694,15 +950,18 @@
                     }
                     closeCommandPalette();
                 } else if (type === 'arc') {
+                    addRecentSearch(fullQuery);
                     const arcKey = el.getAttribute('data-arc-key');
                     closeCommandPalette();
                     if (arcKey) scrollToArc(arcKey);
                 } else if (type === 'scroll') {
+                    addRecentSearch(fullQuery);
                     const direction = el.getAttribute('data-scroll-direction');
                     closeCommandPalette();
                     if (direction === 'top') scrollToTop();
                     else if (direction === 'end') scrollToEnd();
                 } else {
+                    addRecentSearch(fullQuery);
                     const entryNum = el.getAttribute('data-entry-number');
                     applyResult(entryNum);
                 }
@@ -739,15 +998,18 @@
                     <svg class="icon cmd-palette-icon" aria-hidden="true">
                         <use href="img/sprites/light.svg#magnifying-glass"></use>
                     </svg>
-                    <input
-                        type="text"
-                        id="cmdPaletteInput"
-                        class="cmd-palette-input"
-                        placeholder="Search keywords, #entry numbers, @tags, or /arcs..."
-                        autocomplete="off"
-                        spellcheck="false"
-                        aria-label="Search"
-                    >
+                    <div class="cmd-palette-input-wrap">
+                        <span id="cmdPaletteTokens" class="cmd-palette-tokens" aria-live="polite"></span>
+                        <input
+                            type="text"
+                            id="cmdPaletteInput"
+                            class="cmd-palette-input"
+                            placeholder="Search: keyword, @tag, /arc..."
+                            autocomplete="off"
+                            spellcheck="false"
+                            aria-label="Search"
+                        >
+                    </div>
                     <span id="cmdPaletteModeBadge" class="cmd-palette-mode-badge" aria-live="polite"></span>
                 </div>
                 <div id="cmdPaletteResults" class="cmd-palette-results"></div>
@@ -755,13 +1017,7 @@
 
                     <div class="cmd-palette-footer-hints">
                         <span class="cmd-palette-footer-hint">
-                            <kbd>/</kbd> Arc
-                        </span>
-                        <span class="cmd-palette-footer-hint">
-                            <kbd>#</kbd> Entry number
-                        </span>
-                        <span class="cmd-palette-footer-hint">
-                            <kbd>@</kbd> Tag
+                            Combine: <kbd>word</kbd> <kbd>@tag</kbd> <kbd>/arc</kbd> <kbd>#entry-number</kbd>
                         </span>
                     </div>
 
@@ -816,11 +1072,22 @@
             });
         }
 
-        // Input events
+        // Input events (chips + input: input shows in-progress, full query = committed + in-progress)
         const input = document.getElementById('cmdPaletteInput');
-        input.addEventListener('input', e => {
+        function syncFullQueryFromInput() {
+            const inp = document.getElementById('cmdPaletteInput');
+            if (!inp) return;
+            const { committed } = splitCommittedAndInProgress(fullQuery);
+            const newInProgress = inp.value;
+            fullQuery = (committed.map(t => t.raw).join(' ') + (committed.length && newInProgress ? ' ' : '')) + newInProgress;
+            renderResults(fullQuery);
+        }
+        input.addEventListener('input', () => {
             selectedResultIndex = -1;
-            renderResults(e.target.value);
+            syncFullQueryFromInput();
+        });
+        input.addEventListener('paste', () => {
+            setTimeout(syncFullQueryFromInput, 0);
         });
         input.addEventListener('keydown', handlePaletteKeydown);
 
@@ -842,6 +1109,7 @@
         if (btn) {
             btn.addEventListener('click', e => {
                 e.preventDefault();
+                e.stopPropagation();
                 openCommandPalette();
             });
         }
@@ -852,7 +1120,7 @@
         document.addEventListener('keydown', e => {
             // Cmd+K / Ctrl+K (with or without Shift for backward compat)
             if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
-                // Don't intercept if Shift is held and something else handles it
+                if (e.repeat) return; // Ignore key repeat so palette doesn't close immediately
                 e.preventDefault();
                 if (paletteOpen) {
                     closeCommandPalette();
@@ -895,10 +1163,8 @@
     window.openCommandPalette = openCommandPalette;
     window.closeCommandPalette = closeCommandPalette;
     window.refreshCommandPaletteArcs = function () {
-        const input = document.getElementById('cmdPaletteInput');
-        if (!input || !paletteOpen) return;
-        const q = input.value || '';
-        if (detectMode(q).mode === 'arc') renderResults(q);
+        if (!paletteOpen) return;
+        if (detectMode(fullQuery).mode === 'arc') renderResults(fullQuery);
     };
 
 })();
