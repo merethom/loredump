@@ -486,7 +486,7 @@ mark.cmd-highlight {
     background: none;
     border: none;
     border-radius: 4px;
-    color: var(--muted-text-color);
+    color: #8888AB;
     cursor: pointer;
     transition: color 0.15s;
 }

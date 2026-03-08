@@ -11,8 +11,8 @@
      * Updates the sync status badge in the header
      */
     function updateSyncStatus() {
-        const syncStatusEl = document.getElementById('syncStatus');
-        if (!syncStatusEl) return;
+        const syncStatusBtn = document.getElementById('syncStatusBtn');
+        if (!syncStatusBtn) return;
 
         if (window.syncManager && typeof window.syncManager.hasChanges === 'function') {
             const hasChanges = window.syncManager.hasChanges(
@@ -22,7 +22,7 @@
                 allTags
             );
 
-            syncStatusEl.style.display = hasChanges ? 'flex' : 'none';
+            syncStatusBtn.classList.toggle('has-changes', hasChanges);
         }
     }
 
@@ -467,10 +467,13 @@
         // Delay a bit to ensure data-loader has finished
         setTimeout(updateSyncStatus, 500);
 
-        // Click handler for badge
-        const syncStatusEl = document.getElementById('syncStatus');
-        if (syncStatusEl) {
-            syncStatusEl.addEventListener('click', openSyncSidesheet);
+        // Click handler for sync status button (Save changes badge)
+        const syncStatusBtn = document.getElementById('syncStatusBtn');
+        if (syncStatusBtn) {
+            syncStatusBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openSyncSidesheet();
+            });
         }
 
         // Backdrop click for syncSidesheet
