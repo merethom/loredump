@@ -346,13 +346,14 @@
         const selectedClass = index === selectedResultIndex ? ' cmd-palette-result--selected' : '';
         const key = arc.key;
         const displayName = (arc.name && arc.name !== 'Untitled') ? arc.name : 'Untitled';
+        const titleUpper = `ARC ${key}: ${escapeHtml(displayName.toUpperCase())}`;
         const colorClass = arc.color === 'amber' ? 'orange-red' : arc.color === 'green' ? 'lime' : arc.color === 'teal' ? 'aqua' : arc.color === 'pink' ? 'magenta' : arc.color;
         const count = typeof getArcEntryCount === 'function' ? getArcEntryCount(key) : 0;
         const range = typeof getArcNumberRange === 'function' ? getArcNumberRange(key) : { min: '', max: '' };
         const rangeStr = range.min !== '' && range.max !== '' ? `${range.min} to ${range.max}` : '';
         const infoStr = rangeStr ? `${count} entries // ${rangeStr}` : `${count} entries`;
         const colorBtns = buildArcColorBtns(key, arc.color);
-        return `<div class="cmd-palette-result cmd-palette-result--arc${selectedClass}" data-type="arc" data-index="${index}" data-arc-key="${escapeHtml(key)}">
+        const fullEditorHtml = `
             <div class="arc-item cmd-palette-arc-item">
                 <div class="arc-item-header">
                     <span class="arc-number">Arc ${escapeHtml(key)}</span>
@@ -363,7 +364,19 @@
                     <span class="arc-title-text">${escapeHtml(displayName)}</span>
                 </div>
                 <div class="arc-number-info">${infoStr}</div>
+            </div>`;
+        return `<div class="cmd-palette-result cmd-palette-result--arc${selectedClass}" data-type="arc" data-index="${index}" data-arc-key="${escapeHtml(key)}">
+            <div class="cmd-arc-bar-row">
+                <div class="cmd-result-arc-bar arc-color--${colorClass}"></div>
+                <div class="cmd-arc-bar">
+                    <span class="cmd-arc-bar-title">${titleUpper}</span>
+                    <span class="cmd-arc-bar-count">${count} entries</span>
+                    <button type="button" class="cmd-arc-bar-edit" aria-label="Edit arc" title="Edit arc">
+                        <svg class="icon" aria-hidden="true"><use href="img/sprites/duotone.svg#pen"></use></svg>
+                    </button>
+                </div>
             </div>
+            <div class="cmd-arc-editor" hidden>${fullEditorHtml}</div>
         </div>`;
     }
 
@@ -485,10 +498,21 @@
 
                 if (type === 'arc') {
                     const arcKey = el.getAttribute('data-arc-key');
+                    const editBtn = e.target.closest('.cmd-arc-bar-edit');
                     const colorBtn = e.target.closest('.arc-color-btn');
                     const titleEl = e.target.closest('.arc-title');
                     const isEditing = titleEl && titleEl.classList.contains('arc-title--editing');
                     const isTitleInteractive = titleEl && (e.target.closest('.arc-title-input') || e.target.closest('.arc-title-confirm'));
+                    if (editBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const editor = el.querySelector('.cmd-arc-editor');
+                        if (editor) {
+                            const isHidden = editor.hasAttribute('hidden');
+                            editor.toggleAttribute('hidden', !isHidden);
+                        }
+                        return;
+                    }
                     if (colorBtn && arcKey) {
                         e.preventDefault();
                         e.stopPropagation();

@@ -1401,7 +1401,11 @@ h3.diff-section-title {
     display: grid;
     grid-template-columns: 1fr;
     align-content: start;
-    gap: 24px;
+    gap: 18px;
+}
+
+.database-view > *:first-child {
+    margin-bottom: 18px;
 }
 
 .db-arc-entries {
@@ -1538,6 +1542,8 @@ h3.diff-section-title {
 .db-arc-header .arc-title {
     flex: 1;
     min-width: 0;
+    border: var(--border);
+    background: rgba(26, 26, 46, 0.5); 
 }
 
 
@@ -1857,7 +1863,6 @@ h3.diff-section-title {
     grid-template-columns: 7px auto 1fr auto;
     column-gap: 18px;
     align-items: center;
-    background: #1E1E36;
     font-family: var(--font-sans-flex);
     letter-spacing: 0;
     height: 50px;
