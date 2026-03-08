@@ -516,9 +516,11 @@ mark.cmd-highlight {
     font-size: 0.875rem;
     color: #ABA4C5;
     caret-color: var(--text-color);
-    background: none;
+    background: #1E1E36;
     border: none;
     outline: none;
+    padding: 6px 10px;
+    border-radius: 3px;
 }
 
 .cmd-arc-bar-title-input::placeholder {
