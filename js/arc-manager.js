@@ -187,6 +187,9 @@ function exitArcTitleEdit(arcKey, titleEl, save) {
         <div class="arc-color-indicator arc-color--${colorClass}"></div>
         <span class="arc-title-text">${escapeHtml(displayName)}</span>
     `;
+    if (titleEl.closest('#cmdPaletteResults') && typeof window.refreshCommandPaletteArcs === 'function') {
+        window.refreshCommandPaletteArcs();
+    }
 }
 
 function setupArcListDelegation() {

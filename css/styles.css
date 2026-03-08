@@ -1511,7 +1511,6 @@ h3.diff-section-title {
     top: 125px; /* stick just below .controls (adjust if controls height changes) */
     z-index: 10;
     background: var(--dark-bg);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .arc-chevron-btn {

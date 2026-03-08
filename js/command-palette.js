@@ -203,27 +203,32 @@
         return out.slice(0, showAll ? 100 : 15);
     }
 
-    /** Arcs whose key or name matches the term */
+    /** Arcs whose key or name matches the term. Empty term = all arcs. */
     function getMatchingArcs(term) {
-        if (!term || typeof allData === 'undefined' || !Array.isArray(allData)) return [];
-        const lower = term.toLowerCase().trim();
-        const termTrim = term.trim();
+        if (typeof allData === 'undefined' || !Array.isArray(allData)) return [];
         const arcKeys = new Set();
         allData.forEach(e => {
             const n = parseFloat(e.Number);
             if (!isNaN(n)) arcKeys.add(Math.floor(n).toString());
         });
+        const lower = (term || '').toLowerCase().trim();
+        const termTrim = (term || '').trim();
+        const showAll = lower === '';
         const out = [];
         arcKeys.forEach(key => {
             const arcData = (typeof allArcs !== 'undefined' && allArcs[key]) || { name: '', color: 'slate' };
             const name = (arcData.name || '').trim() || 'Untitled';
-            const nameMatch = name.toLowerCase().includes(lower);
-            const numMatch = key === termTrim || key.startsWith(termTrim);
-            if (nameMatch || numMatch) {
+            if (showAll) {
                 out.push({ key, name, color: arcData.color || 'slate' });
+            } else {
+                const nameMatch = name.toLowerCase().includes(lower);
+                const numMatch = key === termTrim || key.startsWith(termTrim);
+                if (nameMatch || numMatch) {
+                    out.push({ key, name, color: arcData.color || 'slate' });
+                }
             }
         });
-        return out.sort((a, b) => parseInt(a.key, 10) - parseInt(b.key, 10)).slice(0, 15);
+        return out.sort((a, b) => parseInt(a.key, 10) - parseInt(b.key, 10)).slice(0, showAll ? 50 : 15);
     }
 
     /* ------------------------------------------------------------------
@@ -249,6 +254,16 @@
         }
     }
 
+    /** Map arc color to arc-color-indicator class (reused from styles.css) */
+    function getArcColorClass(color) {
+        if (!color || color === 'slate') return 'slate';
+        if (color === 'amber') return 'orange-red';
+        if (color === 'green') return 'lime';
+        if (color === 'teal') return 'aqua';
+        if (color === 'pink') return 'magenta';
+        return color;
+    }
+
     function buildResultHTML(entry, index, mode, term, showEntryNumber) {
         const desc = entry.Description || '';
         const snippet = getSnippet(desc, mode === 'text' ? term : '');
@@ -256,15 +271,51 @@
         const entryNum = escapeHtml(String(entry.Number));
 
         const selectedClass = index === selectedResultIndex ? ' cmd-palette-result--selected' : '';
-        const numBlock = showEntryNumber
-            ? `<div class="cmd-result-num">#${entryNum}</div>`
+        const tags = safeGetEntryTagsForDisplay(entry) || [];
+        const visibleTags = tags.slice(0, 3);
+        const extraCount = tags.length - visibleTags.length;
+
+        const showTags = mode !== 'entry' && mode !== 'text';
+
+        let tagsHtml = '';
+        if (showTags && visibleTags.length > 0) {
+            tagsHtml = '<div class="cmd-result-tags cmd-result-tags--entry">';
+            visibleTags.forEach(tag => {
+                const tagClass = typeof getTagClass === 'function' ? getTagClass(tag.color || 'slate') : 'tag tag--slate';
+                const loreClass = typeof getLoreTagColorClass === 'function' ? getLoreTagColorClass(tag.color || 'slate') : 'slate';
+                const name = escapeHtml(tag.name);
+                tagsHtml += `<span class="${tagClass} lore-tag ${loreClass}">${name}</span>`;
+            });
+            if (extraCount > 0) {
+                tagsHtml += `<span class="cmd-result-tag-more">+${extraCount} more</span>`;
+            }
+            tagsHtml += '</div>';
+        }
+
+        let arcKey = '';
+        let arcColorClass = 'slate';
+        let arcLabelHtml = '';
+        if (typeof allArcs !== 'undefined') {
+            const num = parseFloat(entry.Number);
+            if (!isNaN(num)) {
+                arcKey = Math.floor(num).toString();
+                const arcData = allArcs[arcKey] || { name: '', color: 'slate' };
+                arcColorClass = getArcColorClass(arcData.color || 'slate');
+                arcLabelHtml = `<span class="cmd-result-arc-num">Arc ${escapeHtml(arcKey)}</span>`;
+            }
+        }
+
+        const numPrefixHtml = mode === 'entry'
+            ? `<span class="cmd-entry-num-prefix cmd-entry-num-prefix--${arcColorClass}">#${entryNum}</span> `
             : '';
 
-        return `<div class="cmd-palette-result cmd-palette-result--entry${selectedClass}" data-type="entry" data-index="${index}" data-entry-number="${entryNum}">
-            ${numBlock}
-            <div class="cmd-result-body">
-                <div class="cmd-result-snippet">${highlighted}</div>
+        return `<div class="cmd-palette-result cmd-palette-result--entry cmd-result-arc--${arcColorClass}${selectedClass}" data-type="entry" data-index="${index}" data-entry-number="${entryNum}">
+            <div class="cmd-result-arc-bar arc-color--${arcColorClass}"></div>
+            <div class="cmd-result-body cmd-result-body--entry">
+                <div class="cmd-result-snippet">${numPrefixHtml}${highlighted}</div>
+                ${tagsHtml}
             </div>
+            ${arcLabelHtml}
         </div>`;
     }
 
@@ -278,12 +329,37 @@
         </div>`;
     }
 
+    /** Build arc color selector buttons (data attributes for delegation; same order as arc-manager) */
+    function buildArcColorBtns(key, selectedColor) {
+        const colors = ['pink', 'amber', 'orange', 'green', 'teal', 'blue', 'purple', 'slate'];
+        return colors.map(color => {
+            const cssClass = color === 'amber' ? 'orange-red' : color === 'green' ? 'lime' : color === 'teal' ? 'aqua' : color === 'pink' ? 'magenta' : color;
+            const selected = color === selectedColor ? ' selected' : '';
+            return `<button type="button" class="arc-color-btn tag-color ${cssClass}${selected}" title="${escapeHtml(color)}" data-arc-key="${escapeHtml(key)}" data-color="${escapeHtml(color)}" aria-label="Set color ${color}"></button>`;
+        }).join('');
+    }
+
     function buildArcRow(arc, index) {
         const selectedClass = index === selectedResultIndex ? ' cmd-palette-result--selected' : '';
-        const label = arc.name && arc.name !== 'Untitled' ? `Arc ${arc.key}: ${escapeHtml(arc.name)}` : `Arc ${arc.key}`;
-        return `<div class="cmd-palette-result cmd-palette-result--arc${selectedClass}" data-type="arc" data-index="${index}" data-arc-key="${escapeHtml(arc.key)}">
-            <div class="cmd-result-body cmd-result-body--full">
-                <span class="cmd-result-arc-label">${label}</span>
+        const key = arc.key;
+        const displayName = (arc.name && arc.name !== 'Untitled') ? arc.name : 'Untitled';
+        const colorClass = arc.color === 'amber' ? 'orange-red' : arc.color === 'green' ? 'lime' : arc.color === 'teal' ? 'aqua' : arc.color === 'pink' ? 'magenta' : arc.color;
+        const count = typeof getArcEntryCount === 'function' ? getArcEntryCount(key) : 0;
+        const range = typeof getArcNumberRange === 'function' ? getArcNumberRange(key) : { min: '', max: '' };
+        const rangeStr = range.min !== '' && range.max !== '' ? `${range.min} to ${range.max}` : '';
+        const infoStr = rangeStr ? `${count} entries // ${rangeStr}` : `${count} entries`;
+        const colorBtns = buildArcColorBtns(key, arc.color);
+        return `<div class="cmd-palette-result cmd-palette-result--arc${selectedClass}" data-type="arc" data-index="${index}" data-arc-key="${escapeHtml(key)}">
+            <div class="arc-item cmd-palette-arc-item">
+                <div class="arc-item-header">
+                    <span class="arc-number">Arc ${escapeHtml(key)}</span>
+                    <div class="arc-color-selector">${colorBtns}</div>
+                </div>
+                <div class="arc-title" data-arc-key="${escapeHtml(key)}" role="button" tabindex="0">
+                    <div class="arc-color-indicator arc-color--${colorClass}"></div>
+                    <span class="arc-title-text">${escapeHtml(displayName)}</span>
+                </div>
+                <div class="arc-number-info">${infoStr}</div>
             </div>
         </div>`;
     }
@@ -388,7 +464,8 @@
             html += '</div>';
         }
         if (entries.length > 0) {
-            html += '<div class="cmd-palette-section"><div class="cmd-palette-section-title">Entries</div>';
+            const entrySectionTitle = mode === 'text' ? 'Keyword' : 'Entries';
+            html += `<div class="cmd-palette-section"><div class="cmd-palette-section-title">${entrySectionTitle}</div>`;
             entries.forEach((entry, i) => {
                 html += buildResultHTML(entry, globalIndex++, mode, term, showEntryNumbers);
             });
@@ -400,9 +477,38 @@
         // Attach click handlers (use mousedown to beat blur)
         list.querySelectorAll('.cmd-palette-result').forEach(el => {
             el.addEventListener('mousedown', e => {
-                e.preventDefault();
                 const type = el.getAttribute('data-type');
                 const currentQuery = document.getElementById('cmdPaletteInput')?.value || '';
+
+                if (type === 'arc') {
+                    const arcKey = el.getAttribute('data-arc-key');
+                    const colorBtn = e.target.closest('.arc-color-btn');
+                    const titleEl = e.target.closest('.arc-title');
+                    const isEditing = titleEl && titleEl.classList.contains('arc-title--editing');
+                    const isTitleInteractive = titleEl && (e.target.closest('.arc-title-input') || e.target.closest('.arc-title-confirm'));
+                    if (colorBtn && arcKey) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const color = colorBtn.getAttribute('data-color');
+                        if (color && typeof updateArcColor === 'function') {
+                            updateArcColor(arcKey, color);
+                            renderResults(currentQuery);
+                        }
+                        return;
+                    }
+                    if (titleEl && !isEditing && !isTitleInteractive && arcKey && typeof enterArcTitleEdit === 'function') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        enterArcTitleEdit(arcKey, titleEl);
+                        return;
+                    }
+                    e.preventDefault();
+                    closeCommandPalette();
+                    if (arcKey) scrollToArc(arcKey);
+                    return;
+                }
+
+                e.preventDefault();
                 const { mode: m, term: t } = detectMode(currentQuery);
 
                 if (type === 'tag') {
@@ -413,10 +519,6 @@
                         if (typeof filterData === 'function') filterData();
                     }
                     closeCommandPalette();
-                } else if (type === 'arc') {
-                    const arcKey = el.getAttribute('data-arc-key');
-                    closeCommandPalette();
-                    if (arcKey) scrollToArc(arcKey);
                 } else if (type === 'scroll') {
                     const direction = el.getAttribute('data-scroll-direction');
                     closeCommandPalette();
@@ -566,13 +668,13 @@
             <div class="cmd-palette-modal">
                 <div class="cmd-palette-input-row">
                     <svg class="icon cmd-palette-icon" aria-hidden="true">
-                        <use href="img/sprites/regular.svg#magnifying-glass"></use>
+                        <use href="img/sprites/light.svg#magnifying-glass"></use>
                     </svg>
                     <input
                         type="text"
                         id="cmdPaletteInput"
                         class="cmd-palette-input"
-                        placeholder="Search entries, #1.03, @Tag, /Arc\u2026"
+                        placeholder="Search keywords, #entry numbers, @tags, or /arcs..."
                         autocomplete="off"
                         spellcheck="false"
                         aria-label="Search"
@@ -581,21 +683,36 @@
                 </div>
                 <div id="cmdPaletteResults" class="cmd-palette-results"></div>
                 <div class="cmd-palette-footer">
-                    <span class="cmd-palette-footer-hint">
-                        <kbd>\u2191\u2193</kbd> navigate
-                    </span>
-                    <span class="cmd-palette-footer-hint">
-                        <kbd>\u23ce</kbd> select
-                    </span>
-                    <span class="cmd-palette-footer-hint">
-                        <kbd>Esc</kbd> close
-                    </span>
-                    <span class="cmd-palette-footer-hint">
-                        <kbd>top</kbd> scroll to top
-                    </span>
-                    <span class="cmd-palette-footer-hint">
-                        <kbd>end</kbd> scroll to end
-                    </span>
+
+                    <div class="cmd-palette-footer-hints">
+                        <span class="cmd-palette-footer-hint">
+                            <kbd>/</kbd> Arc
+                        </span>
+                        <span class="cmd-palette-footer-hint">
+                            <kbd>#</kbd> Entry number
+                        </span>
+                        <span class="cmd-palette-footer-hint">
+                            <kbd>@</kbd> Tag
+                        </span>
+                    </div>
+
+                    <div class="cmd-palette-footer-hints">
+                        <span class="cmd-palette-footer-hint">
+                            <kbd>top</kbd> To top
+                        </span>
+                        <span class="cmd-palette-footer-hint">
+                            <kbd>end</kbd> To end
+                        </span>
+                        <span class="cmd-palette-footer-hint">
+                            <kbd>↑↓</kbd> Navigate
+                        </span>
+                        <span class="cmd-palette-footer-hint">
+                            <kbd>⏎</kbd> Select
+                        </span>
+                        <span class="cmd-palette-footer-hint">
+                            <kbd>Esc</kbd> Close
+                        </span>
+                    </div>
                 </div>
             </div>
         `;
@@ -677,8 +794,14 @@
         init();
     }
 
-    // Expose for use from keyboard-shortcuts.js and side-nav inline handlers
+    // Expose for use from keyboard-shortcuts.js, side-nav, and arc-manager (after inline title edit)
     window.openCommandPalette = openCommandPalette;
     window.closeCommandPalette = closeCommandPalette;
+    window.refreshCommandPaletteArcs = function () {
+        const input = document.getElementById('cmdPaletteInput');
+        if (!input || !paletteOpen) return;
+        const q = input.value || '';
+        if (detectMode(q).mode === 'arc') renderResults(q);
+    };
 
 })();

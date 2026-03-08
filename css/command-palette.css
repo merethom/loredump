@@ -21,8 +21,9 @@
 
 .cmd-palette-modal {
     width: min(680px, calc(100vw - 48px));
-    background: #141230;
-    border: 1.5px solid #3E3D5D;
+    width:min(1000px, 100%);
+    background: #0E0E22;
+    border: var(--border);
     border-radius: 8px;
     box-shadow:
         0 0 0 1px rgba(145, 77, 245, 0.12),
@@ -53,15 +54,15 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 0 16px;
-    border-bottom: 1.5px solid #2A2847;
+    padding: 0 18px;
+    border-bottom: var(--border);
     flex-shrink: 0;
 }
 
 .cmd-palette-icon {
     width: 16px;
     height: 16px;
-    fill: var(--lesser-text-color);
+    fill: #8888AB;
     flex-shrink: 0;
 }
 
@@ -73,12 +74,12 @@
     color: var(--text-color);
     font-family: var(--font-mono);
     font-size: 1rem;
-    height: 52px;
-    caret-color: var(--color-purple);
+    height: 60px;
+    caret-color: var(--muted-text-color);
 }
 
 .cmd-palette-input::placeholder {
-    color: var(--muted-text-color);
+    color: #555578;
 }
 
 /* ---- Mode Badge ---- */
@@ -125,6 +126,10 @@
     overscroll-behavior: contain;
     flex: 1;
     min-height: 0;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .cmd-palette-results::-webkit-scrollbar {
@@ -144,7 +149,6 @@
 
 .cmd-palette-hint,
 .cmd-palette-empty {
-    padding: 20px 20px;
     font-family: var(--font-mono);
     font-size: 0.8125rem;
     color: var(--muted-text-color);
@@ -175,12 +179,11 @@
 }
 
 .cmd-palette-section-title {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--muted-text-color);
-    padding: 6px 16px 4px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    font-family: var(--font-sans-flex);
+    color: #555578;
+    margin-bottom: 12px;
 }
 
 .cmd-result-body--full {
@@ -192,8 +195,8 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 3px;
-    padding: 0 16px 4px;
+    row-gap: 8px;
+    column-gap: 6px;
 }
 
 .cmd-palette-result.cmd-palette-result--tag {
@@ -223,11 +226,73 @@
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    padding: 10px 16px;
     cursor: pointer;
-    border-bottom: 1px solid rgba(62, 61, 93, 0.4);
     transition: background 0.07s;
 }
+
+/* Entry/Keyword: arc color bar + body + arc label */
+.cmd-palette-result--entry {
+    padding: 0;
+    gap: 0;
+    align-items: stretch;
+    background: #1E1E36;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    height: 40px;
+}
+
+.cmd-palette-result--entry .cmd-result-body {
+    padding: 10px 8px 10px 12px;
+}
+
+.cmd-result-arc-bar {
+    flex-shrink: 0;
+    width: 4px;
+    align-self: stretch;
+    border-radius: 2px 0 0 2px;
+}
+
+.cmd-result-arc-bar.arc-color--magenta { background: var(--color-magenta); }
+.cmd-result-arc-bar.arc-color--orange { background: var(--color-orange); }
+.cmd-result-arc-bar.arc-color--lime { background: var(--color-lime); }
+.cmd-result-arc-bar.arc-color--aqua { background: var(--color-aqua); }
+.cmd-result-arc-bar.arc-color--blue { background: var(--color-blue); }
+.cmd-result-arc-bar.arc-color--purple { background: var(--color-purple); }
+.cmd-result-arc-bar.arc-color--orange-red { background: var(--color-orange-red); }
+.cmd-result-arc-bar.arc-color--slate { background: var(--color-slate); }
+
+.cmd-result-arc-num {
+    flex-shrink: 0;
+    align-self: center;
+    font-family: var(--font-sans-flex);
+    font-size: 0.75rem;
+    color: #555578;
+    margin-right: 16px;
+}
+
+.cmd-entry-num-prefix {
+    font-family: var(--font-mono);
+    font-weight: 500;
+}
+
+.cmd-entry-num-prefix--magenta { color: var(--color-magenta); }
+.cmd-entry-num-prefix--orange { color: var(--color-orange); }
+.cmd-entry-num-prefix--lime { color: var(--color-lime); }
+.cmd-entry-num-prefix--aqua { color: var(--color-aqua); }
+.cmd-entry-num-prefix--blue { color: var(--color-blue); }
+.cmd-entry-num-prefix--purple { color: var(--color-purple); }
+.cmd-entry-num-prefix--orange-red { color: var(--color-orange-red); }
+.cmd-entry-num-prefix--slate { color: var(--color-slate); }
+
+/* Keyword result: highlight uses arc color */
+.cmd-result-arc--magenta mark.cmd-highlight { color: var(--color-magenta); text-decoration-color: var(--color-magenta); border-radius: 6px 0 0 6px; }
+.cmd-result-arc--orange mark.cmd-highlight { color: var(--color-orange); text-decoration-color: var(--color-orange); border-radius: 6px 0 0 6px; }
+.cmd-result-arc--lime mark.cmd-highlight { color: var(--color-lime); text-decoration-color: var(--color-lime); border-radius: 6px 0 0 6px; }
+.cmd-result-arc--aqua mark.cmd-highlight { color: var(--color-aqua); text-decoration-color: var(--color-aqua); border-radius: 6px 0 0 6px; }
+.cmd-result-arc--blue mark.cmd-highlight { color: var(--color-blue); text-decoration-color: var(--color-blue); border-radius: 6px 0 0 6px; }
+.cmd-result-arc--purple mark.cmd-highlight { color: var(--color-purple); text-decoration-color: var(--color-purple); border-radius: 6px 0 0 6px; }
+.cmd-result-arc--orange-red mark.cmd-highlight { color: var(--color-orange-red); text-decoration-color: var(--color-orange-red); border-radius: 6px 0 0 6px; }
+.cmd-result-arc--slate mark.cmd-highlight { color: var(--color-slate); text-decoration-color: var(--color-slate); border-radius: 6px 0 0 6px; }
 
 .cmd-palette-section .cmd-palette-result:last-child {
     border-bottom: none;
@@ -235,7 +300,8 @@
 
 .cmd-palette-result:hover,
 .cmd-palette-result--selected {
-    background: rgba(145, 77, 245, 0.1);
+    /* background: rgba(145, 77, 245, 0.1); */
+    padding: 0;
 }
 
 .cmd-result-num {
@@ -256,14 +322,49 @@
     gap: 5px;
 }
 
+.cmd-result-body--entry {
+    gap: 6px;
+    margin-left: 10px;
+}
+
+.cmd-entry-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 0;
+}
+
+.cmd-entry-num-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--color-purple-33);
+    background: rgba(145, 77, 245, 0.12);
+    color: var(--color-purple);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.cmd-entry-arc-badge {
+    margin: 0;
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    transform: none;
+}
+
 .cmd-result-snippet {
     font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--lesser-text-color);
+    font-size: 0.875rem;
+    color: #C8C8E0;
     line-height: 1.5;
-    white-space: nowrap;
+    white-space: normal;
     overflow: hidden;
-    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
 }
 
 mark.cmd-highlight {
@@ -281,18 +382,47 @@ mark.cmd-highlight {
     gap: 4px;
 }
 
+.cmd-result-tags--entry {
+    margin-top: 2px;
+}
+
+.cmd-result-tag-more {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted-text-color);
+}
+
 /* Tag pills in results use shared .tag / .lore-tag from tag.css */
+
+/* ---- Arc results: same card as arc editor (no drag in palette) ---- */
+
+.cmd-palette-result--arc {
+    padding: 0;
+}
+
+.cmd-palette-arc-item {
+    cursor: default;
+    pointer-events: auto;
+}
+
+.cmd-palette-arc-item .arc-number svg {
+    display: none;
+}
 
 /* ---- Footer / keyboard hints ---- */
 
 .cmd-palette-footer {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr auto;
     gap: 16px;
-    padding: 8px 16px;
+    padding: 18px;
     border-top: 1px solid #2A2847;
-    flex-shrink: 0;
-    background: rgba(0, 0, 0, 0.2);
+}
+
+.cmd-palette-footer-hints {
+    display: flex;
+    flex-direction: row;
+    gap: 18px;
 }
 
 .cmd-palette-footer-hint {
@@ -300,16 +430,15 @@ mark.cmd-highlight {
     align-items: center;
     gap: 5px;
     font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    color: var(--muted-text-color);
+    font-size: 0.75rem;
+    color: #9999BA;
 }
 
 .cmd-palette-footer-hint kbd {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid #3E3D5D;
+    background: #1E1E36;
     border-radius: 3px;
     padding: 1px 5px;
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    color: var(--lesser-text-color);
+    font-family: var(--font-sans-flex);
+    font-size: 0.75rem;
+    color: #76769E;
 }
