@@ -472,9 +472,9 @@ mark.cmd-highlight {
 
 .cmd-arc-bar-count {
     flex-shrink: 0;
-    font-family: var(--font-mono);
+    font-family: var(--font-sans-flex);
     font-size: 0.75rem;
-    color: var(--muted-text-color);
+    color: #555578;
 }
 
 .cmd-arc-bar-edit {
@@ -488,12 +488,11 @@ mark.cmd-highlight {
     border-radius: 4px;
     color: var(--muted-text-color);
     cursor: pointer;
-    transition: color 0.15s, background 0.15s;
+    transition: color 0.15s;
 }
 
 .cmd-arc-bar-edit:hover {
     color: var(--text-color);
-    background: rgba(255, 255, 255, 0.08);
 }
 
 .cmd-arc-bar-edit .icon {

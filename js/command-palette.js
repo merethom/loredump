@@ -372,7 +372,7 @@
                     <span class="cmd-arc-bar-title">${titleUpper}</span>
                     <span class="cmd-arc-bar-count">${count} entries</span>
                     <button type="button" class="cmd-arc-bar-edit" aria-label="Edit arc" title="Edit arc">
-                        <svg class="icon" aria-hidden="true"><use href="img/sprites/duotone.svg#pen"></use></svg>
+                        <svg class="icon" aria-hidden="true"><use href="img/sprites/light.svg#pen"></use></svg>
                     </button>
                 </div>
             </div>
