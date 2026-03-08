@@ -7,6 +7,7 @@
 
     const SHORTCUTS = {
         FOCUS_SEARCH: ['/', 'ctrl+k', 'cmd+k'],
+        OPEN_FILTER: ['shift+ctrl+f', 'shift+cmd+f'],
         SAVE_ENTRY: ['ctrl+s', 'cmd+s', 'ctrl+enter', 'cmd+enter'],
         CLOSE_MODAL: ['escape', 'esc'],
     };
@@ -98,6 +99,12 @@
                     searchInput.select();
                 }
             }
+            return;
+        }
+
+        if (matchesShortcut(e, SHORTCUTS.OPEN_FILTER)) {
+            e.preventDefault();
+            if (typeof openFilterSidesheet === 'function') openFilterSidesheet();
         }
     }
 

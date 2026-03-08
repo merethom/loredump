@@ -197,7 +197,7 @@
 .filter-sidesheet .tag-filter .tag,
 .filter-sidesheet .tag-filter-color-group .tag {
     border-style: dashed;
-    color: #8F8FC9;
+    color: var(--text-color);
 }
 
 .filter-sidesheet .tag-filter .tag.active,
@@ -236,6 +236,66 @@
     pointer-events: none;
 }
 
+/* Sidesheet search input (filter + tag editor) – shared styles */
+.tag-filter-search,
+#tagFilterSearch,
+#tagEditorSearch {
+    width: 100%;
+    height: calc(var(--btn-box-height) + 2px);
+    padding: 0 40px 0 40px;
+    color: var(--text-color);
+    font-family: var(--font-mono);
+    font-size: 0.825rem;
+    border-radius: 6px;
+    border: var(--border);
+    background: #0E0E22;
+}
+
+.tag-filter-search::placeholder,
+#tagFilterSearch::placeholder,
+#tagEditorSearch::placeholder {
+    color: var(--lesser-text-color);
+}
+
+.tag-filter-search:focus,
+#tagFilterSearch:focus,
+#tagEditorSearch:focus {
+    outline: none;
+    border-color: #5a5169;
+}
+
+.tag-filter-search-wrapper .search-clear {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--lesser-text-color);
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.tag-filter-search-wrapper .search-clear .icon {
+    width: 14px;
+    height: 14px;
+}
+
+.tag-filter-search-wrapper .search-clear:hover {
+    color: var(--text-color);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.tag-filter-search-wrapper .search-clear.show {
+    display: flex;
+}
+
 .tag-filter-count {
     color: var(--color-slate);
     font-size: 0.75rem;
@@ -245,8 +305,8 @@
 .tag-filter-clear-all {
     background: none;
     border: none;
-    color: var(--lesser-text-color);
-    font-family: var(--font-mono);
+    color: #555578;
+    font-family: var(--font-sans-flex);
     font-size: 0.75rem;
     cursor: pointer;
     padding: 4px;
@@ -421,7 +481,7 @@
     height: var(--btn-box-height);
     border: var(--border);
     border-radius: var(--border-radius);
-    background: var(--dark-bg);
+    background: #0E0E22;
     color: var(--text-color);
     padding: 0 12px;
     font-size: 0.9375rem;
@@ -884,7 +944,7 @@
 #tagEditContainer .tag-form-label {
     display: block;
     margin-bottom: 5px;
-    color: var(--lesser-text-color);
+    color: var(--text-color);
     font-weight: 600;
 }
 
@@ -985,7 +1045,7 @@
 }
 
 .tag-editor-sidesheet label {
-    color: var(--lesser-text-color);
+    color: var(--text-color);
 }
 
 .modal-tags {

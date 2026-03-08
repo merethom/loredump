@@ -468,9 +468,7 @@ h1 {
     pointer-events: none;
 }
 
-.search-box,
-#tagFilterSearch,
-#tagEditorSearch {
+.search-box {
     width: 100%;
     height: calc(var(--btn-box-height) + 2px);
     display: flex;
@@ -480,52 +478,17 @@ h1 {
     font-size: 0.825rem;
     border-radius: var(--border-radius);
     border: var(--border);
-    background: var(--bg-gradient);
+    background: #0E0E22;
 }
 
-.search-box::placeholder,
-#tagFilterSearch::placeholder,
-#tagEditorSearch::placeholder {
+
+.search-box::placeholder {
     color: var(--lesser-text-color);
 }
 
-.search-box:focus,
-#tagFilterSearch:focus,
-#tagEditorSearch:focus {
+.search-box:focus {
     outline: none;
     border-color: #5a5169;
-}
-
-.search-clear {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    border: none;
-    background: none;
-    color: var(--lesser-text-color);
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-}
-
-.search-clear .icon {
-    width: 14px;
-    height: 14px;
-}
-
-.search-clear:hover {
-    color: var(--text-color);
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.search-clear.show {
-    display: flex;
 }
 
 .generic-ui-btn {
@@ -826,9 +789,9 @@ h1 {
    -------------------------------------------------------------------------- */
 
 .tray {
-    border-radius: var(--border-radius);
+    border-radius: 6px;
     border: var(--border);
-    background: var(--bg-gradient);
+    background: rgba(26, 26, 46, 0.5);;
 }
 
 .tray h3,
@@ -849,7 +812,7 @@ h3.diff-section-title {
     height: var(--btn-box-height);
     border: var(--border);
     border-radius: var(--border-radius);
-    background: var(--dark-bg);
+    background: #0E0E22;;
     color: var(--text-color);
     padding: 0 12px;
     font-size: 0.9375rem;
@@ -870,7 +833,7 @@ h3.diff-section-title {
     justify-content: space-between;
     align-items: center;
     padding: var(--box-padding);
-    border-bottom: 1.5px solid #3E3D5D;
+    border-bottom: var(--border);
 }
 
 .tray-header h2 {
@@ -1184,6 +1147,7 @@ h3.diff-section-title {
     flex-direction: column;
     gap: 24px;
     scrollbar-color: transparent transparent; /* Firefox: hidden by default */
+    color: var(--text-color);
 }
 
 /* --------------------------------------------------------------------------
@@ -1212,10 +1176,6 @@ h3.diff-section-title {
 }
 
 /* Filter sidesheet (uses shared sidesheet classes) */
-.filter-sidesheet .tag-filter-search-wrapper {
-    margin-bottom: 0;
-}
-
 .filter-sidesheet-section {
     display: flex;
     flex-direction: column;
@@ -1223,13 +1183,12 @@ h3.diff-section-title {
 }
 
 .filter-sidesheet-section-title {
-    color: var(--muted-text-color);
-    font-family: 'PPSupply Mono Medium', monospace;
-    font-size: 0.9375rem;
-    text-transform: uppercase;
-    font-weight: 600;
+    font-family: var(--font-sans-flex);
+    font-weight: 400;
+    color: var(--lesser-text-color);
+    font-size: 0.875rem;
+    letter-spacing: 0.025em;
     line-height: 100%;
-    letter-spacing: 0.08em;
     margin: 0;
 }
 
@@ -1260,7 +1219,7 @@ h3.diff-section-title {
     padding: 12px 14px;
     border-radius: var(--border-radius);
     cursor: pointer;
-    color: var(--lesser-text-color);
+    color: var(--text-color);
     transition: background 0.15s ease, color 0.15s ease;
 }
 

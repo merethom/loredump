@@ -808,6 +808,7 @@
                         selectedTags.add(tagName);
                         if (typeof refreshTagFilter === 'function') refreshTagFilter();
                         if (typeof filterData === 'function') filterData();
+                        if (typeof openFilterSidesheet === 'function') openFilterSidesheet();
                     }
                     closeCommandPalette();
                 } else if (type === 'scroll') {
@@ -940,6 +941,7 @@
                         selectedTags.add(tagName);
                         if (typeof refreshTagFilter === 'function') refreshTagFilter();
                         if (typeof filterData === 'function') filterData();
+                        if (typeof openFilterSidesheet === 'function') openFilterSidesheet();
                     }
                     closeCommandPalette();
                 } else if (type === 'arc') {

@@ -63,5 +63,6 @@ function filterByTag(event, tag) {
     if (typeof refreshTagFilter === 'function') refreshTagFilter();
 
     filterData();
+    if (typeof openFilterSidesheet === 'function') openFilterSidesheet();
     if (typeof closeModal === 'function') closeModal();
 }

@@ -74,14 +74,14 @@
                 Edit tags <span class="tooltip-kbd">⇧⌘T</span>
             </span>
         </a>
-        <!-- <a href="#" class="side-nav-add-btn">
+        <a href="#" class="side-nav-add-btn" id="filterSidesheetBtn" title="Filter by tag">
             <svg class="icon" aria-hidden="true">
                 <use href="img/sprites/regular.svg#filter"></use>
             </svg>
             <span class="side-nav-tooltip">
-                Filter by tag
+                Filter by tag <span class="tooltip-kbd">⇧⌘F</span>
             </span>
-        </a> -->
+        </a>
         <a href="#" class="side-nav-add-btn" id="syncStatusBtn" title="View unsaved changes">
             <svg class="icon" aria-hidden="true">
                 <use href="img/sprites/regular.svg#floppy-disk"></use>
@@ -90,7 +90,7 @@
                 Save changes <span class="tooltip-kbd">⇧⌘S</span>
             </span>
         </a>
-        <a href="#" class="side-nav-add-btn">
+        <a href="#" class="side-nav-add-btn" id="downloadEntriesBtn" title="Download entries">
             <svg class="icon" aria-hidden="true">
                 <use href="img/sprites/regular.svg#arrow-down-to-bracket"></use>
             </svg>
@@ -159,7 +159,7 @@
                                 <input type="number" id="editEntryNumber" class="tray-header-entry-num" step="any" min="0" placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
                                 <button type="button" class="generic-ui-btn" data-action="delete-edit" title="Delete entry" tabindex="0">
                                     <svg class="icon" aria-hidden="true">
-                                        <use href="img/sprites/duotone.svg#trash"></use>
+                                        <use href="img/sprites/regular.svg#trash"></use>
                                     </svg>
                                 </button>
                             </div>
@@ -207,18 +207,6 @@
                     </div>
                 </div>
 
-            <!-- Inline filter bar: applied tags (no sidesheet needed to add/remove) -->
-            <div id="filterBar" class="filter-bar" aria-label="Active tag filters" style="display: none;">
-                <div id="filterBarTags" class="filter-bar-tags"></div>
-                <button type="button" id="filterBarAddTag" class="filter-bar-add" title="Add tag filter (or press ⌘K then type @)" aria-label="Add tag filter">
-                    <svg class="icon" aria-hidden="true">
-                        <use href="img/sprites/solid.svg#plus"></use>
-                    </svg>
-                    <span>Add tag</span>
-                </button>
-                <button type="button" id="filterBarClearAll" class="tag-filter-clear-all filter-bar-clear" title="Clear all tag filters" aria-label="Clear all tag filters">Clear all</button>
-            </div>
-
             <div id="database" class="database-view"></div>
 
             <div id="emptyState" class="empty-state">
@@ -242,7 +230,7 @@
                     <h2 class="sidesheet-title">Filters</h2>
                     <button type="button" class="sidesheet-close" id="filterSidesheetClose" aria-label="Close">
                         <svg class="icon" aria-hidden="true">
-                            <use href="img/sprites/duotone.svg#xmark"></use>
+                            <use href="img/sprites/regular.svg#xmark"></use>
                         </svg>
                     </button>
                 </div>
@@ -299,7 +287,7 @@
                     <h2 class="sidesheet-title">Edit Tags</h2>
                     <button type="button" class="sidesheet-close" id="tagEditorSidesheetClose" aria-label="Close">
                         <svg class="icon" aria-hidden="true">
-                            <use href="img/sprites/duotone.svg#xmark"></use>
+                            <use href="img/sprites/regular.svg#xmark"></use>
                         </svg>
                     </button>
                 </div>
