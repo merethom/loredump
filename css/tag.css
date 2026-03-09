@@ -897,7 +897,6 @@
     gap: 8px;
 }
 
-#tagEditorBtn:hover,
 #filtersBtn:hover,
 .tag-edit-btn:hover {
     border-color: var(--color-lime);

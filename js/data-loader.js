@@ -68,6 +68,42 @@ async function publishLoreToFirebase(dataToPublish) {
     const tags = dataToPublish ? dataToPublish.tags : (allTags || []);
     const arcs = dataToPublish ? dataToPublish.arcs : (allArcs || {});
 
+    function stableStringify(value) {
+        const seen = new WeakSet();
+        function walk(v) {
+            if (v === null || typeof v !== 'object') return v;
+            if (seen.has(v)) return null;
+            seen.add(v);
+            if (Array.isArray(v)) return v.map(walk);
+            const out = {};
+            Object.keys(v).sort().forEach((k) => {
+                out[k] = walk(v[k]);
+            });
+            return out;
+        }
+        return JSON.stringify(walk(value));
+    }
+
+    function normalizeTagsForCompare(arr) {
+        const tagsArr = Array.isArray(arr) ? arr : [];
+        return tagsArr
+            .filter(Boolean)
+            .map(t => ({
+                ...t,
+                id: t?.id != null ? String(t.id) : t?.id,
+                terms: Array.isArray(t?.terms) ? [...t.terms].map(String).sort((a, b) => a.localeCompare(b)) : t?.terms
+            }))
+            .sort((a, b) => String(a.id || '').localeCompare(String(b.id || '')));
+    }
+
+    function normalizeEntriesForCompare(arr) {
+        const entriesArr = Array.isArray(arr) ? arr : [];
+        return entriesArr
+            .filter(Boolean)
+            .slice()
+            .sort((a, b) => (parseFloat(a?.Number) || 0) - (parseFloat(b?.Number) || 0));
+    }
+
     try {
         await window.firebaseDb.saveLoreData({
             entries: entries,
@@ -83,11 +119,22 @@ async function publishLoreToFirebase(dataToPublish) {
         // Only clear local draft if we published EVERYTHING
         // Otherwise, keep the draft so unpublished changes persist for next sync
         if (window.syncManager) {
-            const isFullPublish = !dataToPublish ||
-                (entries.length === allData.length &&
-                    tags.length === allTags.length &&
-                    JSON.stringify(entries) === JSON.stringify(allData) &&
-                    JSON.stringify(tags) === JSON.stringify(allTags));
+            const isFullPublish = !dataToPublish || (() => {
+                if (entries.length !== allData.length) return false;
+                if (tags.length !== allTags.length) return false;
+
+                const published = stableStringify({
+                    e: normalizeEntriesForCompare(entries),
+                    t: normalizeTagsForCompare(tags),
+                    a: arcs || {}
+                });
+                const local = stableStringify({
+                    e: normalizeEntriesForCompare(allData),
+                    t: normalizeTagsForCompare(allTags),
+                    a: allArcs || {}
+                });
+                return published === local;
+            })();
 
             if (isFullPublish) {
                 window.syncManager.clearDraft();

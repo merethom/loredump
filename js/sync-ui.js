@@ -36,6 +36,7 @@
         // Close other sidesheets
         if (typeof closeFilterSidesheet === 'function') closeFilterSidesheet();
         if (typeof closeTagEditor === 'function') closeTagEditor();
+        if (typeof closeArcEditor === 'function') closeArcEditor();
         if (typeof closeAddEntryModal === 'function') closeAddEntryModal();
         if (typeof closeEditEntryModal === 'function') closeEditEntryModal();
 

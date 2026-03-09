@@ -4,6 +4,44 @@
 (function() {
     const STORAGE_KEY = 'noxsyphone_lore_draft';
 
+    function stableStringify(value) {
+        const seen = new WeakSet();
+        function walk(v) {
+            if (v === null || typeof v !== 'object') return v;
+            if (seen.has(v)) return null;
+            seen.add(v);
+
+            if (Array.isArray(v)) return v.map(walk);
+
+            const out = {};
+            Object.keys(v).sort().forEach((k) => {
+                out[k] = walk(v[k]);
+            });
+            return out;
+        }
+        return JSON.stringify(walk(value));
+    }
+
+    function normalizeTags(tags) {
+        const arr = Array.isArray(tags) ? tags : [];
+        return arr
+            .filter(Boolean)
+            .map(t => ({
+                ...t,
+                id: t?.id != null ? String(t.id) : t?.id,
+                terms: Array.isArray(t?.terms) ? [...t.terms].map(String).sort((a, b) => a.localeCompare(b)) : t?.terms
+            }))
+            .sort((a, b) => String(a.id || '').localeCompare(String(b.id || '')));
+    }
+
+    function normalizeEntries(entries) {
+        const arr = Array.isArray(entries) ? entries : [];
+        return arr
+            .filter(Boolean)
+            .slice()
+            .sort((a, b) => (parseFloat(a?.Number) || 0) - (parseFloat(b?.Number) || 0));
+    }
+
     /**
      * Saves the current lore state to localStorage
      * @param {Array} entries 
@@ -59,17 +97,15 @@
      * @returns {boolean}
      */
     function hasChanges(remEntries, remTags, locEntries, locTags) {
-        // Simple but effective for this scale: stringify comparison
-        // Note: allData/allTags are sorted consistently by our code
         try {
-            const remoteStr = JSON.stringify({
-                e: remEntries || [],
-                t: remTags || [],
+            const remoteStr = stableStringify({
+                e: normalizeEntries(remEntries),
+                t: normalizeTags(remTags),
                 a: remoteArcs || {}
             });
-            const localStr = JSON.stringify({
-                e: locEntries || [],
-                t: locTags || [],
+            const localStr = stableStringify({
+                e: normalizeEntries(locEntries),
+                t: normalizeTags(locTags),
                 a: allArcs || {}
             });
             return remoteStr !== localStr;
