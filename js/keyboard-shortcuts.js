@@ -88,7 +88,7 @@
 
         if (modalOpen) return;
 
-        // Home / End scroll the main content area
+        // Home / End and Page Up / Page Down control the main content area
         if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
             if (e.key === 'Home') {
                 const scrollEl = document.querySelector('.app-main-content');
@@ -103,6 +103,20 @@
                 if (scrollEl) {
                     e.preventDefault();
                     scrollEl.scrollTo({ top: scrollEl.scrollHeight - scrollEl.clientHeight, behavior: 'smooth' });
+                    return;
+                }
+            }
+            if (e.key === 'PageDown') {
+                if (typeof scrollToNextArc === 'function') {
+                    e.preventDefault();
+                    scrollToNextArc();
+                    return;
+                }
+            }
+            if (e.key === 'PageUp') {
+                if (typeof scrollToPreviousArc === 'function') {
+                    e.preventDefault();
+                    scrollToPreviousArc();
                     return;
                 }
             }

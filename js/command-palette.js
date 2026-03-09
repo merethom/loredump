@@ -867,6 +867,61 @@
     }
     window.scrollToArc = scrollToArc;
 
+    /** Scroll to the next arc relative to the current scroll position in the main content area. */
+    function scrollToNextArc() {
+        const scrollEl = document.querySelector('.app-main-content');
+        if (!scrollEl) return;
+
+        const anchors = Array.from(document.querySelectorAll('.arc-scroll-anchor[data-arc-key]'));
+        if (!anchors.length) return;
+
+        const scrollTop = scrollEl.scrollTop;
+        const containerOffsetTop = scrollEl.offsetTop || 0;
+
+        let currentIndex = 0;
+        for (let i = 0; i < anchors.length; i++) {
+            const anchorTop = (anchors[i].offsetTop || 0) - containerOffsetTop;
+            if (anchorTop - 1 <= scrollTop) {
+                currentIndex = i;
+            } else {
+                break;
+            }
+        }
+
+        const nextIndex = Math.min(currentIndex + 1, anchors.length - 1);
+        const nextKey = anchors[nextIndex].getAttribute('data-arc-key');
+        if (nextKey) scrollToArc(nextKey);
+    }
+
+    /** Scroll to the previous arc relative to the current scroll position in the main content area. */
+    function scrollToPreviousArc() {
+        const scrollEl = document.querySelector('.app-main-content');
+        if (!scrollEl) return;
+
+        const anchors = Array.from(document.querySelectorAll('.arc-scroll-anchor[data-arc-key]'));
+        if (!anchors.length) return;
+
+        const scrollTop = scrollEl.scrollTop;
+        const containerOffsetTop = scrollEl.offsetTop || 0;
+
+        let currentIndex = 0;
+        for (let i = 0; i < anchors.length; i++) {
+            const anchorTop = (anchors[i].offsetTop || 0) - containerOffsetTop;
+            if (anchorTop - 1 <= scrollTop) {
+                currentIndex = i;
+            } else {
+                break;
+            }
+        }
+
+        const prevIndex = Math.max(currentIndex - 1, 0);
+        const prevKey = anchors[prevIndex].getAttribute('data-arc-key');
+        if (prevKey) scrollToArc(prevKey);
+    }
+
+    window.scrollToNextArc = scrollToNextArc;
+    window.scrollToPreviousArc = scrollToPreviousArc;
+
     function scrollToTop() {
         const scrollEl = document.querySelector('.app-main-content');
         if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
