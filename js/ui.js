@@ -92,6 +92,7 @@ function renderDatabase() {
         const chevronIcon = isCollapsed ? 'chevron-up' : 'chevron-down';
 
         html += `
+            <div class="arc-scroll-anchor" data-arc-key="${arcKey}"></div>
             <div class="db-arc-header" data-arc-key="${arcKey}">
                 <div class="arc-title">
                     <div class="arc-color-indicator arc-color--${arcColorClass}"></div>
@@ -132,8 +133,65 @@ function renderDatabase() {
 
     db.innerHTML = html;
 
+    updateArcTimeline();
+
     // Event delegation is set up once in setupDatabaseEventDelegation()
     // No need to add listeners here anymore!
+}
+
+/**
+ * Builds the vertical arc timeline from current arc headers and updates current arc on scroll.
+ */
+function updateArcTimeline() {
+    const container = document.getElementById('arcTimeline');
+    if (!container) return;
+
+    const headers = document.querySelectorAll('.db-arc-header');
+    let html = '';
+    headers.forEach((header, i) => {
+        const key = header.getAttribute('data-arc-key');
+        if (!key) return;
+        const colorEl = header.querySelector('.arc-color-indicator');
+        const colorClass = colorEl ? Array.from(colorEl.classList).find(function(c) { return c.startsWith('arc-color--'); }) || 'arc-color--slate' : 'arc-color--slate';
+        if (i > 0) html += '<div class="arc-timeline-line"></div>';
+        html += '<button type="button" class="arc-timeline-dot ' + escapeHtml(colorClass) + '" data-arc-key="' + escapeHtml(key) + '" title="Arc ' + escapeHtml(key) + '" aria-label="Go to Arc ' + escapeHtml(key) + '"></button>';
+    });
+    container.innerHTML = html;
+
+    if (!container._hasTimelineDelegation) {
+        container._hasTimelineDelegation = true;
+        container.addEventListener('click', function(e) {
+            const dot = e.target.closest('.arc-timeline-dot');
+            if (!dot) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const arcKey = dot.getAttribute('data-arc-key');
+            if (arcKey && typeof window.scrollToArc === 'function') window.scrollToArc(arcKey);
+            return false;
+        }, true);
+        const scrollEl = document.querySelector('.app-main-content');
+        if (scrollEl) {
+            scrollEl.addEventListener('scroll', updateCurrentArcDotFromScroll);
+        }
+    }
+    updateCurrentArcDotFromScroll();
+}
+
+function updateCurrentArcDotFromScroll() {
+    const container = document.getElementById('arcTimeline');
+    const scrollEl = document.querySelector('.app-main-content');
+    if (!container || !scrollEl) return;
+    const headers = document.querySelectorAll('.db-arc-header');
+    const scrollRect = scrollEl.getBoundingClientRect();
+    const threshold = scrollRect.top + 120;
+    let currentKey = null;
+    headers.forEach(function(header) {
+        const r = header.getBoundingClientRect();
+        if (r.top <= threshold) currentKey = header.getAttribute('data-arc-key');
+    });
+    container.querySelectorAll('.arc-timeline-dot').forEach(function(dot) {
+        dot.classList.toggle('current', dot.getAttribute('data-arc-key') === currentKey);
+    });
 }
 
 /**

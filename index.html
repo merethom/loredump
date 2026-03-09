@@ -105,7 +105,9 @@
 
     <!-- Main app (shown when authenticated) -->
     <div id="appContent" class="container app-layout" style="display: none;">
-        <div class="app-main-content">
+        <div class="entries-with-timeline">
+            <div id="arcTimeline" class="arc-timeline" role="navigation" aria-label="Arc timeline"></div>
+            <div class="app-main-content">
             <!-- Hidden searchInput kept in DOM for backward compat with existing JS -->
             <input type="text" id="searchInput" style="display:none" aria-hidden="true" autocomplete="off" tabindex="-1">
             <button type="button" id="searchClear" style="display:none" aria-hidden="true"></button>
@@ -221,6 +223,21 @@
             <div class="stats">
                 Showing <span id="resultCount">0</span> of <span id="totalCount">0</span> entries / <span id="dataSource">loading...</span>
             </div>
+            </div>
+        </div>
+
+        <!-- Global scroll controls -->
+        <div class="scroll-controls" aria-hidden="false">
+            <button type="button" id="scrollToTopBtn" class="scroll-btn scroll-btn--top" aria-label="Scroll to top">
+                <svg class="icon" aria-hidden="true">
+                    <use href="img/sprites/regular.svg#chevron-up"></use>
+                </svg>
+            </button>
+            <button type="button" id="scrollToEndBtn" class="scroll-btn scroll-btn--end" aria-label="Scroll to bottom">
+                <svg class="icon" aria-hidden="true">
+                    <use href="img/sprites/regular.svg#chevron-down"></use>
+                </svg>
+            </button>
         </div>
 
         <!-- Filter Sidesheet -->

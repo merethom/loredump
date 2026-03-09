@@ -88,6 +88,26 @@
 
         if (modalOpen) return;
 
+        // Home / End scroll the main content area
+        if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+            if (e.key === 'Home') {
+                const scrollEl = document.querySelector('.app-main-content');
+                if (scrollEl) {
+                    e.preventDefault();
+                    scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+            }
+            if (e.key === 'End') {
+                const scrollEl = document.querySelector('.app-main-content');
+                if (scrollEl) {
+                    e.preventDefault();
+                    scrollEl.scrollTo({ top: scrollEl.scrollHeight - scrollEl.clientHeight, behavior: 'smooth' });
+                    return;
+                }
+            }
+        }
+
         if (matchesShortcut(e, SHORTCUTS.FOCUS_SEARCH)) {
             e.preventDefault();
             if (typeof openCommandPalette === 'function') {

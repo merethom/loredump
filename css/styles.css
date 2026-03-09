@@ -165,10 +165,77 @@ body.app-active {
     grid-template-columns: 1fr 440px;
 }
 
-.app-main-content {
+.entries-with-timeline {
     grid-area: entries;
+    display: flex;
+    flex: 1;
     min-width: 0;
-    width: min(1000px, 100%);
+    min-height: 0;
+}
+
+.arc-timeline {
+    flex-shrink: 0;
+    width: 28px;
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    max-height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.arc-timeline::-webkit-scrollbar {
+    display: none;
+}
+
+.arc-timeline-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: var(--muted-text-color);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    flex-shrink: 0;
+}
+
+.arc-timeline-dot:hover {
+    transform: scale(1.25);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+}
+
+.arc-timeline-dot.current {
+    transform: scale(1.35);
+    box-shadow: 0 0 0 2px var(--text-color);
+}
+
+.arc-timeline-line {
+    width: 2px;
+    min-height: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    flex-shrink: 0;
+}
+
+.arc-timeline-dot.arc-color--orange-red { background: var(--color-orange-red); }
+.arc-timeline-dot.arc-color--orange { background: var(--color-orange); }
+.arc-timeline-dot.arc-color--lime { background: var(--color-lime); }
+.arc-timeline-dot.arc-color--aqua { background: var(--color-aqua); }
+.arc-timeline-dot.arc-color--blue { background: var(--color-blue); }
+.arc-timeline-dot.arc-color--purple { background: var(--color-purple); }
+.arc-timeline-dot.arc-color--magenta { background: var(--color-magenta); }
+.arc-timeline-dot.arc-color--slate { background: var(--color-slate); }
+
+.app-main-content {
+    flex: 1;
+    min-width: 0;
+    max-width: 1000px;
+    width: 100%;
     margin: 0 auto;
     min-height: 0;
     overflow-y: auto;
@@ -185,6 +252,50 @@ body.app-active {
 .app-main-content::-webkit-scrollbar {
     display: none;
 }
+
+/* --------------------------------------------------------------------------
+   Global scroll controls (bottom-right)
+   -------------------------------------------------------------------------- */
+
+.scroll-controls {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    z-index: 100;
+}
+
+.scroll-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 32px;
+    width: 32px;
+    border-radius: 6px;
+    background: rgba(26, 26, 46, 1);
+    color: var(--text-color);
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s ease-in-out;
+}
+
+.scroll-btn:hover {
+    background: #1E1E48;
+}
+
+.scroll-btn svg {
+    height: 0.875rem;
+    width: 0.875rem;
+    transition: transform 0.2s ease-in-out;
+}
+
+.scroll-btn:hover svg {
+    transform: scale(1.05) rotate(-2deg);
+}
+
+
 
 /* --------------------------------------------------------------------------
    3. SIGN-IN SCREEN
@@ -1462,6 +1573,12 @@ h3.diff-section-title {
 /* --------------------------------------------------------------------------
    7. ARC CLASSIFICATION
    -------------------------------------------------------------------------- */
+
+.arc-scroll-anchor {
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
 
 .db-arc-header {
     margin: 0;

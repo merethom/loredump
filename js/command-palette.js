@@ -855,19 +855,17 @@
         });
     }
 
-    /** Scroll so the arc header sits at its sticky position (top of scroll area) */
-    const ARC_HEADER_STICKY_TOP = 125;
+    /** Scroll so the arc header is visible at its sticky position. Targets a non-sticky anchor to avoid sticky positioning confusing scrollIntoView. */
     function scrollToArc(arcKey) {
-        requestAnimationFrame(() => {
-            const scrollEl = document.querySelector('.app-main-content');
-            const header = document.querySelector(`.db-arc-header[data-arc-key="${arcKey}"]`);
-            if (!scrollEl || !header) return;
-            const headerRect = header.getBoundingClientRect();
-            const scrollElRect = scrollEl.getBoundingClientRect();
-            const newScrollTop = scrollEl.scrollTop + (headerRect.top - scrollElRect.top) - ARC_HEADER_STICKY_TOP;
-            scrollEl.scrollTo({ top: Math.max(0, newScrollTop), behavior: 'smooth' });
-        });
+        const anchor = document.querySelector(`.arc-scroll-anchor[data-arc-key="${arcKey}"]`);
+        if (anchor) {
+            anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        const header = document.querySelector(`.db-arc-header[data-arc-key="${arcKey}"]`);
+        if (header) header.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    window.scrollToArc = scrollToArc;
 
     function scrollToTop() {
         const scrollEl = document.querySelector('.app-main-content');

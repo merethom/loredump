@@ -255,6 +255,34 @@ function setupEventListeners() {
         }
     });
 
+    // Scroll controls (bottom-right buttons)
+    const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+    const scrollToEndBtn = document.getElementById('scrollToEndBtn');
+
+    function scrollMainContentTo(position) {
+        const scrollEl = document.querySelector('.app-main-content');
+        if (!scrollEl) return;
+        if (position === 'top') {
+            scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (position === 'end') {
+            scrollEl.scrollTo({ top: scrollEl.scrollHeight - scrollEl.clientHeight, behavior: 'smooth' });
+        }
+    }
+
+    if (scrollToTopBtn) {
+        scrollToTopBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            scrollMainContentTo('top');
+        });
+    }
+
+    if (scrollToEndBtn) {
+        scrollToEndBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            scrollMainContentTo('end');
+        });
+    }
+
     const addEntryContainerEl = document.getElementById('addEntryContainer');
     if (addEntryContainerEl) {
         addEntryContainerEl.addEventListener('click', (e) => {

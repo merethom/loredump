@@ -57,7 +57,6 @@ nav.side-nav a svg {
 
 nav.side-nav a:hover div.circle {
     transform: scale(1.05);
-
 }
 
 nav.side-nav a:hover svg {
