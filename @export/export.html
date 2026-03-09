@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noxsyphone Loredump – Standalone Prototype</title>
+
+    <!-- Local fonts & styles from existing app -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/tag.css">
+    <link rel="stylesheet" href="../css/side-nav.css">
+    <link rel="stylesheet" href="../css/command-palette.css">
+</head>
+<body class="app-active">
+
+    <!-- Sign-in screen is present but never shown in this prototype -->
+    <div id="signInScreen" class="sign-in-screen" style="display:none;">
+        <div class="sign-in-card">
+            <p class="sign-in-subtitle">Identity verification required.</p>
+            <button type="button" id="signInBtn" class="sign-in-btn">
+                <svg class="icon" aria-hidden="true">
+                    <use href="../img/sprites/brands.svg#google"></use>
+                </svg>
+                Sign in with Google
+            </button>
+        </div>
+    </div>
+
+    <nav class="side-nav">
+        <a href="#" class="side-nav-add-btn">
+            <svg class="icon" aria-hidden="true">
+                <use href="../img/sprites/light.svg#raygun"></use>
+            </svg>
+        </a>
+        <a href="#" class="side-nav-add-btn" id="addEntryBtn" title="New entry">
+            <div class="circle">
+                <svg class="icon" aria-hidden="true">
+                    <use href="../img/sprites/regular.svg#plus"></use>
+                </svg>
+            </div>
+            <span class="side-nav-tooltip">
+                New entry <span class="tooltip-kbd">⇧⌘N</span>
+            </span>
+        </a>
+        <a href="#" class="side-nav-add-btn" id="cmdPaletteNavBtn">
+            <svg class="icon" aria-hidden="true">
+                <use href="../img/sprites/regular.svg#magnifying-glass"></use>
+            </svg>
+            <span class="side-nav-tooltip">
+                Search entries <span class="tooltip-kbd">⌘K</span>
+            </span>
+        </a>
+        <a href="#" class="side-nav-add-btn" id="arcEditorBtn" title="Edit arcs">
+            <svg class="icon" aria-hidden="true">
+                <use href="../img/sprites/regular.svg#input-pipe"></use>
+            </svg>
+            <span class="side-nav-tooltip">
+                Edit arcs <span class="tooltip-kbd">⇧⌘A</span>
+            </span>
+        </a>
+        <a href="#" class="side-nav-add-btn" id="tagEditorBtn" title="Edit tags">
+            <svg class="icon" aria-hidden="true">
+                <use href="../img/sprites/regular.svg#tag"></use>
+            </svg>
+            <span class="side-nav-tooltip">
+                Edit tags <span class="tooltip-kbd">⇧⌘T</span>
+            </span>
+        </a>
+        <a href="#" class="side-nav-add-btn" id="filterSidesheetBtn" title="Filter by tag">
+            <svg class="icon" aria-hidden="true">
+                <use href="../img/sprites/regular.svg#filter"></use>
+            </svg>
+            <span class="side-nav-tooltip">
+                Filter by tag <span class="tooltip-kbd">⇧⌘F</span>
+            </span>
+        </a>
+        <!-- Sync status button kept for layout but no remote sync in prototype -->
+        <a href="#" class="side-nav-add-btn" id="syncStatusBtn" title="View unsaved changes">
+            <svg class="icon" aria-hidden="true">
+                <use href="../img/sprites/regular.svg#floppy-disk"></use>
+            </svg>
+            <span class="side-nav-tooltip">
+                Save changes <span class="tooltip-kbd">⇧⌘S</span>
+            </span>
+        </a>
+        <!-- This button becomes "Export JSON" in this prototype -->
+        <a href="#" class="side-nav-add-btn" id="downloadEntriesBtn" title="Export JSON">
+            <svg class="icon" aria-hidden="true">
+                <use href="../img/sprites/regular.svg#arrow-down-to-bracket"></use>
+            </svg>
+            <span class="side-nav-tooltip">
+                Export JSON
+            </span>
+        </a>
+        <a href="#" class="side-nav-user" aria-label="Account">
+            <img id="sideNavUserAvatar" class="side-nav-user-avatar" alt="">
+        </a>
+    </nav>
+
+    <!-- Main app is always visible in this prototype -->
+    <div id="appContent" class="container app-layout" style="display: grid;">
+        <div class="entries-with-timeline">
+            <div id="arcTimeline" class="arc-timeline" role="navigation" aria-label="Arc timeline"></div>
+            <div class="app-main-content">
+                <!-- Hidden searchInput kept for backward compat with existing JS -->
+                <input type="text" id="searchInput" style="display:none" aria-hidden="true" autocomplete="off" tabindex="-1">
+                <button type="button" id="searchClear" style="display:none" aria-hidden="true"></button>
+                <!-- Hidden sort state for sidesheet sync (sort order still applied via sidesheet) -->
+                <select id="sortBy" class="sort-dropdown-native" aria-hidden="true" tabindex="-1" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
+                    <option value="entry-asc">Oldest</option>
+                    <option value="entry-desc">Newest</option>
+                </select>
+
+                <!-- Tag edit dropdown & entry editor tray (copied from main app) -->
+                <div id="tagEditContainer" class="controls-dropdown">
+                    <div class="controls-dropdown-content">
+                        <div class="modal-header">
+                            <h2 class="modal-title">Edit Tag</h2>
+                            <button class="modal-close close-btn" onclick="closeTagEditDropdown()">&times;</button>
+                        </div>
+                        <div class="tag-form-section">
+                            <div style="margin: 15px 0;">
+                                <label class="tag-form-label">Tag Name:</label>
+                                <input type="text" id="tagEditName" class="tag-form-input">
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label class="tag-form-label">Color:</label>
+                                <div class="tag-form-color-selector">
+                                    <button type="button" class="tag-form-color-btn" data-color="purple" title="Purple"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="green" title="Green"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="blue" title="Blue"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="orange" title="Orange"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="teal" title="Teal"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="pink" title="Pink"></button>
+                                    <button type="button" class="tag-form-color-btn" data-color="amber" title="Amber"></button>
+                                    <button type="button" class="tag-form-color-btn selected" data-color="slate" title="Slate"></button>
+                                </div>
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label class="tag-form-label">Terms (one per line):</label>
+                                <textarea id="tagEditTerms" class="tag-form-textarea"></textarea>
+                            </div>
+                            <div class="tag-form-buttons">
+                                <button type="button" id="tagEditSubmit" class="tag-btn" style="flex: 1;">Update Tag</button>
+                                <button type="button" onclick="closeTagEditDropdown()" class="tag-btn" style="flex: 1;">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="editEntryContainer" class="controls-dropdown lore-entry-tray">
+                    <div class="tray">
+                        <div class="tray-header">
+                            <h2>Lore entry</h2>
+                            <div class="tray-header-actions">
+                                <div id="editEntryArcIndicator" class="editor-arc-badge"></div>
+                                <input type="number" id="editEntryNumber" class="tray-header-entry-num" step="any" min="0" placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
+                                <button type="button" class="generic-ui-btn" data-action="delete-edit" title="Delete entry" tabindex="0">
+                                    <svg class="icon" aria-hidden="true">
+                                        <use href="../img/sprites/regular.svg#trash"></use>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="entry-content">
+                            <h3>Content</h3>
+                            <textarea id="editEntryContent" placeholder="Add your lore entry here..." tabindex="0" autocomplete="off"></textarea>
+                        </div>
+                        <div class="enter-tag">
+                            <h3>Tags</h3>
+                            <div class="tag-input-row">
+                                <div class="tag-input-wrapper">
+                                    <input type="text" id="editEntryTagInput" placeholder="Add a tag and press Enter..." tabindex="0" autocomplete="off">
+                                    <div id="editEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
+                                    <div class="edit-entry-color-wrapper" id="editEntryColorWrapper">
+                                        <button type="button" class="lore-tag-current-color edit-entry-color-swatch" id="editEntryColorSwatch" data-color="slate" aria-label="Tag color" title="Select color" tabindex="0"></button>
+                                        <div class="lore-tag-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
+                                            <button type="button" class="tag-color orange-red edit-entry-color-btn" data-color="amber" title="Amber" tabindex="0"></button>
+                                            <button type="button" class="tag-color orange edit-entry-color-btn" data-color="orange" title="Orange" tabindex="0"></button>
+                                            <button type="button" class="tag-color lime edit-entry-color-btn" data-color="green" title="Green" tabindex="0"></button>
+                                            <button type="button" class="tag-color aqua edit-entry-color-btn" data-color="teal" title="Teal" tabindex="0"></button>
+                                            <button type="button" class="tag-color blue edit-entry-color-btn" data-color="blue" title="Blue" tabindex="0"></button>
+                                            <button type="button" class="tag-color purple edit-entry-color-btn" data-color="purple" title="Purple" tabindex="0"></button>
+                                            <button type="button" class="tag-color magenta edit-entry-color-btn" data-color="pink" title="Pink" tabindex="0"></button>
+                                            <button type="button" class="tag-color slate edit-entry-color-btn selected" data-color="slate" title="Slate" tabindex="0"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="editEntryTags" class="tag-list"></div>
+                        </div>
+                        <div id="editEntrySuggestedTags" class="suggest-tag">
+                            <div class="suggest-tag-header">
+                                <h3>Suggested tags</h3>
+                                <button type="button" class="add-all-tags-btn" id="editEntryAddAllSuggested" style="display: none;" tabindex="0">+ Add all tags</button>
+                            </div>
+                            <div id="editEntrySuggestedTagsList" class="tag-list"></div>
+                        </div>
+                        <div class="tray-footer">
+                            <span class="tray-save-message" id="editTraySaveMessage" aria-live="polite"></span>
+                            <button type="button" class="generic-ui-btn text magenta-btn" data-action="update-edit" tabindex="0">Save</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="database" class="database-view"></div>
+
+                <div id="emptyState" class="empty-state">
+                    <p>No entries match your filters</p>
+                </div>
+
+                <div id="errorState" class="empty-state">
+                    <p>⚠️ Failed to load data</p>
+                    <p>Please check the embedded seed JSON.</p>
+                </div>
+
+                <div class="stats">
+                    Showing <span id="resultCount">0</span> of <span id="totalCount">0</span> entries / <span id="dataSource">loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global scroll controls -->
+        <div class="scroll-controls" aria-hidden="false">
+            <button type="button" id="scrollToTopBtn" class="scroll-btn scroll-btn--top" aria-label="Scroll to top">
+                <svg class="icon" aria-hidden="true">
+                    <use href="../img/sprites/regular.svg#chevron-up"></use>
+                </svg>
+            </button>
+            <button type="button" id="scrollToEndBtn" class="scroll-btn scroll-btn--end" aria-label="Scroll to bottom">
+                <svg class="icon" aria-hidden="true">
+                    <use href="../img/sprites/regular.svg#chevron-down"></use>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Filter Sidesheet -->
+        <div id="filterSidesheet" class="sidesheet filter-sidesheet" aria-hidden="true">
+            <div class="sidesheet-panel">
+                <div class="sidesheet-header">
+                    <h2 class="sidesheet-title">Filters</h2>
+                    <button type="button" class="sidesheet-close" id="filterSidesheetClose" aria-label="Close">
+                        <svg class="icon" aria-hidden="true">
+                            <use href="../img/sprites/regular.svg#xmark"></use>
+                        </svg>
+                    </button>
+                </div>
+                <div class="sidesheet-content">
+                    <div class="tag-filter-search-wrapper">
+                        <svg class="icon tag-filter-search-icon" aria-hidden="true">
+                            <use href="../img/sprites/regular.svg#magnifying-glass"></use>
+                        </svg>
+                        <input type="text" id="tagFilterSearch" class="tag-filter-search" placeholder="Search tags..." autocomplete="off" aria-label="Search tags">
+                        <button type="button" class="search-clear" id="tagFilterSearchClear" title="Clear search" aria-label="Clear search">
+                            <svg class="icon" aria-hidden="true">
+                                <use href="../img/sprites/duotone.svg#xmark"></use>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="filter-sidesheet-section">
+                        <div class="filter-sidesheet-section-header">
+                            <h3 class="filter-sidesheet-section-title">Filter by tags</h3>
+                            <div class="filter-sidesheet-section-actions">
+                                <span id="tagFilterCount" class="tag-filter-count" style="display: none;">0</span>
+                                <button type="button" id="tagFilterClearAll" class="tag-filter-clear-all" style="display: none;">Clear</button>
+                            </div>
+                        </div>
+                        <div id="tagFilterActive" class="tag-filter-active">
+                            <span class="tag-filter-label">Active filters</span>
+                            <div id="tagFilterActiveList" class="tag-filter-list"></div>
+                        </div>
+                        <div id="tagFilterAvailable" class="tag-filter-available">
+                            <div id="tagFilter" class="tag-filter"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tag Editor Sidesheet -->
+        <div id="tagEditorSidesheet" class="sidesheet tag-editor-sidesheet" aria-hidden="true">
+            <div class="sidesheet-panel">
+                <div class="sidesheet-header">
+                    <h2 class="sidesheet-title">Edit Tags</h2>
+                    <button type="button" class="sidesheet-close" id="tagEditorSidesheetClose" aria-label="Close">
+                        <svg class="icon" aria-hidden="true">
+                            <use href="../img/sprites/regular.svg#xmark"></use>
+                        </svg>
+                    </button>
+                </div>
+                <div class="sidesheet-content">
+                    <div class="search-add-row">
+                        <div class="tag-filter-search-wrapper">
+                            <svg class="icon tag-filter-search-icon" aria-hidden="true">
+                                <use href="../img/sprites/regular.svg#magnifying-glass"></use>
+                            </svg>
+                            <input type="text" id="tagEditorSearch" class="tag-filter-search" placeholder="Search tags..." autocomplete="off" aria-label="Search tags">
+                            <button type="button" class="search-clear" id="tagEditorSearchClear" title="Clear search" aria-label="Clear search">
+                                <svg class="icon" aria-hidden="true">
+                                    <use href="../img/sprites/duotone.svg#xmark"></use>
+                                </svg>
+                            </button>
+                        </div>
+                        <button type="button" class="generic-ui-btn magenta-btn" id="tagEditorNewTagBtn" title="New tag" aria-label="New tag" onclick="showNewTagForm()">
+                            <svg class="icon" aria-hidden="true">
+                                <use href="../img/sprites/solid.svg#plus"></use>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="tagFormHome">
+                        <div id="tagForm" class="tag-form-section">
+                            <h3 id="tagFormTitle" class="tag-form-title"></h3>
+                            <div class="tag-input-row" style="margin: 15px 0;">
+                                <div class="tag-input-wrapper">
+                                    <input type="text" id="tagName" placeholder="Tag name..." autocomplete="off" aria-label="Tag name">
+                                    <div class="edit-entry-color-wrapper" id="tagEditorColorWrapper">
+                                        <button type="button" class="lore-tag-current-color edit-entry-color-swatch" id="tagEditorColorSwatch" data-color="slate" aria-label="Tag color" title="Select color"></button>
+                                        <div class="lore-tag-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
+                                            <button type="button" class="tag-color orange-red edit-entry-color-btn" data-color="amber" title="Amber"></button>
+                                            <button type="button" class="tag-color orange edit-entry-color-btn" data-color="orange" title="Orange"></button>
+                                            <button type="button" class="tag-color lime edit-entry-color-btn" data-color="green" title="Green"></button>
+                                            <button type="button" class="tag-color aqua edit-entry-color-btn" data-color="teal" title="Teal"></button>
+                                            <button type="button" class="tag-color blue edit-entry-color-btn" data-color="blue" title="Blue"></button>
+                                            <button type="button" class="tag-color purple edit-entry-color-btn" data-color="purple" title="Purple"></button>
+                                            <button type="button" class="tag-color magenta edit-entry-color-btn" data-color="pink" title="Pink"></button>
+                                            <button type="button" class="tag-color slate edit-entry-color-btn selected" data-color="slate" title="Slate"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin: 15px 0;">
+                                <label class="tag-form-label">Terms (one per line):</label>
+                                <textarea id="tagTerms" class="tag-form-textarea"></textarea>
+                            </div>
+                            <div class="tag-form-buttons">
+                                <button type="button" onclick="submitTagForm()" id="tagFormSubmit" class="tag-btn" style="flex: 1;">Create Tag</button>
+                                <button type="button" onclick="cancelTagForm()" class="tag-btn" style="flex: 1;">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tagList"></div>
+                    <div class="tag-editor-divider">
+                        <button type="button" onclick="downloadTags()" class="tag-btn">⬇️ Download tags.json</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Arc Editor Sidesheet -->
+        <div id="arcEditorSidesheet" class="sidesheet arc-editor-sidesheet" aria-hidden="true">
+            <div class="sidesheet-panel">
+                <div class="sidesheet-header">
+                    <h2 class="sidesheet-title">Manage Arcs</h2>
+                    <button type="button" class="sidesheet-close" id="arcEditorSidesheetClose" aria-label="Close">
+                        <svg class="icon" aria-hidden="true">
+                            <use href="../img/sprites/regular.svg#xmark"></use>
+                        </svg>
+                    </button>
+                </div>
+                <div class="sidesheet-header">
+                    <p class="sidesheet-intro">Arcs are automatically grouped by the integer part of entry numbers (e.g. 1.0 - 1.99 = Arc 1).</p>
+                </div>
+                <div class="sidesheet-content">
+                    <div id="arcList" class="arc-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sync Sidesheet is omitted in this prototype (no remote sync) -->
+        <div id="syncSidesheet" class="sidesheet sync-sidesheet" aria-hidden="true" style="display:none;"></div>
+    </div>
+
+    <!-- Add Entry Modal -->
+    <div id="addEntryContainer" class="modal add-entry-modal">
+        <div class="modal-content lore-entry-tray">
+            <div class="tray">
+                <div class="tray-header">
+                    <h2>Lore entry</h2>
+                    <input type="number" id="addEntryNumber" class="tray-header-entry-num" step="any" min="0" placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
+                </div>
+                <div id="addEntryArcIndicator" class="editor-arc-badge"></div>
+                <div class="entry-content">
+                    <h3>Content</h3>
+                    <textarea id="addEntryContent" placeholder="Add your lore entry here..." tabindex="0" autocomplete="off"></textarea>
+                </div>
+                <div class="enter-tag">
+                    <h3>Tags</h3>
+                    <div class="tag-input-row">
+                        <div class="tag-input-wrapper">
+                            <input type="text" id="addEntryTagInput" placeholder="Add a tag..." tabindex="0" autocomplete="off">
+                            <div id="addEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
+                            <div class="edit-entry-color-wrapper" id="addEntryColorWrapper">
+                                <button type="button" class="lore-tag-current-color edit-entry-color-swatch" id="addEntryColorSwatch" data-color="slate" aria-label="Tag color" title="Select color" tabindex="0"></button>
+                                <div class="lore-tag-color-selector edit-entry-color-popover" role="group" aria-label="Tag color options">
+                                    <button type="button" class="tag-color orange-red edit-entry-color-btn" data-color="amber" title="Amber" tabindex="0"></button>
+                                    <button type="button" class="tag-color orange edit-entry-color-btn" data-color="orange" title="Orange" tabindex="0"></button>
+                                    <button type="button" class="tag-color lime edit-entry-color-btn" data-color="green" title="Green" tabindex="0"></button>
+                                    <button type="button" class="tag-color aqua edit-entry-color-btn" data-color="teal" title="Teal" tabindex="0"></button>
+                                    <button type="button" class="tag-color blue edit-entry-color-btn" data-color="blue" title="Blue" tabindex="0"></button>
+                                    <button type="button" class="tag-color purple edit-entry-color-btn" data-color="purple" title="Purple" tabindex="0"></button>
+                                    <button type="button" class="tag-color magenta edit-entry-color-btn" data-color="pink" title="Pink" tabindex="0"></button>
+                                    <button type="button" class="tag-color slate edit-entry-color-btn selected" data-color="slate" title="Slate" tabindex="0"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="addEntryTags" class="tag-list"></div>
+                </div>
+                <div id="addEntrySuggestedTags" class="suggest-tag">
+                    <div class="suggest-tag-header">
+                        <h3>Suggested tags</h3>
+                        <button type="button" class="add-all-tags-btn" id="addEntryAddAllSuggested" style="display: none;" tabindex="0">+ Add all tags</button>
+                    </div>
+                    <div id="addEntrySuggestedTagsList" class="tag-list"></div>
+                </div>
+                <div class="tray-footer">
+                    <span class="tray-save-message" id="addTraySaveMessage" aria-live="polite"></span>
+                    <div class="tray-footer-buttons">
+                        <button type="button" class="generic-ui-btn text magenta-btn" data-action="submit-add" tabindex="0">Add Entry</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Entry details modal (unchanged, for viewing only) -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-number" id="modalNumber"></div>
+                    <h2 class="modal-title" id="modalTitle"></h2>
+                </div>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-description" id="modalDescription"></div>
+            <div class="modal-tags" id="modalTags"></div>
+        </div>
+    </div>
+
+    <!-- Global state (no Firebase / no remote) -->
+    <script>
+        let allData = [];
+        let allTags = [];
+        let allArcs = {};
+        let filteredData = [];
+        let selectedTags = new Set();
+        let selectedCustomTags = new Set();
+        let searchTerm = '';
+        let filtersVisible = false;
+    </script>
+
+    <!-- Core app scripts (reused from main app, but without Firebase/sync/github) -->
+    <script src="../js/utils.js"></script>
+    <script src="../js/tag-manager.js"></script>
+    <script src="../js/filter.js"></script>
+    <script src="../js/ui.js"></script>
+    <script src="../js/tag-editor.js"></script>
+    <script src="../js/arc-manager.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/tag-autocomplete.js"></script>
+    <script src="../js/animations.js"></script>
+    <script src="../js/keyboard-shortcuts.js"></script>
+    <script src="../js/command-palette.js"></script>
+
+    <!-- Prototype data/bootstrap: in-memory state, no Firebase/auth/sync -->
+    <script>
+        /**
+         * Seed data for this standalone prototype.
+         * Paste the real exported JSON over the SEED_DATA object below.
+         * Shape: { entries: [...], tags: [...], arcs: { ... } }
+         */
+        const SEED_DATA = {
+            entries: [
+                // TODO: Paste real "entries" array here from your export
+            ],
+            tags: [
+                // TODO: Paste real "tags" array here from your export
+            ],
+            arcs: {
+                // TODO: Paste real "arcs" object here from your export
+            }
+        };
+
+        /**
+         * In-memory save function.
+         * In the real app this writes to Firebase + local draft;
+         * in this prototype it is a no-op hook for future extension.
+         */
+        function saveLoreToFirebase() {
+            // No-op in standalone prototype; all changes live only in memory.
+        }
+
+        /**
+         * Export the current in-memory state as JSON.
+         * Includes allData, allTags, allArcs so prototype changes can be inspected
+         * or imported back into the real app later.
+         */
+        function exportStateToJson() {
+            const data = {
+                entries: Array.isArray(allData) ? allData : [],
+                tags: Array.isArray(allTags) ? allTags : [],
+                arcs: allArcs || {},
+                exportedAt: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            a.href = url;
+            a.download = `noxsyphone-prototype-${timestamp}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        /**
+         * Load initial in-memory state from SEED_DATA.
+         * No Firebase/auth/sync-manager involved; everything is local.
+         */
+        function loadData() {
+            try {
+                const data = SEED_DATA || {};
+                allData = Array.isArray(data.entries) ? data.entries.slice() : [];
+                allTags = Array.isArray(data.tags) ? data.tags.slice() : [];
+                allArcs = data.arcs && typeof data.arcs === 'object' ? { ...data.arcs } : {};
+
+                const sourceLabel = document.getElementById('dataSource');
+                if (sourceLabel) {
+                    sourceLabel.textContent = 'loaded from embedded JSON';
+                }
+
+                const errorState = document.getElementById('errorState');
+                if (errorState) errorState.classList.remove('show');
+
+                const dbEl = document.getElementById('database');
+                if (dbEl) dbEl.style.display = '';
+
+                // Ensure tags table is populated from document entries as in the real app
+                if (typeof syncTagsFromDocument === 'function') {
+                    syncTagsFromDocument();
+                }
+
+                if (typeof initializeApp === 'function') {
+                    initializeApp();
+                }
+            } catch (e) {
+                console.error('Seed data load failed:', e);
+                const sourceLabel = document.getElementById('dataSource');
+                if (sourceLabel) sourceLabel.textContent = 'Error: seed JSON invalid';
+                const dbEl = document.getElementById('database');
+                if (dbEl) dbEl.style.display = 'none';
+                const errorState = document.getElementById('errorState');
+                if (errorState) errorState.classList.add('show');
+            }
+        }
+
+        /**
+         * Bootstrap: show the app immediately (no auth), wire Export JSON,
+         * then load seed data and initialize all UI behavior.
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            // Ensure main app is visible and sign-in screen is hidden
+            document.body.classList.add('app-active');
+            const signIn = document.getElementById('signInScreen');
+            if (signIn) signIn.style.display = 'none';
+            const appContent = document.getElementById('appContent');
+            if (appContent) appContent.style.display = 'grid';
+
+            // Repurpose the "Download entries" side-nav button into "Export JSON"
+            const exportBtn = document.getElementById('downloadEntriesBtn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    exportStateToJson();
+                });
+            }
+
+            // Load initial data into in-memory state
+            loadData();
+        });
+    </script>
+</body>
+</html>
+

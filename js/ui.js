@@ -625,6 +625,7 @@ function openAddEntryModal() {
     document.getElementById('addTraySaveMessage').textContent = '';
     document.getElementById('addEntryContainer').classList.add('active');
     document.getElementById('addEntryBtn')?.classList.add('active');
+    document.getElementById('mobileAddEntryBtn')?.classList.add('active');
 
     // Update arc indicator
     updateArcIndicator('add');
@@ -633,6 +634,7 @@ function openAddEntryModal() {
 function closeAddEntryModal() {
     document.getElementById('addEntryContainer').classList.remove('active');
     document.getElementById('addEntryBtn')?.classList.remove('active');
+    document.getElementById('mobileAddEntryBtn')?.classList.remove('active');
 }
 
 function updateAddEntryColorSelector() {

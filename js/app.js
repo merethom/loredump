@@ -165,7 +165,7 @@ function setupEventListeners() {
         filterData();
     });
 
-    // Setup add entry button (toggle) — side-nav is the only add-entry trigger
+    // Setup add entry button (toggle) — side-nav and mobile nav
     const addEntryBtn = document.getElementById('addEntryBtn');
     if (addEntryBtn) {
         addEntryBtn.addEventListener('click', (e) => {
@@ -175,6 +175,29 @@ function setupEventListeners() {
             } else {
                 closeEditEntryModal();
                 openAddEntryModal();
+            }
+        });
+    }
+
+    const mobileAddEntryBtn = document.getElementById('mobileAddEntryBtn');
+    if (mobileAddEntryBtn) {
+        mobileAddEntryBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (document.getElementById('addEntryContainer').classList.contains('active')) {
+                closeAddEntryModal();
+            } else {
+                closeEditEntryModal();
+                openAddEntryModal();
+            }
+        });
+    }
+
+    const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+    if (mobileSearchBtn) {
+        mobileSearchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (typeof openCommandPalette === 'function') {
+                openCommandPalette();
             }
         });
     }
@@ -194,6 +217,14 @@ function setupEventListeners() {
         e.preventDefault();
         if (typeof openFilterSidesheet === 'function') openFilterSidesheet();
     });
+
+    const mobileFilterBtn = document.getElementById('mobileFilterBtn');
+    if (mobileFilterBtn) {
+        mobileFilterBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (typeof openFilterSidesheet === 'function') openFilterSidesheet();
+        });
+    }
 
     // Setup modal event listeners
     const modalElement = document.getElementById('modal');

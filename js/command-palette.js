@@ -511,16 +511,6 @@
         </div>`;
     }
 
-    function buildScrollRow(direction, index) {
-        const selectedClass = index === selectedResultIndex ? ' cmd-palette-result--selected' : '';
-        const label = direction === 'top' ? 'Scroll to top' : 'Scroll to end';
-        return `<div class="cmd-palette-result cmd-palette-result--scroll${selectedClass}" data-type="scroll" data-index="${index}" data-scroll-direction="${escapeHtml(direction)}">
-            <div class="cmd-result-body cmd-result-body--full">
-                <span class="cmd-result-arc-label">${escapeHtml(label)}</span>
-            </div>
-        </div>`;
-    }
-
     function attachDefaultHandlers(listEl) {
         if (!listEl) return;
         listEl.querySelectorAll('.cmd-palette-recent-remove').forEach(btn => {
@@ -613,21 +603,7 @@
         }
 
         const showEntryNumbers = true;
-        const termLower = term.trim().toLowerCase();
-
-        if (termLower === 'top' || termLower === 'end') {
-            selectedResultIndex = 0;
-            list.innerHTML = '<div class="cmd-palette-section"><div class="cmd-palette-section-title">Commands</div>' +
-                buildScrollRow(termLower, 0) + '</div>';
-            list.querySelector('.cmd-palette-result').addEventListener('mousedown', e => {
-                e.preventDefault();
-                closeCommandPalette();
-                if (termLower === 'top') scrollToTop();
-                else scrollToEnd();
-            });
-            return;
-        }
-
+    
         const tagToken = tokens.find(t => t.type === 'tag');
         const arcToken = tokens.find(t => t.type === 'arc');
         const tagTerm = tagToken ? tagToken.value : (mode === 'tag' ? term : '');
@@ -811,12 +787,6 @@
                         if (typeof openFilterSidesheet === 'function') openFilterSidesheet();
                     }
                     closeCommandPalette();
-                } else if (type === 'scroll') {
-                    addRecentSearch(currentQuery);
-                    const direction = el.getAttribute('data-scroll-direction');
-                    closeCommandPalette();
-                    if (direction === 'top') scrollToTop();
-                    else if (direction === 'end') scrollToEnd();
                 } else {
                     addRecentSearch(currentQuery);
                     const entryNum = el.getAttribute('data-entry-number');
@@ -1002,12 +972,6 @@
                     const arcKey = el.getAttribute('data-arc-key');
                     closeCommandPalette();
                     if (arcKey) scrollToArc(arcKey);
-                } else if (type === 'scroll') {
-                    addRecentSearch(fullQuery);
-                    const direction = el.getAttribute('data-scroll-direction');
-                    closeCommandPalette();
-                    if (direction === 'top') scrollToTop();
-                    else if (direction === 'end') scrollToEnd();
                 } else {
                     addRecentSearch(fullQuery);
                     const entryNum = el.getAttribute('data-entry-number');
@@ -1070,12 +1034,6 @@
                     </div>
 
                     <div class="cmd-palette-footer-hints">
-                        <span class="cmd-palette-footer-hint">
-                            <kbd>top</kbd> To top
-                        </span>
-                        <span class="cmd-palette-footer-hint">
-                            <kbd>end</kbd> To end
-                        </span>
                         <span class="cmd-palette-footer-hint">
                             <kbd>↑↓</kbd> Navigate
                         </span>

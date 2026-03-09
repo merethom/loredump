@@ -222,14 +222,37 @@ body.app-active {
     flex-shrink: 0;
 }
 
-.arc-timeline-dot.arc-color--orange-red { background: var(--color-orange-red); }
-.arc-timeline-dot.arc-color--orange { background: var(--color-orange); }
-.arc-timeline-dot.arc-color--lime { background: var(--color-lime); }
-.arc-timeline-dot.arc-color--aqua { background: var(--color-aqua); }
-.arc-timeline-dot.arc-color--blue { background: var(--color-blue); }
-.arc-timeline-dot.arc-color--purple { background: var(--color-purple); }
-.arc-timeline-dot.arc-color--magenta { background: var(--color-magenta); }
-.arc-timeline-dot.arc-color--slate { background: var(--color-slate); }
+.arc-timeline-dot.arc-color--orange-red {
+    background: var(--color-orange-red);
+}
+
+.arc-timeline-dot.arc-color--orange {
+    background: var(--color-orange);
+}
+
+.arc-timeline-dot.arc-color--lime {
+    background: var(--color-lime);
+}
+
+.arc-timeline-dot.arc-color--aqua {
+    background: var(--color-aqua);
+}
+
+.arc-timeline-dot.arc-color--blue {
+    background: var(--color-blue);
+}
+
+.arc-timeline-dot.arc-color--purple {
+    background: var(--color-purple);
+}
+
+.arc-timeline-dot.arc-color--magenta {
+    background: var(--color-magenta);
+}
+
+.arc-timeline-dot.arc-color--slate {
+    background: var(--color-slate);
+}
 
 .app-main-content {
     flex: 1;
@@ -902,7 +925,8 @@ h1 {
 .tray {
     border-radius: 6px;
     border: var(--border);
-    background: rgba(26, 26, 46, 0.5);;
+    background: rgba(26, 26, 46, 0.5);
+    ;
 }
 
 .tray h3,
@@ -923,7 +947,8 @@ h3.diff-section-title {
     height: var(--btn-box-height);
     border: var(--border);
     border-radius: var(--border-radius);
-    background: #0E0E22;;
+    background: #0E0E22;
+    ;
     color: var(--text-color);
     padding: 0 12px;
     font-size: 0.9375rem;
@@ -1257,7 +1282,8 @@ h3.diff-section-title {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    scrollbar-color: transparent transparent; /* Firefox: hidden by default */
+    scrollbar-color: transparent transparent;
+    /* Firefox: hidden by default */
     color: var(--text-color);
 }
 
@@ -1266,7 +1292,8 @@ h3.diff-section-title {
    Same style/behavior as command palette
    -------------------------------------------------------------------------- */
 .sidesheet-content.is-scrolling {
-    scrollbar-color: #555578 transparent; /* Firefox: visible while scrolling */
+    scrollbar-color: #555578 transparent;
+    /* Firefox: visible while scrolling */
 }
 
 .sidesheet-content::-webkit-scrollbar {
@@ -1472,7 +1499,7 @@ h3.diff-section-title {
     gap: 18px;
 }
 
-.database-view > *:first-child {
+.database-view>*:first-child {
     margin-bottom: 18px;
 }
 
@@ -1577,6 +1604,7 @@ h3.diff-section-title {
 .arc-scroll-anchor {
     height: 0;
     overflow: hidden;
+    margin-bottom: 0 !important;
     pointer-events: none;
 }
 
@@ -1605,7 +1633,6 @@ h3.diff-section-title {
 
 .arc-chevron-btn {
     flex-shrink: 0;
-    
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1864,14 +1891,37 @@ h3.diff-section-title {
     flex-shrink: 0;
 }
 
-.arc-color-indicator.arc-color--magenta { background: var(--color-magenta); }
-.arc-color-indicator.arc-color--orange { background: var(--color-orange); }
-.arc-color-indicator.arc-color--lime { background: var(--color-lime); }
-.arc-color-indicator.arc-color--aqua { background: var(--color-aqua); }
-.arc-color-indicator.arc-color--blue { background: var(--color-blue); }
-.arc-color-indicator.arc-color--purple { background: var(--color-purple); }
-.arc-color-indicator.arc-color--orange-red { background: var(--color-orange-red); }
-.arc-color-indicator.arc-color--slate { background: var(--color-slate); }
+.arc-color-indicator.arc-color--magenta {
+    background: var(--color-magenta);
+}
+
+.arc-color-indicator.arc-color--orange {
+    background: var(--color-orange);
+}
+
+.arc-color-indicator.arc-color--lime {
+    background: var(--color-lime);
+}
+
+.arc-color-indicator.arc-color--aqua {
+    background: var(--color-aqua);
+}
+
+.arc-color-indicator.arc-color--blue {
+    background: var(--color-blue);
+}
+
+.arc-color-indicator.arc-color--purple {
+    background: var(--color-purple);
+}
+
+.arc-color-indicator.arc-color--orange-red {
+    background: var(--color-orange-red);
+}
+
+.arc-color-indicator.arc-color--slate {
+    background: var(--color-slate);
+}
 
 .arc-item[draggable="true"] {
     cursor: grab;
@@ -1949,7 +1999,7 @@ h3.diff-section-title {
     min-width: 0;
     border: var(--border);
     background: rgba(26, 26, 46, 0.5);
-    
+
 }
 
 .db-arc-header .arc-title .arc-color-indicator {

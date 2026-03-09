@@ -1,0 +1,107 @@
+/* Mobile-only navigation bar that appears at the bottom of the screen. */
+
+.mobile-bottom-nav {
+    display: none;
+}
+
+.mobile-nav-btn {
+    appearance: none;
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+
+    /* Hide the desktop sidebar nav and timeline on small screens */
+    nav.side-nav,
+    .arc-timeline {
+        display: none !important;
+    }
+
+    /* Reset app layout for mobile (remove side-nav margin) */
+    .app-layout,
+    .app-layout.container,
+    .sign-in-screen {
+        margin-left: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+    }
+
+    /* Adjust main content padding for mobile-bottom-nav */
+    .app-main-content {
+        padding-bottom: 80px !important;
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+    }
+
+    /* Ensure scroll controls are above the mobile bottom nav */
+    .scroll-controls {
+        bottom: calc(64px + env(safe-area-inset-bottom)) !important;
+        right: 12px !important;
+        z-index: 9000 !important;
+    }
+
+    .app-layout:has(.sidesheet.open) {
+        grid-template-columns: 0 1fr !important;
+    }
+
+    .sidesheet-panel {
+        width: 100vw !important;
+        max-width: 100vw !important;
+    }
+
+    /* Adjust sign-in screen padding for mobile */
+    .sign-in-screen {
+        min-height: 100vh;
+        width: 100vw;
+        padding: 16px;
+    }
+
+    /* Show mobile bottom nav on small screens */
+    .mobile-bottom-nav {
+        position: fixed;
+        inset-inline: 0;
+        bottom: 0;
+        z-index: 8000;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+        background: rgba(9, 7, 26, 0.96);
+        border-top: 1px solid rgba(88, 94, 173, 0.5);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+
+    .mobile-nav-btn {
+        flex: 1 1 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        background: #1E1E36;
+        color: var(--text-color);
+        font-family: var(--font-sans-flex);
+        font-size: 0.8rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        border: 1px solid rgba(145, 77, 245, 0.3);
+        min-width: 0;
+    }
+
+    .mobile-nav-btn:active {
+        transform: translateY(1px);
+        background: color-mix(in srgb, #585EAD 25%, #1E1E36);
+    }
+
+    .mobile-nav-label {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
