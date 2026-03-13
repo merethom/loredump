@@ -340,9 +340,12 @@ function setupDatabaseEventDelegation() {
         if (entryNumber) openEntryActionsMenu(e, entryNumber);
     });
 
-    // Arm drag only when the user starts interaction on the grip.
+    // In reorder mode, arm drag when clicking anywhere on a card in the active arc; otherwise only when clicking the grip.
     db.addEventListener('mousedown', (e) => {
-        reorderDragHandleArmed = !!e.target.closest('.card-grip-btn');
+        const grip = e.target.closest('.card-grip-btn');
+        const card = e.target.closest('.card[data-entry-number][data-arc-key]');
+        const cardInActiveArc = card && reorderArcKey && card.getAttribute('data-arc-key') === String(reorderArcKey);
+        reorderDragHandleArmed = !!grip || !!cardInActiveArc;
     }, true);
 
     db.addEventListener('dragstart', (e) => {
@@ -358,33 +361,52 @@ function setupDatabaseEventDelegation() {
             return;
         }
         reorderDraggedEntryNumber = card.getAttribute('data-entry-number');
-        card.classList.add('card--dragging');
         e.dataTransfer.effectAllowed = 'move';
         try {
             e.dataTransfer.setData('text/plain', reorderDraggedEntryNumber || '');
         } catch (_) {}
+        requestAnimationFrame(() => card.classList.add('card--dragging'));
     });
 
     db.addEventListener('dragover', (e) => {
         if (!reorderArcKey || !reorderDraggedEntryNumber) return;
-        const card = e.target.closest('.card[data-entry-number][data-arc-key]');
-        if (!card) return;
-        if (card.getAttribute('data-arc-key') !== String(reorderArcKey)) return;
-        const targetNum = card.getAttribute('data-entry-number');
-        if (!targetNum || targetNum === reorderDraggedEntryNumber) return;
+        const container = document.querySelector(`.db-arc-entries[data-arc-key="${reorderArcKey}"]`);
+        if (!container) return;
+
+        const containerRect = container.getBoundingClientRect();
+        if (e.clientY < containerRect.top || e.clientY > containerRect.bottom) return;
 
         e.preventDefault();
+
+        const cards = Array.from(container.querySelectorAll('.card[data-entry-number][data-arc-key]')).filter(
+            c => c.getAttribute('data-arc-key') === String(reorderArcKey) && c.getAttribute('data-entry-number') !== reorderDraggedEntryNumber
+        );
+        if (cards.length === 0) return;
+
+        const sorted = cards.slice().sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+        let targetCard = sorted.find(c => {
+            const r = c.getBoundingClientRect();
+            return e.clientY >= r.top && e.clientY <= r.bottom;
+        });
+        if (!targetCard) {
+            const firstBelow = sorted.find(c => c.getBoundingClientRect().top > e.clientY);
+            targetCard = firstBelow || sorted[sorted.length - 1];
+        }
+
+        const targetNum = targetCard.getAttribute('data-entry-number');
+        if (!targetNum) return;
         reorderDropTargetNumber = targetNum;
 
         let indicator = document.getElementById('reorderInsertIndicator');
         if (!indicator) {
             indicator = document.createElement('div');
             indicator.id = 'reorderInsertIndicator';
-            indicator.className = 'reorder-insert-indicator';
             indicator.setAttribute('aria-hidden', 'true');
         }
-        const container = document.querySelector(`.db-arc-entries[data-arc-key="${reorderArcKey}"]`);
-        if (container) container.insertBefore(indicator, card);
+        const arcColorClass = Array.from(targetCard.classList).find(c => c.startsWith('card-arc--'));
+        const arcColor = arcColorClass ? arcColorClass.replace('card-arc--', '') : 'slate';
+        indicator.className = 'reorder-insert-indicator reorder-insert-indicator--' + arcColor;
+        container.insertBefore(indicator, targetCard);
     });
 
     db.addEventListener('drop', (e) => {
@@ -636,9 +658,25 @@ function enterReorderMode(arcKey) {
         card.classList.toggle('card--reorderable', !!isArc);
     });
 
-    // Mark header active.
+    // Mark header active and update its label to show reordering state.
     document.querySelectorAll('.db-arc-header[data-arc-key]').forEach(h => {
-        h.classList.toggle('db-arc-header--reorder', h.getAttribute('data-arc-key') === reorderArcKey);
+        const isActive = h.getAttribute('data-arc-key') === reorderArcKey;
+        h.classList.toggle('db-arc-header--reorder', isActive);
+        const labelEl = h.querySelector('.arc-header-label');
+        if (!labelEl) return;
+        if (labelEl.dataset.originalLabel === undefined) {
+            labelEl.dataset.originalLabel = labelEl.textContent || '';
+        }
+        if (isActive) {
+            const base = labelEl.dataset.originalLabel || labelEl.textContent || '';
+            if (!base.startsWith('Reordering ')) {
+                labelEl.textContent = `Reordering ${base}`;
+            }
+        } else {
+            if (labelEl.dataset.originalLabel) {
+                labelEl.textContent = labelEl.dataset.originalLabel;
+            }
+        }
     });
 }
 
@@ -651,7 +689,13 @@ function exitReorderMode() {
         card.draggable = false;
         card.classList.remove('card--reorderable', 'card--drag-over', 'card--dragging');
     });
-    document.querySelectorAll('.db-arc-header--reorder').forEach(h => h.classList.remove('db-arc-header--reorder'));
+    document.querySelectorAll('.db-arc-header--reorder').forEach(h => {
+        h.classList.remove('db-arc-header--reorder');
+        const labelEl = h.querySelector('.arc-header-label');
+        if (labelEl && labelEl.dataset.originalLabel) {
+            labelEl.textContent = labelEl.dataset.originalLabel;
+        }
+    });
 }
 
 function cleanupReorderDragState() {

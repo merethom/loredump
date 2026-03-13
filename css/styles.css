@@ -1595,6 +1595,11 @@ body.reorder-mode .db-arc-header--reorder .arc-title {
 /* Reorder mode visuals (only for the active arc) */
 body.reorder-mode .card.card--reorderable {
     background: color-mix(in srgb, #585EAD 12%, rgba(26, 26, 46, 0.5));
+    cursor: grab;
+}
+
+body.reorder-mode .card.card--reorderable:active {
+    cursor: grabbing;
 }
 
 /* Replace kebab with grip in reorder mode */
@@ -1607,7 +1612,6 @@ body.reorder-mode .card.card--reorderable .card-kebab-btn {
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    padding: 10px;
     border: none;
     background: none;
     color: #555577;
@@ -1624,23 +1628,15 @@ body.reorder-mode .card.card--reorderable .card-kebab-btn {
     height: 16px;
 }
 
-@keyframes card-wiggle {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-0.5px); }
-    75% { transform: translateX(0.5px); }
-}
-
 body.reorder-mode .card.card--reorderable .card-grip-btn {
     display: inline-flex;
 }
 
-body.reorder-mode .card.card--reorderable:not(.card--dragging) {
-    animation: card-wiggle 0.18s ease-in-out infinite;
-}
-
-/* Remove dragged card from grid so list stays visible; browser shows drag image */
+/* Remove dragged card from grid so list stays visible; browser shows drag image.
+   Move off-screen so it doesn't block dragover hit-testing when dragging upward. */
 .card--dragging {
     position: absolute;
+    left: -9999px;
     opacity: 0;
     pointer-events: none;
     animation: none !important;
@@ -1666,19 +1662,16 @@ body.reorder-mode .card.card--reorderable:not(.card--dragging) {
     transform: translateY(-50%);
     height: 3px;
     border-radius: 999px;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        color-mix(in srgb, var(--color-purple) 35%, transparent) 15%,
-        var(--color-purple) 50%,
-        color-mix(in srgb, var(--color-purple) 35%, transparent) 85%,
-        transparent 100%
-    );
-    box-shadow:
-        0 0 8px var(--color-purple),
-        0 0 16px color-mix(in srgb, var(--color-purple) 50%, transparent),
-        0 0 24px color-mix(in srgb, var(--color-purple) 25%, transparent);
 }
+
+.reorder-insert-indicator--magenta::after { background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--color-magenta) 35%, transparent) 15%, var(--color-magenta) 50%, color-mix(in srgb, var(--color-magenta) 35%, transparent) 85%, transparent 100%); }
+.reorder-insert-indicator--orange::after { background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--color-orange) 35%, transparent) 15%, var(--color-orange) 50%, color-mix(in srgb, var(--color-orange) 35%, transparent) 85%, transparent 100%); }
+.reorder-insert-indicator--lime::after { background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--color-lime) 35%, transparent) 15%, var(--color-lime) 50%, color-mix(in srgb, var(--color-lime) 35%, transparent) 85%, transparent 100%); }
+.reorder-insert-indicator--aqua::after { background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--color-aqua) 35%, transparent) 15%, var(--color-aqua) 50%, color-mix(in srgb, var(--color-aqua) 35%, transparent) 85%, transparent 100%); }
+.reorder-insert-indicator--blue::after { background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--color-blue) 35%, transparent) 15%, var(--color-blue) 50%, color-mix(in srgb, var(--color-blue) 35%, transparent) 85%, transparent 100%); }
+.reorder-insert-indicator--purple::after { background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--color-purple) 35%, transparent) 15%, var(--color-purple) 50%, color-mix(in srgb, var(--color-purple) 35%, transparent) 85%, transparent 100%); }
+.reorder-insert-indicator--orange-red::after { background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--color-orange-red) 35%, transparent) 15%, var(--color-orange-red) 50%, color-mix(in srgb, var(--color-orange-red) 35%, transparent) 85%, transparent 100%); }
+.reorder-insert-indicator--slate::after { background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--color-slate) 35%, transparent) 15%, var(--color-slate) 50%, color-mix(in srgb, var(--color-slate) 35%, transparent) 85%, transparent 100%); }
 
 .card-arc {
     position: relative;
