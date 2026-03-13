@@ -181,13 +181,13 @@ body.app-active {
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    position: sticky;
-    top: 0;
-    align-self: flex-start;
+    order: 2;
+    align-self: center;
     max-height: 100vh;
     overflow-y: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    margin-right: 18px;
 }
 
 .arc-timeline::-webkit-scrollbar {
@@ -195,14 +195,70 @@ body.app-active {
 }
 
 .arc-timeline-dot {
+    position: relative;
     width: 10px;
     height: 10px;
     border-radius: 50%;
     border: 2px solid rgba(255, 255, 255, 0.2);
-    background: var(--muted-text-color);
+    background: #76769E;
     cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     flex-shrink: 0;
+}
+
+/* Body-level tooltip for arc timeline (mini arc-header with left color bar) */
+#arc-timeline-tooltip.arc-timeline-tooltip {
+    display: flex;
+    align-items: stretch;
+    min-height: 0;
+    position: fixed;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    z-index: 9999;
+    background: #0E0E22;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+#arc-timeline-tooltip.arc-timeline-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.arc-timeline-tooltip-bar {
+    flex-shrink: 0;
+    width: 4px;
+    min-height: 20px;
+    align-self: stretch;
+    border-radius: 4px 0 0 4px;
+    background: var(--color-slate);
+}
+
+.arc-timeline-tooltip-bar.arc-color--magenta { background: var(--color-magenta); }
+.arc-timeline-tooltip-bar.arc-color--orange { background: var(--color-orange); }
+.arc-timeline-tooltip-bar.arc-color--lime { background: var(--color-lime); }
+.arc-timeline-tooltip-bar.arc-color--aqua { background: var(--color-aqua); }
+.arc-timeline-tooltip-bar.arc-color--blue { background: var(--color-blue); }
+.arc-timeline-tooltip-bar.arc-color--purple { background: var(--color-purple); }
+.arc-timeline-tooltip-bar.arc-color--orange-red { background: var(--color-orange-red); }
+.arc-timeline-tooltip-bar.arc-color--slate { background: var(--color-slate); }
+
+.arc-timeline-tooltip-label {
+    font-family: var(--font-sans-flex);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-color);
+    padding: 5px 10px 5px 8px;
+    display: flex;
+    align-items: center;
 }
 
 .arc-timeline-dot:hover {
@@ -222,39 +278,10 @@ body.app-active {
     flex-shrink: 0;
 }
 
-.arc-timeline-dot.arc-color--orange-red {
-    background: var(--color-orange-red);
-}
-
-.arc-timeline-dot.arc-color--orange {
-    background: var(--color-orange);
-}
-
-.arc-timeline-dot.arc-color--lime {
-    background: var(--color-lime);
-}
-
-.arc-timeline-dot.arc-color--aqua {
-    background: var(--color-aqua);
-}
-
-.arc-timeline-dot.arc-color--blue {
-    background: var(--color-blue);
-}
-
-.arc-timeline-dot.arc-color--purple {
-    background: var(--color-purple);
-}
-
-.arc-timeline-dot.arc-color--magenta {
-    background: var(--color-magenta);
-}
-
-.arc-timeline-dot.arc-color--slate {
-    background: var(--color-slate);
-}
+/* Arc timeline dots use a single color; arc-color class is still used for the hover tooltip bar */
 
 .app-main-content {
+    order: 1;
     flex: 1;
     min-width: 0;
     max-width: 1000px;
@@ -1215,6 +1242,8 @@ h3.diff-section-title {
     overflow: hidden;
     min-height: 0;
     max-height: 100vh;
+    position: relative;
+    z-index: 100;
 }
 
 .sidesheet:not(.open) {
@@ -1509,14 +1538,171 @@ h3.diff-section-title {
     gap: 24px;
 }
 
-.card {
+.arc-reorder-done {
+    display: none;
+    margin-right: 12px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(30, 30, 54, 0.55);
+    color: #B1A8CA;
+    font-family: var(--font-sans-flex);
+    font-size: 12px;
     cursor: pointer;
+}
+
+.arc-kebab-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border: none;
+    background: none;
+    color: #555577;
+    cursor: pointer;
+    border-radius: var(--border-radius);
+}
+
+.arc-kebab-btn:hover {
+    color: var(--text-color);
+}
+
+.arc-kebab-btn .icon {
+    width: 16px;
+    height: 16px;
+}
+
+body.reorder-mode .db-arc-header--reorder .arc-reorder-done {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.reorder-mode .db-arc-header--reorder .arc-title {
+    background: color-mix(in srgb, #585EAD 18%, #0E0E22);
+    grid-template-columns: 7px auto 1fr auto auto auto;
+}
+
+.card {
     transition: all 0.2s;
     break-inside: avoid;
     border-radius: 6px;
     border: var(--border);
     background: rgba(26, 26, 46, 0.5);
 }
+
+/* Reorder mode visuals (only for the active arc) */
+body.reorder-mode .card.card--reorderable {
+    background: color-mix(in srgb, #585EAD 12%, rgba(26, 26, 46, 0.5));
+}
+
+/* Replace kebab with grip in reorder mode */
+body.reorder-mode .card.card--reorderable .card-kebab-btn {
+    display: none;
+}
+
+.card-grip-btn {
+    display: none;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border: none;
+    background: none;
+    color: #555577;
+    cursor: grab;
+    border-radius: var(--border-radius);
+}
+
+.card-grip-btn:active {
+    cursor: grabbing;
+}
+
+.card-grip-btn .icon {
+    width: 16px;
+    height: 16px;
+}
+
+@keyframes card-wiggle {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-0.5px); }
+    75% { transform: translateX(0.5px); }
+}
+
+body.reorder-mode .card.card--reorderable .card-grip-btn {
+    display: inline-flex;
+}
+
+body.reorder-mode .card.card--reorderable:not(.card--dragging) {
+    animation: card-wiggle 0.18s ease-in-out infinite;
+}
+
+/* Remove dragged card from grid so list stays visible; browser shows drag image */
+.card--dragging {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    animation: none !important;
+}
+
+.reorder-insert-indicator {
+    min-height: 16px;
+    margin: 0 12px;
+    padding: 6px 0;
+    position: relative;
+    pointer-events: none;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.reorder-insert-indicator::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        color-mix(in srgb, var(--color-purple) 35%, transparent) 15%,
+        var(--color-purple) 50%,
+        color-mix(in srgb, var(--color-purple) 35%, transparent) 85%,
+        transparent 100%
+    );
+    box-shadow:
+        0 0 8px var(--color-purple),
+        0 0 16px color-mix(in srgb, var(--color-purple) 50%, transparent),
+        0 0 24px color-mix(in srgb, var(--color-purple) 25%, transparent);
+}
+
+.card-arc {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-arc::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--color-slate-33);
+}
+
+.card-arc--magenta::before { background: var(--color-magenta-33); }
+.card-arc--orange::before { background: var(--color-orange-33); }
+.card-arc--lime::before { background: var(--color-lime-33); }
+.card-arc--aqua::before { background: var(--color-aqua-33); }
+.card-arc--blue::before { background: var(--color-blue-33); }
+.card-arc--purple::before { background: var(--color-purple-33); }
+.card-arc--orange-red::before { background: var(--color-orange-red-33); }
+.card-arc--slate::before { background: var(--color-slate-33); }
 
 
 .card-description {
@@ -1529,6 +1715,23 @@ h3.diff-section-title {
     line-height: 1.8;
 }
 
+.card-description .card-search-highlight {
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    border-radius: 2px;
+    padding: 0 1px;
+}
+
+.card-arc--magenta .card-description .card-search-highlight { color: var(--color-magenta); background: color-mix(in srgb, var(--color-magenta) 28%, transparent); text-decoration-color: var(--color-magenta); }
+.card-arc--orange .card-description .card-search-highlight { color: var(--color-orange); background: color-mix(in srgb, var(--color-orange) 28%, transparent); text-decoration-color: var(--color-orange); }
+.card-arc--lime .card-description .card-search-highlight { color: var(--color-lime); background: color-mix(in srgb, var(--color-lime) 28%, transparent); text-decoration-color: var(--color-lime); }
+.card-arc--aqua .card-description .card-search-highlight { color: var(--color-aqua); background: color-mix(in srgb, var(--color-aqua) 28%, transparent); text-decoration-color: var(--color-aqua); }
+.card-arc--blue .card-description .card-search-highlight { color: var(--color-blue); background: color-mix(in srgb, var(--color-blue) 28%, transparent); text-decoration-color: var(--color-blue); }
+.card-arc--purple .card-description .card-search-highlight { color: var(--color-purple); background: color-mix(in srgb, var(--color-purple) 28%, transparent); text-decoration-color: var(--color-purple); }
+.card-arc--orange-red .card-description .card-search-highlight { color: var(--color-orange-red); background: color-mix(in srgb, var(--color-orange-red) 28%, transparent); text-decoration-color: var(--color-orange-red); }
+.card-arc--slate .card-description .card-search-highlight { color: var(--color-slate); background: color-mix(in srgb, var(--color-slate) 28%, transparent); text-decoration-color: var(--color-slate); }
+
 /* .card-divider {
     height: 1px;
     background: #3E3D5C;
@@ -1539,7 +1742,108 @@ h3.diff-section-title {
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    padding: 18px;
+    padding: 18px 18px 18px 24px;
+}
+
+.card-body-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px 18px 18px 24px;
+}
+
+.card-body-row .card-description {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+}
+
+.card-kebab-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px; /* matches arc header chevron touch target */
+    border: none;
+    background: none;
+    color: #555577;
+    cursor: pointer;
+    border-radius: var(--border-radius);
+}
+
+.card-kebab-btn:hover {
+    color: var(--text-color);
+}
+
+.card-kebab-btn .icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* If a kebab is placed beside text, keep it aligned */
+.card-body-row .card-kebab-btn {
+    margin-top: -2px;
+}
+
+/* --------------------------------------------------------------------------
+   Entry actions menu (kebab popover)
+   -------------------------------------------------------------------------- */
+
+.entry-actions-menu {
+    position: fixed;
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px;
+    /* background: #0E0E22; */
+    background: var(--dark-bg);
+    border: 1px solid #2A2A3F;
+    border-radius: 12px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+    z-index: 9500;
+    min-width: 175px;
+}
+
+.entry-actions-menu.open {
+    display: flex;
+}
+
+.entry-actions-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 11px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+
+.entry-actions-item:hover {
+    background: #1E1E36;
+}
+
+.entry-actions-divider {
+    width: 100%;
+    height: 1px;
+    background: #2A2A3F;
+    margin: 12px 0;
+    border-radius: 1px;
+}
+
+.entry-actions-item .icon {
+    width: 16px;
+    height: 16px;
+    color: #76769E;
+    flex-shrink: 0;
+}
+
+.entry-actions-label {
+    font-family: var(--font-sans-flex);
+    font-size: 14px;
+    color: #B1A8CA;
 }
 
 .card-number {
@@ -1618,7 +1922,7 @@ h3.diff-section-title {
     z-index: 10;
     background: var(--dark-bg);
     /* Show shadow only when scrolling (sticky header has scrolled from initial position) */
-    box-shadow: 0 0 50px color-mix(in srgb, var(--dark-bg) 40%, transparent 60%);
+    /* box-shadow: 0 0 50px color-mix(in srgb, var(--dark-bg) 40%, transparent 60%); */
 }
 
 .db-arc-header::before {
@@ -1818,7 +2122,7 @@ h3.diff-section-title {
 
 .arc-color-indicator {
     flex-shrink: 0;
-    width: 7px;
+    width: 5px;
     background: var(--color-slate-33);
     border-radius: 5px 0 0 5px;
 }
@@ -1954,7 +2258,6 @@ h3.diff-section-title {
     margin-top: 0;
     padding: 0;
     font-weight: 400;
-    margin-right: 18px;
 }
 
 
@@ -1989,7 +2292,7 @@ h3.diff-section-title {
 
 .db-arc-header .arc-title {
     display: grid;
-    grid-template-columns: 7px auto 1fr auto;
+    grid-template-columns: 7px auto 1fr auto auto;
     column-gap: 6px;
     align-items: center;
     font-family: var(--font-sans-flex);
@@ -1999,7 +2302,6 @@ h3.diff-section-title {
     min-width: 0;
     border: var(--border);
     background: rgba(26, 26, 46, 0.5);
-
 }
 
 .db-arc-header .arc-title .arc-color-indicator {

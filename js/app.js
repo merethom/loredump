@@ -317,10 +317,6 @@ function setupEventListeners() {
     const addEntryContainerEl = document.getElementById('addEntryContainer');
     if (addEntryContainerEl) {
         addEntryContainerEl.addEventListener('click', (e) => {
-            if (!e.target.closest('.modal-content')) {
-                closeAddEntryModal();
-                return;
-            }
             if (e.target.classList.contains('tag__remove')) {
                 const tagIndex = parseInt(e.target.getAttribute('data-tag-index'), 10);
                 removeAddEntryTag(tagIndex);

@@ -63,7 +63,7 @@
         </a>
         <a href="#" class="side-nav-add-btn" id="arcEditorBtn" title="Edit arcs">
             <svg class="icon" aria-hidden="true">
-                <use href="img/sprites/regular.svg#input-pipe"></use>
+                <use href="img/sprites/regular.svg#bezier-curve"></use>
             </svg>
             <span class="side-nav-tooltip">
                 Edit arcs <span class="tooltip-kbd">⇧⌘A</span>
@@ -435,7 +435,7 @@
         <div id="arcEditorSidesheet" class="sidesheet arc-editor-sidesheet" aria-hidden="true">
             <div class="sidesheet-panel">
                 <div class="sidesheet-header">
-                    <h2 class="sidesheet-title">Manage Arcs</h2>
+                    <h2 class="sidesheet-title">Edit Arcs</h2>
                     <button type="button" class="sidesheet-close" id="arcEditorSidesheetClose" aria-label="Close">
                         <svg class="icon" aria-hidden="true">
                             <use href="img/sprites/regular.svg#xmark"></use>
@@ -481,76 +481,6 @@
             </div>
         </div>
     </div>
-    </div>
-
-    <!-- Add Entry Modal -->
-    <div id="addEntryContainer" class="modal add-entry-modal">
-        <div class="modal-content lore-entry-tray">
-            <div class="tray">
-                <div class="tray-header">
-                    <h2>Lore entry</h2>
-                    <input type="number" id="addEntryNumber" class="tray-header-entry-num" step="any" min="0"
-                        placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
-                </div>
-                <div id="addEntryArcIndicator" class="editor-arc-badge"></div>
-                <div class="entry-content">
-                    <h3>Content</h3>
-                    <textarea id="addEntryContent" placeholder="Add your lore entry here..." tabindex="0"
-                        autocomplete="off"></textarea>
-                </div>
-                <div class="enter-tag">
-                    <h3>Tags</h3>
-                    <div class="tag-input-row">
-                        <div class="tag-input-wrapper">
-                            <input type="text" id="addEntryTagInput" placeholder="Add a tag..." tabindex="0"
-                                autocomplete="off">
-                            <div id="addEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
-                            <div class="edit-entry-color-wrapper" id="addEntryColorWrapper">
-                                <button type="button" class="lore-tag-current-color edit-entry-color-swatch"
-                                    id="addEntryColorSwatch" data-color="slate" aria-label="Tag color"
-                                    title="Select color" tabindex="0"></button>
-                                <div class="lore-tag-color-selector edit-entry-color-popover" role="group"
-                                    aria-label="Tag color options">
-                                    <button type="button" class="tag-color orange-red edit-entry-color-btn"
-                                        data-color="amber" title="Amber" tabindex="0"></button>
-                                    <button type="button" class="tag-color orange edit-entry-color-btn"
-                                        data-color="orange" title="Orange" tabindex="0"></button>
-                                    <button type="button" class="tag-color lime edit-entry-color-btn" data-color="green"
-                                        title="Green" tabindex="0"></button>
-                                    <button type="button" class="tag-color aqua edit-entry-color-btn" data-color="teal"
-                                        title="Teal" tabindex="0"></button>
-                                    <button type="button" class="tag-color blue edit-entry-color-btn" data-color="blue"
-                                        title="Blue" tabindex="0"></button>
-                                    <button type="button" class="tag-color purple edit-entry-color-btn"
-                                        data-color="purple" title="Purple" tabindex="0"></button>
-                                    <button type="button" class="tag-color magenta edit-entry-color-btn"
-                                        data-color="pink" title="Pink" tabindex="0"></button>
-                                    <button type="button" class="tag-color slate edit-entry-color-btn selected"
-                                        data-color="slate" title="Slate" tabindex="0"></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="addEntryTags" class="tag-list"></div>
-                </div>
-                <div id="addEntrySuggestedTags" class="suggest-tag">
-                    <div class="suggest-tag-header">
-                        <h3>Suggested tags</h3>
-                        <button type="button" class="add-all-tags-btn" id="addEntryAddAllSuggested"
-                            style="display: none;" tabindex="0">+ Add all tags</button>
-                    </div>
-                    <div id="addEntrySuggestedTagsList" class="tag-list"></div>
-                </div>
-                <div class="tray-footer">
-                    <span class="tray-save-message" id="addTraySaveMessage" aria-live="polite"></span>
-                    <div class="tray-footer-buttons">
-                        <!-- <button type="button" class="generic-ui-btn text" data-action="cancel-add" tabindex="0">Cancel</button> -->
-                        <button type="button" class="generic-ui-btn text magenta-btn" data-action="submit-add"
-                            tabindex="0">Add Entry</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Modal -->

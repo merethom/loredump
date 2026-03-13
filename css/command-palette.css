@@ -697,3 +697,22 @@ mark.cmd-highlight {
     font-size: 0.75rem;
     color: #9999BA;
 }
+
+/* ---- Add-entry tray inside command palette ---- */
+
+.cmd-palette-add-entry {
+    display: none;
+    padding: 0 18px 12px;
+}
+
+.cmd-palette-add-entry .tray {
+    margin-top: 4px;
+}
+
+.cmd-palette-modal--add-entry .cmd-palette-results {
+    display: none;
+}
+
+.cmd-palette-modal--add-entry .cmd-palette-add-entry {
+    display: block;
+}

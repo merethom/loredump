@@ -28,6 +28,13 @@
         selectedResultIndex = -1;
 
         fullQuery = typeof initialQuery === 'string' ? initialQuery : '';
+
+        // Default to search mode whenever palette is opened; add-entry mode
+        // can be enabled explicitly via openAddEntryInPalette().
+        const modal = document.getElementById('cmdPaletteModal');
+        if (modal) modal.classList.remove('cmd-palette-modal--add-entry');
+        const addEntryEl = document.getElementById('addEntryContainer');
+        if (addEntryEl) addEntryEl.classList.remove('active');
         const input = document.getElementById('cmdPaletteInput');
         if (input) {
             requestAnimationFrame(() => {
@@ -193,6 +200,12 @@
 
     function escapeRegex(str) {
         return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    /** Return keyword strings from query for post-highlight (text search terms only). */
+    function getHighlightKeywords(query) {
+        const tokens = parseQueryTokens(query || '');
+        return tokens.filter(t => t.type === 'keyword').map(t => t.value).filter(Boolean);
     }
 
     /** Wrap matching term in <mark> for snippet highlighting */
@@ -530,7 +543,6 @@
                 if (type === 'action') {
                     const action = el.getAttribute('data-action');
                     if (action === 'add-entry' && typeof openAddEntryModal === 'function') {
-                        closeCommandPalette();
                         openAddEntryModal();
                     }
                 } else if (type === 'recent') {
@@ -790,7 +802,8 @@
                 } else {
                     addRecentSearch(currentQuery);
                     const entryNum = el.getAttribute('data-entry-number');
-                    applyResult(entryNum);
+                    const highlightTerms = getHighlightKeywords(currentQuery);
+                    applyResult(entryNum, highlightTerms);
                 }
             });
         });
@@ -800,12 +813,15 @@
        Applying a result
     ------------------------------------------------------------------ */
 
-    function applyResult(entryNum) {
+    const CARD_HIGHLIGHT_DURATION_MS = 4500;
+    const CARD_HIGHLIGHT_AFTER_SCROLL_MS = 450;
+
+    function applyResult(entryNum, highlightTerms) {
         closeCommandPalette();
-        scrollToEntry(entryNum);
+        scrollToEntry(entryNum, highlightTerms);
     }
 
-    function scrollToEntry(entryNum) {
+    function scrollToEntry(entryNum, highlightTerms) {
         requestAnimationFrame(() => {
             const cards = document.querySelectorAll('.card');
             let found = null;
@@ -821,8 +837,31 @@
                     behavior: 'smooth',
                     block: 'center'
                 });
+                if (highlightTerms && highlightTerms.length > 0) {
+                    setTimeout(() => {
+                        highlightCardKeywords(found, highlightTerms);
+                    }, CARD_HIGHLIGHT_AFTER_SCROLL_MS);
+                }
             }
         });
+    }
+
+    function highlightCardKeywords(card, keywords) {
+        const desc = card.querySelector('.card-description');
+        if (!desc || !keywords.length) return;
+        if (desc._highlightTimeout) {
+            clearTimeout(desc._highlightTimeout);
+            desc._highlightTimeout = null;
+        }
+        const originalHtml = desc.innerHTML;
+        const sorted = keywords.slice().sort((a, b) => b.length - a.length);
+        const pattern = sorted.map(k => escapeRegex(k)).join('|');
+        const re = new RegExp('(' + pattern + ')', 'gi');
+        desc.innerHTML = originalHtml.replace(re, '<mark class="card-search-highlight">$1</mark>');
+        desc._highlightTimeout = setTimeout(() => {
+            desc.innerHTML = originalHtml;
+            desc._highlightTimeout = null;
+        }, CARD_HIGHLIGHT_DURATION_MS);
     }
 
     /** Scroll so the arc header is visible at its sticky position. Targets a non-sticky anchor to avoid sticky positioning confusing scrollIntoView. */
@@ -975,7 +1014,8 @@
                 } else {
                     addRecentSearch(fullQuery);
                     const entryNum = el.getAttribute('data-entry-number');
-                    applyResult(entryNum);
+                    const highlightTerms = getHighlightKeywords(fullQuery);
+                    applyResult(entryNum, highlightTerms);
                 }
             }
         }
@@ -1005,7 +1045,7 @@
         overlay.setAttribute('aria-label', 'Command palette');
 
         overlay.innerHTML = `
-            <div class="cmd-palette-modal">
+            <div class="cmd-palette-modal" id="cmdPaletteModal">
                 <div class="cmd-palette-input-row">
                     <svg class="icon cmd-palette-icon" aria-hidden="true">
                         <use href="img/sprites/light.svg#magnifying-glass"></use>
@@ -1025,6 +1065,73 @@
                     <span id="cmdPaletteModeBadge" class="cmd-palette-mode-badge" aria-live="polite"></span>
                 </div>
                 <div id="cmdPaletteResults" class="cmd-palette-results"></div>
+
+                <div id="addEntryContainer" class="cmd-palette-add-entry lore-entry-tray">
+                    <div class="tray">
+                        <div class="tray-header">
+                            <h2>Lore entry</h2>
+                            <input type="number" id="addEntryNumber" class="tray-header-entry-num" step="any" min="0"
+                                placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
+                        </div>
+                        <div id="addEntryArcIndicator" class="editor-arc-badge"></div>
+                        <div class="entry-content">
+                            <h3>Content</h3>
+                            <textarea id="addEntryContent" placeholder="Add your lore entry here..." tabindex="0"
+                                autocomplete="off"></textarea>
+                        </div>
+                        <div class="enter-tag">
+                            <h3>Tags</h3>
+                            <div class="tag-input-row">
+                                <div class="tag-input-wrapper">
+                                    <input type="text" id="addEntryTagInput" placeholder="Add a tag..." tabindex="0"
+                                        autocomplete="off">
+                                    <div id="addEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
+                                    <div class="edit-entry-color-wrapper" id="addEntryColorWrapper">
+                                        <button type="button" class="lore-tag-current-color edit-entry-color-swatch"
+                                            id="addEntryColorSwatch" data-color="slate" aria-label="Tag color"
+                                            title="Select color" tabindex="0"></button>
+                                        <div class="lore-tag-color-selector edit-entry-color-popover" role="group"
+                                            aria-label="Tag color options">
+                                            <button type="button" class="tag-color orange-red edit-entry-color-btn"
+                                                data-color="amber" title="Amber" tabindex="0"></button>
+                                            <button type="button" class="tag-color orange edit-entry-color-btn"
+                                                data-color="orange" title="Orange" tabindex="0"></button>
+                                            <button type="button" class="tag-color lime edit-entry-color-btn" data-color="green"
+                                                title="Green" tabindex="0"></button>
+                                            <button type="button" class="tag-color aqua edit-entry-color-btn" data-color="teal"
+                                                title="Teal" tabindex="0"></button>
+                                            <button type="button" class="tag-color blue edit-entry-color-btn" data-color="blue"
+                                                title="Blue" tabindex="0"></button>
+                                            <button type="button" class="tag-color purple edit-entry-color-btn"
+                                                data-color="purple" title="Purple" tabindex="0"></button>
+                                            <button type="button" class="tag-color magenta edit-entry-color-btn"
+                                                data-color="pink" title="Pink" tabindex="0"></button>
+                                            <button type="button" class="tag-color slate edit-entry-color-btn selected"
+                                                data-color="slate" title="Slate" tabindex="0"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="addEntryTags" class="tag-list"></div>
+                        </div>
+                        <div id="addEntrySuggestedTags" class="suggest-tag">
+                            <div class="suggest-tag-header">
+                                <h3>Suggested tags</h3>
+                                <button type="button" class="add-all-tags-btn" id="addEntryAddAllSuggested"
+                                    style="display: none;" tabindex="0">+ Add all tags</button>
+                            </div>
+                            <div id="addEntrySuggestedTagsList" class="tag-list"></div>
+                        </div>
+                        <div class="tray-footer">
+                            <span class="tray-save-message" id="addTraySaveMessage" aria-live="polite"></span>
+                            <div class="tray-footer-buttons">
+                                <button type="button" class="generic-ui-btn text magenta-btn" data-action="submit-add"
+                                    tabindex="0">Add Entry</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="cmd-palette-footer">
 
                     <div class="cmd-palette-footer-hints">
@@ -1190,6 +1297,23 @@
     window.refreshCommandPaletteArcs = function () {
         if (!paletteOpen) return;
         if (detectMode(fullQuery).mode === 'arc') renderResults(fullQuery);
+    };
+
+    // Open the command palette directly in "New entry" mode (embedded tray).
+    window.openAddEntryInPalette = function () {
+        openCommandPalette();
+        const modal = document.getElementById('cmdPaletteModal');
+        const addEntryEl = document.getElementById('addEntryContainer');
+        if (modal && addEntryEl) {
+            modal.classList.add('cmd-palette-modal--add-entry');
+            addEntryEl.classList.add('active');
+            const contentEl = document.getElementById('addEntryContent');
+            if (contentEl) {
+                requestAnimationFrame(() => {
+                    contentEl.focus();
+                });
+            }
+        }
     };
 
 })();
