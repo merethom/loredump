@@ -115,7 +115,7 @@ function renderDatabase() {
                     <button type="button" class="arc-kebab-btn" aria-label="Arc actions" title="Arc actions">
                         <svg class="icon" aria-hidden="true"><use href="img/sprites/regular.svg#ellipsis-vertical"></use></svg>
                     </button>
-                    <button type="button" class="arc-reorder-done" data-arc-key="${arcKey}" aria-label="Done reordering">Done</button>
+                    <button type="button" class="arc-reorder-done ui-btn" data-arc-key="${arcKey}" aria-label="Done reordering">Done</button>
                 </div>
             </div>
             <div class="db-arc-entries" data-arc-key="${arcKey}"${isCollapsed ? ' hidden' : ''}>
@@ -486,11 +486,6 @@ function openEntryActionsMenu(anchorBtn, entryNumber) {
             <button type="button" class="entry-actions-item" data-action="add-after" role="menuitem">
                 <svg class="icon" aria-hidden="true"><use href="img/sprites/regular.svg#arrow-down"></use></svg>
                 <span class="entry-actions-label">Add after</span>
-            </button>
-            <div class="entry-actions-divider" role="separator"></div>
-            <button type="button" class="entry-actions-item" data-action="edit-order" role="menuitem">
-                <svg class="icon" aria-hidden="true"><use href="img/sprites/regular.svg#grip-vertical"></use></svg>
-                <span class="entry-actions-label">Edit order</span>
             </button>
         `;
         document.body.appendChild(menu);
@@ -864,70 +859,41 @@ function insertEntryRelativeTo(entryNumber, where) {
     if (isNaN(baseNum)) return;
 
     const arcKey = Math.floor(baseNum).toString();
-    let decimals = getDecimalPlacesFromNumberString(baseStr);
-    let step = Math.pow(10, -decimals);
+    const arcInt = parseInt(arcKey, 10);
+    if (isNaN(arcInt)) return;
 
-    // If this insert would overflow the arc boundary at current precision, bump to 3 decimals and renumber the whole arc.
+    // Determine insertion index relative to the base entry (stable even if we later renumber on save).
+    const arcEntriesAsc = getArcEntriesSortedAsc(arcKey);
+    const baseIdx = arcEntriesAsc.findIndex(e => String(e.Number) === String(baseEntry.Number));
+    if (baseIdx === -1) return;
+    const insertIndex = baseIdx + (where === 'after' ? 1 : 0);
+
+    // Use current arc precision so the prefilled number matches what will be saved.
+    let decimals = getArcDecimalsForRenumbering(arcKey);
+    let step = Math.pow(10, -decimals);
+    let needRenumber = false;
+
+    // If this insert would overflow the arc boundary at current precision, bump to 3 decimals and renumber the whole arc ON SAVE.
     const maxN = getMaxNumberInArc(arcKey);
-    const arcBoundary = parseInt(arcKey, 10) + 1;
-    if (maxN != null && !isNaN(arcBoundary)) {
+    const arcBoundary = arcInt + 1;
+    if (maxN != null) {
         if (decimals < 3 && (maxN + step) >= arcBoundary) {
-            const ok = renumberArcToThreeDecimals(arcKey);
-            if (ok === false) return;
-            // Recompute after renumbering
+            needRenumber = true;
             decimals = 3;
             step = 0.001;
         } else if (decimals >= 3 && (maxN + step) >= arcBoundary) {
             // Would exceed 1000 slots in this arc.
-            const count = getArcEntriesSortedAsc(arcKey).length;
             showArcCapacityModal(`This arc is at its maximum capacity (~1000 entries). You can’t add another entry in Arc ${arcKey} without moving some entries to a different arc.`);
             return;
         }
     }
 
-    // Determine new entry number for insertion.
-    const insertNum = (where === 'after') ? (baseNum + step) : baseNum;
+    const insertNum = arcInt + (insertIndex + 1) * step;
     const insertNumStr = formatEntryNumber(insertNum, decimals);
 
-    // Shift all entries in the same arc that would collide at/after insert point.
-    // before: shift >= baseNum
-    // after:  shift >= baseNum + step
-    const shiftFrom = insertNum;
-    const arcEntries = allData
-        .filter(e => {
-            const n = parseFloat(e.Number);
-            return !isNaN(n) && Math.floor(n).toString() === arcKey;
-        })
-        .slice()
-        .sort((a, b) => parseFloat(b.Number) - parseFloat(a.Number)); // descending to avoid cascading collisions
-
-    arcEntries.forEach(e => {
-        const n = parseFloat(e.Number);
-        if (n >= shiftFrom - (step / 10)) {
-            const newN = n + step;
-            e.Number = formatEntryNumber(newN, decimals);
-        }
-    });
-
-    // Insert the new entry at the intended number.
-    allData.push({
-        Number: insertNumStr,
-        Description: '',
-        Tags: ''
-    });
-
-    // Keep global ordering stable.
-    allData.sort((a, b) => parseFloat(a.Number) - parseFloat(b.Number));
-
-    if (typeof syncTagsFromDocument === 'function') syncTagsFromDocument();
-    if (typeof saveLoreToFirebase === 'function') saveLoreToFirebase();
-    if (typeof refreshTagFilter === 'function') refreshTagFilter();
-    if (typeof filterData === 'function') filterData();
-
-    // Open the new entry for editing.
-    if (typeof openEditEntryModal === 'function') {
-        setTimeout(() => openEditEntryModal(insertNumStr), 0);
-    }
+    // Defer all renumbering/shifting until the user saves.
+    pendingRelativeInsert = { arcKey, insertIndex, decimals, needRenumber, insertNumStr };
+    openAddEntryModal(insertNumStr);
 }
 
 function updateStats() {
@@ -1272,6 +1238,7 @@ function deleteEditEntry() {
 let addingEntryTags = [];
 let addingEntrySuggestedTags = [];
 let addingEntrySelectedColor = 'slate';
+let pendingRelativeInsert = null; // { arcKey, insertIndex, decimals, needRenumber, insertNumStr }
 
 function getNextEntryNumber() {
     if (!allData || allData.length === 0) return 1;
@@ -1281,7 +1248,7 @@ function getNextEntryNumber() {
     return Math.floor(max) + 1;
 }
 
-function openAddEntryModal() {
+function openAddEntryModal(presetNumber) {
     if (typeof openAddEntryInPalette === 'function') {
         openAddEntryInPalette();
     } else if (typeof openCommandPalette === 'function') {
@@ -1292,7 +1259,9 @@ function openAddEntryModal() {
         closeFilterSidesheet();
     }
     if (typeof closeSyncSidesheet === 'function') closeSyncSidesheet();
-    document.getElementById('addEntryNumber').value = getNextEntryNumber();
+    document.getElementById('addEntryNumber').value = (presetNumber != null && String(presetNumber).trim() !== '')
+        ? String(presetNumber)
+        : getNextEntryNumber();
     const addContent = document.getElementById('addEntryContent');
     addContent.value = '';
     if (addContent && ADD_ENTRY_PLACEHOLDER_OPTIONS.length) {
@@ -1322,6 +1291,7 @@ function closeAddEntryModal() {
     }
     document.getElementById('addEntryBtn')?.classList.remove('active');
     document.getElementById('mobileAddEntryBtn')?.classList.remove('active');
+    pendingRelativeInsert = null;
 }
 
 function updateAddEntryColorSelector() {
@@ -1394,12 +1364,60 @@ function submitAddEntry() {
         return;
     }
 
-    const entry = {
-        Number: numberVal,
-        Description: content,
-        Tags: serializeEntryTags(addingEntryTags)
-    };
-    allData.push(entry);
+    if (pendingRelativeInsert && numberVal === pendingRelativeInsert.insertNumStr) {
+        const arcKey = String(pendingRelativeInsert.arcKey);
+        const arcInt = parseInt(arcKey, 10);
+        if (isNaN(arcInt)) return;
+        let decimals = pendingRelativeInsert.decimals;
+        let step = Math.pow(10, -decimals);
+
+        if (pendingRelativeInsert.needRenumber) {
+            const ok = renumberArcToThreeDecimals(arcKey);
+            if (ok === false) return;
+            decimals = 3;
+            step = 0.001;
+        }
+
+        const maxN = getMaxNumberInArc(arcKey);
+        const arcBoundary = arcInt + 1;
+        if (maxN != null && (maxN + step) >= arcBoundary) {
+            showArcCapacityModal(`This arc is at its maximum capacity (~1000 entries). You can’t add another entry in Arc ${arcKey} without moving some entries to a different arc.`);
+            return;
+        }
+
+        const insertIndex = Math.max(0, pendingRelativeInsert.insertIndex);
+        const insertNum = arcInt + (insertIndex + 1) * step;
+        const insertNumStr = formatEntryNumber(insertNum, decimals);
+
+        const arcEntries = allData
+            .filter(e => {
+                const n = parseFloat(e.Number);
+                return !isNaN(n) && Math.floor(n).toString() === arcKey;
+            })
+            .slice()
+            .sort((a, b) => parseFloat(b.Number) - parseFloat(a.Number)); // descending
+
+        arcEntries.forEach(e => {
+            const n = parseFloat(e.Number);
+            if (n >= insertNum - (step / 10)) {
+                e.Number = formatEntryNumber(n + step, decimals);
+            }
+        });
+
+        allData.push({
+            Number: insertNumStr,
+            Description: content,
+            Tags: serializeEntryTags(addingEntryTags)
+        });
+        pendingRelativeInsert = null;
+    } else {
+        allData.push({
+            Number: numberVal,
+            Description: content,
+            Tags: serializeEntryTags(addingEntryTags)
+        });
+        pendingRelativeInsert = null;
+    }
     allData.sort((a, b) => parseFloat(a.Number) - parseFloat(b.Number));
     syncTagsFromDocument();
     if (typeof saveLoreToFirebase === 'function') saveLoreToFirebase();

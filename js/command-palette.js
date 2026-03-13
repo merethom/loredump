@@ -52,6 +52,13 @@
         overlay.classList.remove('active');
         paletteOpen = false;
         selectedResultIndex = -1;
+        // If the embedded add-entry tray is open, close it so ESC behaves like cancel.
+        if (typeof closeAddEntryModal === 'function') {
+            const addEntryEl = document.getElementById('addEntryContainer');
+            if (addEntryEl && addEntryEl.classList.contains('active')) {
+                closeAddEntryModal();
+            }
+        }
     }
 
     /* ------------------------------------------------------------------

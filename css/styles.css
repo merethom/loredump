@@ -1538,9 +1538,11 @@ h3.diff-section-title {
     gap: 24px;
 }
 
-.arc-reorder-done {
-    display: none;
-    margin-right: 12px;
+.ui-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     padding: 6px 10px;
     border-radius: 6px;
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -1549,6 +1551,28 @@ h3.diff-section-title {
     font-family: var(--font-sans-flex);
     font-size: 12px;
     cursor: pointer;
+    user-select: none;
+    transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.ui-btn:hover {
+    background: rgba(30, 30, 54, 0.75);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #DDD6F2;
+}
+
+.ui-btn:active {
+    transform: translateY(0.5px);
+}
+
+.ui-btn:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-purple) 55%, transparent);
+    outline-offset: 2px;
+}
+
+.arc-reorder-done {
+    display: none;
+    margin-right: 12px;
 }
 
 .arc-kebab-btn {
