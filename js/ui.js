@@ -1249,16 +1249,15 @@ function getNextEntryNumber() {
 }
 
 function openAddEntryModal(presetNumber) {
-    if (typeof openAddEntryInPalette === 'function') {
-        openAddEntryInPalette();
-    } else if (typeof openCommandPalette === 'function') {
-        openCommandPalette();
-    }
-
     if (typeof filtersVisible !== 'undefined' && filtersVisible && typeof closeFilterSidesheet === 'function') {
         closeFilterSidesheet();
     }
     if (typeof closeSyncSidesheet === 'function') closeSyncSidesheet();
+    const overlay = document.getElementById('addEntryOverlay');
+    if (overlay) {
+        overlay.classList.add('active');
+        overlay.setAttribute('aria-hidden', 'false');
+    }
     document.getElementById('addEntryNumber').value = (presetNumber != null && String(presetNumber).trim() !== '')
         ? String(presetNumber)
         : getNextEntryNumber();
@@ -1285,9 +1284,10 @@ function openAddEntryModal(presetNumber) {
 
 function closeAddEntryModal() {
     document.getElementById('addEntryContainer').classList.remove('active');
-    const paletteModal = document.getElementById('cmdPaletteModal');
-    if (paletteModal) {
-        paletteModal.classList.remove('cmd-palette-modal--add-entry');
+    const overlay = document.getElementById('addEntryOverlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        overlay.setAttribute('aria-hidden', 'true');
     }
     document.getElementById('addEntryBtn')?.classList.remove('active');
     document.getElementById('mobileAddEntryBtn')?.classList.remove('active');
@@ -1349,6 +1349,7 @@ function submitAddEntry() {
     const numberInput = document.getElementById('addEntryNumber');
     const numberVal = numberInput.value.trim();
     const content = document.getElementById('addEntryContent').value.trim();
+    let savedEntryNumber = numberVal;
 
     if (!numberVal) {
         numberInput.focus();
@@ -1409,6 +1410,7 @@ function submitAddEntry() {
             Description: content,
             Tags: serializeEntryTags(addingEntryTags)
         });
+        savedEntryNumber = insertNumStr;
         pendingRelativeInsert = null;
     } else {
         allData.push({
@@ -1416,6 +1418,7 @@ function submitAddEntry() {
             Description: content,
             Tags: serializeEntryTags(addingEntryTags)
         });
+        savedEntryNumber = numberVal;
         pendingRelativeInsert = null;
     }
     allData.sort((a, b) => parseFloat(a.Number) - parseFloat(b.Number));
@@ -1424,7 +1427,25 @@ function submitAddEntry() {
     if (typeof refreshTagFilter === 'function') refreshTagFilter();
     filterData();
     showTraySaveMessage('add');
-    setTimeout(closeAddEntryModal, 600);
+    setTimeout(() => {
+        closeAddEntryModal();
+        scrollToEntryCard(savedEntryNumber);
+    }, 600);
+}
+
+function scrollToEntryCard(entryNumber) {
+    const numStr = String(entryNumber ?? '').trim();
+    if (!numStr) return;
+    const tryFindAndScroll = (attempt) => {
+        const card = document.querySelector(`.card[data-entry-number="${CSS.escape(numStr)}"]`);
+        if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+        if (attempt >= 8) return;
+        setTimeout(() => tryFindAndScroll(attempt + 1), 80);
+    };
+    tryFindAndScroll(0);
 }
 /**
  * Updates the arc indicator in the add/edit tray

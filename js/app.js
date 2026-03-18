@@ -10,34 +10,81 @@ function setupEventListeners() {
     // Setup search input
     const searchInput = document.getElementById('searchInput');
     const searchClear = document.getElementById('searchClear');
+    const entrySearchBanner = document.getElementById('entrySearchBanner');
+    const entrySearchLabel = document.getElementById('entrySearchLabel');
+    const entrySearchClearBtn = document.getElementById('entrySearchClearBtn');
+    let entrySearchRawQuery = '';
 
     function updateSearchClearVisibility() {
         searchClear.classList.toggle('show', searchInput.value.length > 0);
     }
 
+    function updateEntrySearchBanner() {
+        if (!entrySearchBanner || !entrySearchLabel) return;
+        const hasSearch = !!(searchTerm && String(searchTerm).trim());
+        if (!hasSearch) {
+            entrySearchBanner.hidden = true;
+            entrySearchBanner.setAttribute('aria-hidden', 'true');
+            entrySearchLabel.textContent = '';
+            return;
+        }
+        entrySearchBanner.hidden = false;
+        entrySearchBanner.setAttribute('aria-hidden', 'false');
+        const shown = (entrySearchRawQuery || searchInput?.value || searchTerm || '').trim();
+        entrySearchLabel.innerHTML = `Showing results for <strong>“${escapeHtml(shown)}”</strong>`;
+    }
+
+    function setEntrySearch(queryString) {
+        const qRaw = String(queryString ?? '').trim();
+        if (document.body.classList.contains('reorder-mode') && typeof exitReorderMode === 'function') {
+            exitReorderMode();
+        }
+        entrySearchRawQuery = qRaw;
+        searchTerm = qRaw.toLowerCase();
+        if (searchInput) searchInput.value = qRaw;
+        updateSearchClearVisibility();
+        updateEntrySearchBanner();
+        if (typeof filterData === 'function') filterData();
+    }
+
+    function clearEntrySearch() {
+        entrySearchRawQuery = '';
+        searchTerm = '';
+        if (searchInput) searchInput.value = '';
+        updateSearchClearVisibility();
+        updateEntrySearchBanner();
+        if (typeof filterData === 'function') filterData();
+    }
+
+    // Expose for command palette search-view action.
+    window.setEntrySearch = setEntrySearch;
+    window.clearEntrySearch = clearEntrySearch;
+
     searchInput.addEventListener('input', (e) => {
+        entrySearchRawQuery = e.target.value;
         searchTerm = e.target.value.toLowerCase();
         updateSearchClearVisibility();
+        updateEntrySearchBanner();
         filterData();
     });
     searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            searchInput.value = '';
-            searchTerm = '';
-            updateSearchClearVisibility();
-            filterData();
+            clearEntrySearch();
             e.preventDefault();
             e.stopPropagation();
         }
     });
 
     searchClear.addEventListener('click', () => {
-        searchInput.value = '';
-        searchTerm = '';
-        updateSearchClearVisibility();
-        filterData();
+        clearEntrySearch();
         searchInput.focus();
     });
+
+    entrySearchClearBtn?.addEventListener('click', () => {
+        clearEntrySearch();
+    });
+
+    updateEntrySearchBanner();
 
     // Setup global clicks for dropdowns and sidesheet
     document.addEventListener('click', (e) => {
@@ -244,24 +291,26 @@ function setupEventListeners() {
         });
     }
 
-    const addEntryTagInput = document.getElementById('addEntryTagInput');
-    if (addEntryTagInput) {
-        addEntryTagInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                addTagToAddEntry();
-            }
-        });
-    }
+    // Add-entry tray lives inside the command palette and is created dynamically,
+    // so use delegated listeners instead of binding once at startup.
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        const target = e.target;
+        if (!(target instanceof Element)) return;
+        if (target.id !== 'addEntryTagInput') return;
+        e.preventDefault();
+        if (typeof addTagToAddEntry === 'function') addTagToAddEntry();
+    });
 
-    const addEntryContent = document.getElementById('addEntryContent');
-    if (addEntryContent) {
-        addEntryContent.addEventListener('input', () => {
-            if (document.getElementById('addEntryContainer').classList.contains('active')) {
-                updateAddEntrySuggestedTags();
-            }
-        });
-    }
+    document.addEventListener('input', (e) => {
+        const target = e.target;
+        if (!(target instanceof Element)) return;
+        if (target.id !== 'addEntryContent') return;
+        const container = document.getElementById('addEntryContainer');
+        if (container && container.classList.contains('active')) {
+            if (typeof updateAddEntrySuggestedTags === 'function') updateAddEntrySuggestedTags();
+        }
+    });
 
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.edit-entry-color-wrapper')) {

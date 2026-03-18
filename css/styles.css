@@ -1532,6 +1532,42 @@ h3.diff-section-title {
     margin-bottom: 18px;
 }
 
+.entry-search-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 8px 0 18px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(30, 30, 54, 0.55);
+}
+
+.entry-search-banner[hidden] {
+    display: none !important;
+}
+
+.entry-search-banner__label {
+    color: var(--text-color);
+    font-family: var(--font-sans-flex);
+    font-size: 13px;
+    line-height: 1.2;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.entry-search-banner__label strong {
+    color: #DDD6F2;
+    font-weight: 600;
+}
+
+.entry-search-banner__clear {
+    flex-shrink: 0;
+}
+
 .db-arc-entries {
     display: flex;
     flex-direction: column;
@@ -1738,6 +1774,7 @@ body.reorder-mode .card.card--reorderable .card-grip-btn {
     text-underline-offset: 2px;
     border-radius: 2px;
     padding: 0 1px;
+    transition: color 240ms ease, background-color 240ms ease, text-decoration-color 240ms ease, opacity 240ms ease;
 }
 
 .card-arc--magenta .card-description .card-search-highlight { color: var(--color-magenta); background: color-mix(in srgb, var(--color-magenta) 28%, transparent); text-decoration-color: var(--color-magenta); }
@@ -1748,6 +1785,13 @@ body.reorder-mode .card.card--reorderable .card-grip-btn {
 .card-arc--purple .card-description .card-search-highlight { color: var(--color-purple); background: color-mix(in srgb, var(--color-purple) 28%, transparent); text-decoration-color: var(--color-purple); }
 .card-arc--orange-red .card-description .card-search-highlight { color: var(--color-orange-red); background: color-mix(in srgb, var(--color-orange-red) 28%, transparent); text-decoration-color: var(--color-orange-red); }
 .card-arc--slate .card-description .card-search-highlight { color: var(--color-slate); background: color-mix(in srgb, var(--color-slate) 28%, transparent); text-decoration-color: var(--color-slate); }
+
+.card-description .card-search-highlight.card-search-highlight--fadeout {
+    background-color: transparent;
+    color: inherit;
+    text-decoration-color: transparent;
+    opacity: 0.2;
+}
 
 /* .card-divider {
     height: 1px;

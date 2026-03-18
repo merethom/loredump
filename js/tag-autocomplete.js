@@ -47,6 +47,8 @@
         var input = document.getElementById(inputId);
         var list = document.getElementById(listId);
         if (!input || !list) return;
+        if (input.dataset && input.dataset.autocompleteWired === 'true') return;
+        if (input.dataset) input.dataset.autocompleteWired = 'true';
         var highlightedIndex = -1;
 
         function getItems() {
@@ -143,6 +145,8 @@
         list.style.display = 'none';
         return true;
     }
+
+    window.initTagAutocomplete = init;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);

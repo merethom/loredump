@@ -29,12 +29,7 @@
 
         fullQuery = typeof initialQuery === 'string' ? initialQuery : '';
 
-        // Default to search mode whenever palette is opened; add-entry mode
-        // can be enabled explicitly via openAddEntryInPalette().
-        const modal = document.getElementById('cmdPaletteModal');
-        if (modal) modal.classList.remove('cmd-palette-modal--add-entry');
-        const addEntryEl = document.getElementById('addEntryContainer');
-        if (addEntryEl) addEntryEl.classList.remove('active');
+        // Default to search mode whenever palette is opened.
         const input = document.getElementById('cmdPaletteInput');
         if (input) {
             requestAnimationFrame(() => {
@@ -550,7 +545,20 @@
                 if (type === 'action') {
                     const action = el.getAttribute('data-action');
                     if (action === 'add-entry' && typeof openAddEntryModal === 'function') {
+                        closeCommandPalette();
                         openAddEntryModal();
+                    } else if (action === 'search-view') {
+                        const tokens = parseQueryTokens(fullQuery);
+                        const keywords = tokens.filter(t => t.type === 'keyword').map(t => t.value).filter(Boolean);
+                        const q = keywords.join(' ').trim();
+                        if (q && typeof window.setEntrySearch === 'function') {
+                            window.setEntrySearch(q);
+                        }
+                        closeCommandPalette();
+                        const scrollEl = document.querySelector('.app-main-content');
+                        if (scrollEl) {
+                            scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
                     }
                 } else if (type === 'recent') {
                     const query = el.getAttribute('data-query') || '';
@@ -632,6 +640,8 @@
 
         const hasTagToken = !!tagToken;
         const hasArcToken = !!arcToken;
+        const hasEntryToken = tokens.some(t => t.type === 'entry');
+        const hasKeywordOnly = (keywords.length > 0) && !hasTagToken && !hasArcToken && !hasEntryToken;
 
         let matchingTags = [];
         let matchingArcs = [];
@@ -659,6 +669,7 @@
 
         // Build flat list of selectable items for keyboard nav
         const allItems = [];
+        if (hasKeywordOnly) allItems.push({ type: 'action', action: 'search-view' });
         matchingTags.forEach(tag => allItems.push({ type: 'tag', tag }));
         matchingArcs.forEach(arc => allItems.push({ type: 'arc', arc }));
         entries.forEach(entry => allItems.push({ type: 'entry', entry }));
@@ -669,10 +680,24 @@
             return;
         }
 
-        selectedResultIndex = selectedResultIndex >= allItems.length ? allItems.length - 1 : (selectedResultIndex < 0 ? 0 : selectedResultIndex);
+        // For plain keyword searches, default Enter should activate the "show all matching entries" action.
+        if (hasKeywordOnly) {
+            selectedResultIndex = 0;
+        } else {
+            selectedResultIndex = selectedResultIndex >= allItems.length ? allItems.length - 1 : (selectedResultIndex < 0 ? 0 : selectedResultIndex);
+        }
 
         let html = '';
         let globalIndex = 0;
+
+        if (hasKeywordOnly) {
+            html += '<div class="cmd-palette-section">';
+            html += '<div class="cmd-palette-section-title">Search</div>';
+            html += '<div class="cmd-palette-result cmd-palette-result--action cmd-palette-result--selected" data-type="action" data-action="search-view" data-index="' + (globalIndex++) + '">';
+            html += '<svg class="icon cmd-palette-action-icon" aria-hidden="true"><use href="img/sprites/regular.svg#list"></use></svg>';
+            html += '<span class="cmd-palette-action-label">Show all matching entries</span>';
+            html += '</div></div>';
+        }
 
         if (matchingTags.length > 0) {
             html += '<div class="cmd-palette-section"><div class="cmd-palette-section-title">Tags</div><div class="cmd-palette-tags-inline">';
@@ -698,6 +723,7 @@
         }
 
         list.innerHTML = html;
+        attachDefaultHandlers(list);
 
         // Enter = save, Escape = revert (arc edit mode)
         list.addEventListener('keydown', (e) => {
@@ -860,14 +886,23 @@
             clearTimeout(desc._highlightTimeout);
             desc._highlightTimeout = null;
         }
+        if (desc._highlightFadeTimeout) {
+            clearTimeout(desc._highlightFadeTimeout);
+            desc._highlightFadeTimeout = null;
+        }
         const originalHtml = desc.innerHTML;
         const sorted = keywords.slice().sort((a, b) => b.length - a.length);
         const pattern = sorted.map(k => escapeRegex(k)).join('|');
         const re = new RegExp('(' + pattern + ')', 'gi');
         desc.innerHTML = originalHtml.replace(re, '<mark class="card-search-highlight">$1</mark>');
         desc._highlightTimeout = setTimeout(() => {
-            desc.innerHTML = originalHtml;
+            const marks = Array.from(desc.querySelectorAll('mark.card-search-highlight'));
+            marks.forEach(m => m.classList.add('card-search-highlight--fadeout'));
             desc._highlightTimeout = null;
+            desc._highlightFadeTimeout = setTimeout(() => {
+                desc.innerHTML = originalHtml;
+                desc._highlightFadeTimeout = null;
+            }, 260);
         }, CARD_HIGHLIGHT_DURATION_MS);
     }
 
@@ -991,6 +1026,21 @@
                     if (action === 'add-entry' && typeof openAddEntryModal === 'function') {
                         closeCommandPalette();
                         openAddEntryModal();
+                        return;
+                    }
+                    if (action === 'search-view') {
+                        const tokens = parseQueryTokens(fullQuery);
+                        const keywords = tokens.filter(t => t.type === 'keyword').map(t => t.value).filter(Boolean);
+                        const q = keywords.join(' ').trim();
+                        if (q && typeof window.setEntrySearch === 'function') {
+                            window.setEntrySearch(q);
+                        }
+                        closeCommandPalette();
+                        const scrollEl = document.querySelector('.app-main-content');
+                        if (scrollEl) {
+                            scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                        return;
                     }
                 } else if (type === 'recent') {
                     const query = el.getAttribute('data-query') || '';
@@ -1072,72 +1122,6 @@
                     <span id="cmdPaletteModeBadge" class="cmd-palette-mode-badge" aria-live="polite"></span>
                 </div>
                 <div id="cmdPaletteResults" class="cmd-palette-results"></div>
-
-                <div id="addEntryContainer" class="cmd-palette-add-entry lore-entry-tray">
-                    <div class="tray">
-                        <div class="tray-header">
-                            <h2>Lore entry</h2>
-                            <input type="number" id="addEntryNumber" class="tray-header-entry-num" step="any" min="0"
-                                placeholder="#" tabindex="0" aria-label="Entry number" autocomplete="off">
-                        </div>
-                        <div id="addEntryArcIndicator" class="editor-arc-badge"></div>
-                        <div class="entry-content">
-                            <h3>Content</h3>
-                            <textarea id="addEntryContent" placeholder="Add your lore entry here..." tabindex="0"
-                                autocomplete="off"></textarea>
-                        </div>
-                        <div class="enter-tag">
-                            <h3>Tags</h3>
-                            <div class="tag-input-row">
-                                <div class="tag-input-wrapper">
-                                    <input type="text" id="addEntryTagInput" placeholder="Add a tag..." tabindex="0"
-                                        autocomplete="off">
-                                    <div id="addEntryTagAutocomplete" class="tag-autocomplete" style="display:none;"></div>
-                                    <div class="edit-entry-color-wrapper" id="addEntryColorWrapper">
-                                        <button type="button" class="lore-tag-current-color edit-entry-color-swatch"
-                                            id="addEntryColorSwatch" data-color="slate" aria-label="Tag color"
-                                            title="Select color" tabindex="0"></button>
-                                        <div class="lore-tag-color-selector edit-entry-color-popover" role="group"
-                                            aria-label="Tag color options">
-                                            <button type="button" class="tag-color orange-red edit-entry-color-btn"
-                                                data-color="amber" title="Amber" tabindex="0"></button>
-                                            <button type="button" class="tag-color orange edit-entry-color-btn"
-                                                data-color="orange" title="Orange" tabindex="0"></button>
-                                            <button type="button" class="tag-color lime edit-entry-color-btn" data-color="green"
-                                                title="Green" tabindex="0"></button>
-                                            <button type="button" class="tag-color aqua edit-entry-color-btn" data-color="teal"
-                                                title="Teal" tabindex="0"></button>
-                                            <button type="button" class="tag-color blue edit-entry-color-btn" data-color="blue"
-                                                title="Blue" tabindex="0"></button>
-                                            <button type="button" class="tag-color purple edit-entry-color-btn"
-                                                data-color="purple" title="Purple" tabindex="0"></button>
-                                            <button type="button" class="tag-color magenta edit-entry-color-btn"
-                                                data-color="pink" title="Pink" tabindex="0"></button>
-                                            <button type="button" class="tag-color slate edit-entry-color-btn selected"
-                                                data-color="slate" title="Slate" tabindex="0"></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="addEntryTags" class="tag-list"></div>
-                        </div>
-                        <div id="addEntrySuggestedTags" class="suggest-tag">
-                            <div class="suggest-tag-header">
-                                <h3>Suggested tags</h3>
-                                <button type="button" class="add-all-tags-btn" id="addEntryAddAllSuggested"
-                                    style="display: none;" tabindex="0">+ Add all tags</button>
-                            </div>
-                            <div id="addEntrySuggestedTagsList" class="tag-list"></div>
-                        </div>
-                        <div class="tray-footer">
-                            <span class="tray-save-message" id="addTraySaveMessage" aria-live="polite"></span>
-                            <div class="tray-footer-buttons">
-                                <button type="button" class="generic-ui-btn text magenta-btn" data-action="submit-add"
-                                    tabindex="0">Add Entry</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="cmd-palette-footer">
 
