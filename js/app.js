@@ -466,6 +466,14 @@ function setupEventListeners() {
                 deleteEditEntry();
                 e.stopPropagation();
             }
+
+            const arcMenuBtn = e.target.closest('[data-action="edit-arc-menu"]');
+            if (arcMenuBtn) {
+                if (typeof openEditArcBoundaryMenu === 'function') {
+                    openEditArcBoundaryMenu(arcMenuBtn);
+                }
+                e.stopPropagation();
+            }
         });
 
         editEntryContainerEl.addEventListener('keydown', (e) => {

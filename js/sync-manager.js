@@ -53,6 +53,9 @@
                 entries: entries || [],
                 tags: tags || [],
                 arcs: allArcs || {},
+                pendingOps: (typeof pendingArcOps !== 'undefined' && Array.isArray(pendingArcOps))
+                    ? pendingArcOps
+                    : [],
                 updatedAt: new Date().toISOString()
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -85,6 +88,7 @@
      */
     function clearDraft() {
         localStorage.removeItem(STORAGE_KEY);
+        if (typeof pendingArcOps !== 'undefined') pendingArcOps = [];
         window.dispatchEvent(new CustomEvent('loreDraftUpdated'));
     }
 

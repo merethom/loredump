@@ -850,6 +850,358 @@ function showArcCapacityModal(message) {
     modal.classList.add('active');
 }
 
+function findEntryByNumber(entryNumber) {
+    const target = String(entryNumber);
+    const asFloat = parseFloat(target);
+    return allData.find(e => String(e.Number) === target || parseFloat(e.Number) === asFloat) || null;
+}
+
+function getSortedArcKeysFromData() {
+    const keys = new Set();
+    allData.forEach(entry => {
+        const n = parseFloat(entry.Number);
+        if (!isNaN(n)) keys.add(Math.floor(n).toString());
+    });
+    return Array.from(keys).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+}
+
+function ensureArcCapacity(arcKey, newCount) {
+    if (newCount > 999) {
+        showArcCapacityModal(`Arc ${arcKey} would have ${newCount} entries. This exceeds the 1000-entry limit for a single arc.`);
+        return false;
+    }
+    return true;
+}
+
+function shiftArcIntegersAbove(arcInt, delta) {
+    // Remap entry integers and allArcs keys for arcs strictly greater than arcInt.
+    // Process high→low when shifting up, low→high when shifting down, to avoid collisions.
+    const entryKeys = getSortedArcKeysFromData()
+        .map(k => parseInt(k, 10))
+        .filter(k => k > arcInt);
+    const metaKeys = Object.keys(allArcs || {})
+        .map(k => parseInt(k, 10))
+        .filter(k => !isNaN(k) && k > arcInt);
+    const keys = Array.from(new Set(entryKeys.concat(metaKeys)))
+        .sort((a, b) => (delta > 0 ? b - a : a - b));
+
+    const newArcsMeta = {};
+    Object.keys(allArcs || {}).forEach(k => {
+        const ki = parseInt(k, 10);
+        if (isNaN(ki) || ki <= arcInt) {
+            newArcsMeta[k] = allArcs[k];
+        }
+    });
+
+    keys.forEach(oldInt => {
+        const newInt = oldInt + delta;
+        const oldKey = String(oldInt);
+        const newKey = String(newInt);
+        getArcEntriesSortedAsc(oldKey).forEach(entry => {
+            const decimals = getDecimalPlacesFromNumberString(entry.Number);
+            const n = parseFloat(entry.Number);
+            const frac = n - Math.floor(n);
+            entry.Number = formatEntryNumber(newInt + frac, decimals);
+        });
+        if (allArcs && allArcs[oldKey]) {
+            newArcsMeta[newKey] = allArcs[oldKey];
+        }
+    });
+
+    Object.keys(allArcs || {}).forEach(k => {
+        delete allArcs[k];
+    });
+    Object.assign(allArcs, newArcsMeta);
+}
+
+function deleteEmptyArcAndShiftDown(arcInt) {
+    const key = String(arcInt);
+    if (getArcEntriesSortedAsc(key).length > 0) return;
+    if (allArcs && allArcs[key]) delete allArcs[key];
+    shiftArcIntegersAbove(arcInt, -1);
+}
+
+function persistEditTrayFieldsToEntry() {
+    if (!currentEditingEntryNumber) return null;
+    const entry = findEntryByNumber(currentEditingEntryNumber);
+    if (!entry) return null;
+    const contentEl = document.getElementById('editEntryContent');
+    if (contentEl) entry.Description = contentEl.value.trim();
+    entry.Tags = serializeEntryTags(editingEntryTags);
+    return entry;
+}
+
+function beginArcBoundaryOp({ action, title, summary }) {
+    return {
+        id: 'op_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8),
+        type: 'arc-boundary',
+        action: action,
+        title: title,
+        summary: summary,
+        revert: {
+            entries: JSON.parse(JSON.stringify(allData || [])),
+            arcs: JSON.parse(JSON.stringify(allArcs || {}))
+        },
+        _beforeNumbers: new Set((allData || []).map(e => String(e.Number))),
+        _beforeArcKeys: new Set(Object.keys(allArcs || {}))
+    };
+}
+
+function commitArcBoundaryOp(op) {
+    if (!op) return;
+    const afterNumbers = new Set((allData || []).map(e => String(e.Number)));
+    const afterArcKeys = new Set(Object.keys(allArcs || {}));
+    const memberIds = [];
+
+    (op._beforeNumbers || []).forEach(n => {
+        if (!afterNumbers.has(n)) memberIds.push('entry:' + n);
+    });
+    afterNumbers.forEach(n => {
+        if (!(op._beforeNumbers && op._beforeNumbers.has(n))) memberIds.push('entry:' + n);
+    });
+    (op._beforeArcKeys || []).forEach(k => {
+        if (!afterArcKeys.has(k)) memberIds.push('arc:' + k);
+    });
+    afterArcKeys.forEach(k => {
+        if (!(op._beforeArcKeys && op._beforeArcKeys.has(k))) memberIds.push('arc:' + k);
+    });
+
+    delete op._beforeNumbers;
+    delete op._beforeArcKeys;
+    op.memberIds = memberIds;
+
+    if (typeof pendingArcOps === 'undefined' || !Array.isArray(pendingArcOps)) {
+        pendingArcOps = [];
+    }
+    pendingArcOps.push(op);
+}
+
+function finishArcBoundaryAction(entry, op) {
+    allData.sort((a, b) => parseFloat(a.Number) - parseFloat(b.Number));
+    if (op) commitArcBoundaryOp(op);
+    if (typeof syncTagsFromDocument === 'function') syncTagsFromDocument();
+    if (typeof saveLoreToFirebase === 'function') saveLoreToFirebase();
+    const newNumber = entry.Number;
+    closeEditEntryModal();
+    openEditEntryModal(newNumber);
+}
+
+function getArcBoundaryContext(entryNumber) {
+    const entry = findEntryByNumber(entryNumber);
+    if (!entry) return null;
+    const n = parseFloat(entry.Number);
+    if (isNaN(n)) return null;
+    const arcKey = Math.floor(n).toString();
+    const arcInt = parseInt(arcKey, 10);
+    const arcEntries = getArcEntriesSortedAsc(arcKey);
+    const index = arcEntries.findIndex(e => e === entry || String(e.Number) === String(entry.Number));
+    if (index === -1) return null;
+    const sortedKeys = getSortedArcKeysFromData();
+    const keyPos = sortedKeys.indexOf(arcKey);
+    const prevKey = keyPos > 0 ? sortedKeys[keyPos - 1] : null;
+    const nextKey = keyPos >= 0 && keyPos < sortedKeys.length - 1 ? sortedKeys[keyPos + 1] : null;
+    return { entry, arcKey, arcInt, arcEntries, index, prevKey, nextKey };
+}
+
+function openEditArcBoundaryMenu(anchorBtn) {
+    if (!currentEditingEntryNumber || !anchorBtn) return;
+
+    let menu = document.getElementById('editArcBoundaryMenu');
+    if (menu && menu.classList.contains('open')) {
+        menu.classList.remove('open');
+        return;
+    }
+
+    if (!menu) {
+        menu = document.createElement('div');
+        menu.id = 'editArcBoundaryMenu';
+        menu.className = 'entry-actions-menu';
+        menu.setAttribute('role', 'menu');
+        menu.innerHTML = `
+            <button type="button" class="entry-actions-item" data-action="start-new-arc" role="menuitem">
+                <svg class="icon" aria-hidden="true"><use href="img/sprites/regular.svg#split"></use></svg>
+                <span class="entry-actions-label">Start new arc here</span>
+            </button>
+            <button type="button" class="entry-actions-item" data-action="merge-prev-arc" role="menuitem">
+                <svg class="icon" aria-hidden="true"><use href="img/sprites/regular.svg#arrow-up"></use></svg>
+                <span class="entry-actions-label">Merge into previous arc</span>
+            </button>
+            <button type="button" class="entry-actions-item" data-action="merge-next-arc" role="menuitem">
+                <svg class="icon" aria-hidden="true"><use href="img/sprites/regular.svg#arrow-down"></use></svg>
+                <span class="entry-actions-label">Merge into next arc</span>
+            </button>
+        `;
+        document.body.appendChild(menu);
+
+        document.addEventListener('mousedown', (ev) => {
+            if (!menu.classList.contains('open')) return;
+            if (ev.target.closest('#editArcBoundaryMenu')) return;
+            if (ev.target.closest('#editEntryArcKebabBtn')) return;
+            menu.classList.remove('open');
+        }, true);
+
+        document.addEventListener('keydown', (ev) => {
+            if (ev.key !== 'Escape') return;
+            if (!menu.classList.contains('open')) return;
+            menu.classList.remove('open');
+        }, true);
+
+        menu.addEventListener('click', (ev) => {
+            const btn = ev.target.closest('.entry-actions-item[data-action]');
+            if (!btn || btn.disabled) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            const action = btn.getAttribute('data-action');
+            menu.classList.remove('open');
+            if (typeof handleEditArcBoundaryAction === 'function') {
+                handleEditArcBoundaryAction(action);
+            }
+        });
+    }
+
+    const ctx = getArcBoundaryContext(currentEditingEntryNumber);
+    const startBtn = menu.querySelector('[data-action="start-new-arc"]');
+    const mergePrevBtn = menu.querySelector('[data-action="merge-prev-arc"]');
+    const mergeNextBtn = menu.querySelector('[data-action="merge-next-arc"]');
+
+    if (startBtn) startBtn.disabled = !(ctx && ctx.index > 0);
+    if (mergePrevBtn) mergePrevBtn.disabled = !(ctx && ctx.prevKey);
+    if (mergeNextBtn) mergeNextBtn.disabled = !(ctx && ctx.nextKey);
+
+    // Close sibling action menus if open
+    document.getElementById('entryActionsMenu')?.classList.remove('open');
+    document.getElementById('arcActionsMenu')?.classList.remove('open');
+
+    menu.classList.add('open');
+
+    const pad = 8;
+    const firstItem = menu.querySelector('.entry-actions-item');
+    const mRect = menu.getBoundingClientRect();
+    const fRect = firstItem ? firstItem.getBoundingClientRect() : null;
+    const rect = anchorBtn.getBoundingClientRect();
+    menu.style.transform = 'translateX(-100%)';
+    const desiredY = rect.top + rect.height / 2;
+    const firstCenterOffset = fRect ? (fRect.top - mRect.top) + (fRect.height / 2) : 0;
+    let anchorX = rect.right;
+    let menuTop = desiredY - firstCenterOffset;
+    anchorX = Math.max(pad + mRect.width, Math.min(anchorX, window.innerWidth - pad));
+    menuTop = Math.max(pad, Math.min(menuTop, window.innerHeight - mRect.height - pad));
+    menu.style.left = anchorX + 'px';
+    menu.style.top = menuTop + 'px';
+}
+
+function renumberEntryRefsDense(arcInt, entryRefs) {
+    const count = entryRefs.length;
+    if (!count) return true;
+    let decimals = 2;
+    entryRefs.forEach(e => {
+        decimals = Math.max(decimals, getDecimalPlacesFromNumberString(e.Number));
+    });
+    if (decimals < 3 && count > 99) decimals = 3;
+    decimals = Math.min(3, decimals);
+    if (!ensureArcCapacity(String(arcInt), count)) return false;
+    const step = Math.pow(10, -decimals);
+    entryRefs.forEach((entry, idx) => {
+        entry.Number = formatEntryNumber(arcInt + (idx + 1) * step, decimals);
+    });
+    return true;
+}
+
+function startNewArcAtEntry(entryNumber) {
+    const ctx = getArcBoundaryContext(entryNumber);
+    if (!ctx || ctx.index <= 0) return false;
+
+    const prefix = ctx.arcEntries.slice(0, ctx.index);
+    const suffix = ctx.arcEntries.slice(ctx.index);
+    const moveCount = suffix.length;
+
+    if (!ensureArcCapacity(String(ctx.arcInt + 1), moveCount)) return false;
+
+    const op = beginArcBoundaryOp({
+        action: 'start-new-arc',
+        title: `Split arc at ${ctx.entry.Number}`,
+        summary: `${moveCount} entries renumbered`
+    });
+
+    // Make room: shift arcs > N up by 1 so N+1 is free.
+    shiftArcIntegersAbove(ctx.arcInt, 1);
+
+    const newArcInt = ctx.arcInt + 1;
+    allArcs[String(newArcInt)] = { name: '', color: 'slate' };
+
+    if (!renumberEntryRefsDense(ctx.arcInt, prefix)) return false;
+    if (!renumberEntryRefsDense(newArcInt, suffix)) return false;
+
+    finishArcBoundaryAction(ctx.entry, op);
+    return true;
+}
+
+function mergeArcRangeIntoPrevious(entryNumber) {
+    const ctx = getArcBoundaryContext(entryNumber);
+    if (!ctx || !ctx.prevKey) return false;
+
+    const moving = ctx.arcEntries.slice(0, ctx.index + 1);
+    const remaining = ctx.arcEntries.slice(ctx.index + 1);
+    const prevEntries = getArcEntriesSortedAsc(ctx.prevKey);
+    const prevInt = parseInt(ctx.prevKey, 10);
+    if (!ensureArcCapacity(ctx.prevKey, prevEntries.length + moving.length)) return false;
+
+    const op = beginArcBoundaryOp({
+        action: 'merge-prev-arc',
+        title: `Merged ${moving.length} entries into Arc ${ctx.prevKey}`,
+        summary: `${moving.length} entries renumbered`
+    });
+
+    if (!renumberEntryRefsDense(prevInt, prevEntries.concat(moving))) return false;
+
+    if (remaining.length > 0) {
+        if (!renumberEntryRefsDense(ctx.arcInt, remaining)) return false;
+    } else {
+        deleteEmptyArcAndShiftDown(ctx.arcInt);
+    }
+
+    finishArcBoundaryAction(ctx.entry, op);
+    return true;
+}
+
+function mergeArcRangeIntoNext(entryNumber) {
+    const ctx = getArcBoundaryContext(entryNumber);
+    if (!ctx || !ctx.nextKey) return false;
+
+    const remaining = ctx.arcEntries.slice(0, ctx.index);
+    const moving = ctx.arcEntries.slice(ctx.index);
+    const nextEntries = getArcEntriesSortedAsc(ctx.nextKey);
+    const nextInt = parseInt(ctx.nextKey, 10);
+    if (!ensureArcCapacity(ctx.nextKey, nextEntries.length + moving.length)) return false;
+
+    const op = beginArcBoundaryOp({
+        action: 'merge-next-arc',
+        title: `Merged ${moving.length} entries into Arc ${ctx.nextKey}`,
+        summary: `${moving.length} entries renumbered`
+    });
+
+    // Prepend moved entries, then dense-renumber the destination arc.
+    if (!renumberEntryRefsDense(nextInt, moving.concat(nextEntries))) return false;
+
+    if (remaining.length > 0) {
+        if (!renumberEntryRefsDense(ctx.arcInt, remaining)) return false;
+    } else {
+        deleteEmptyArcAndShiftDown(ctx.arcInt);
+    }
+
+    finishArcBoundaryAction(ctx.entry, op);
+    return true;
+}
+
+function handleEditArcBoundaryAction(action) {
+    const entry = persistEditTrayFieldsToEntry();
+    if (!entry) return;
+    const num = entry.Number;
+    if (action === 'start-new-arc') startNewArcAtEntry(num);
+    else if (action === 'merge-prev-arc') mergeArcRangeIntoPrevious(num);
+    else if (action === 'merge-next-arc') mergeArcRangeIntoNext(num);
+}
+
 function insertEntryRelativeTo(entryNumber, where) {
     const baseEntry = allData.find(e => String(e.Number) === String(entryNumber) || parseFloat(e.Number) === parseFloat(entryNumber));
     if (!baseEntry) return;
@@ -1071,7 +1423,7 @@ let editingEntrySuggestedTags = [];
 let editingEntrySelectedColor = 'slate';
 
 function openEditEntryModal(entryNumber) {
-    const entry = allData.find(e => e.Number === entryNumber);
+    const entry = findEntryByNumber(entryNumber);
     if (!entry) return;
 
     if (typeof filtersVisible !== 'undefined' && filtersVisible && typeof closeFilterSidesheet === 'function') {
@@ -1079,7 +1431,7 @@ function openEditEntryModal(entryNumber) {
     }
     if (typeof closeSyncSidesheet === 'function') closeSyncSidesheet();
     closeAddEntryModal();
-    currentEditingEntryNumber = entryNumber;
+    currentEditingEntryNumber = entry.Number;
 
     // Existing tags: only from entry.Tags (explicitly saved)
     editingEntryTags = parseEntryTags(entry.Tags).map(t => ({ name: t.name, color: t.color }));
@@ -1113,7 +1465,8 @@ function openEditEntryModal(entryNumber) {
     renderEditEntrySuggestedTags();
 
     const editContainer = document.getElementById('editEntryContainer');
-    const card = document.querySelector(`.card[data-entry-number="${entryNumber}"]`);
+    const card = document.querySelector(`.card[data-entry-number="${CSS.escape(String(entry.Number))}"]`)
+        || document.querySelector(`.card[data-entry-number="${entry.Number}"]`);
     const mainContent = document.querySelector('.app-main-content');
     if (card && editContainer && mainContent && card.parentNode) {
         editContainer.remove();
@@ -1133,6 +1486,7 @@ function updateEditEntryColorSelector() {
 }
 
 function closeEditEntryModal() {
+    document.getElementById('editArcBoundaryMenu')?.classList.remove('open');
     const editContainer = document.getElementById('editEntryContainer');
     const mainContent = document.querySelector('.app-main-content');
     if (editContainer && mainContent) {

@@ -193,6 +193,13 @@
                                         <use href="img/sprites/regular.svg#trash"></use>
                                     </svg>
                                 </button>
+                                <button type="button" class="card-kebab-btn" id="editEntryArcKebabBtn"
+                                    data-action="edit-arc-menu" aria-label="Arc actions" title="Arc actions"
+                                    tabindex="0">
+                                    <svg class="icon" aria-hidden="true">
+                                        <use href="img/sprites/regular.svg#ellipsis-vertical"></use>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
 
@@ -589,6 +596,7 @@
         let remoteTags = [];
         let allArcs = {};
         let remoteArcs = {};
+        let pendingArcOps = [];
         let filteredData = [];
         let selectedTags = new Set();
         let selectedCustomTags = new Set();

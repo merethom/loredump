@@ -23,11 +23,13 @@ async function loadData() {
                     allData = draft.entries || [];
                     allTags = draft.tags || [];
                     allArcs = draft.arcs || {};
+                    pendingArcOps = Array.isArray(draft.pendingOps) ? draft.pendingOps : [];
                     document.getElementById('dataSource').textContent += ' (using local draft)';
                 } else {
                     allData = data.entries || [];
                     allTags = data.tags || [];
                     allArcs = data.arcs || {};
+                    pendingArcOps = [];
                 }
 
                 syncTagsFromDocument();

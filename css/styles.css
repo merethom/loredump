@@ -106,6 +106,7 @@
     --font-sans-flex: 'Google Sans Flex', sans-serif;
     /* Layout */
     --side-nav-width: 50px;
+    --sidesheet-width: 440px;
     --border-radius: 3px;
     --box-padding: 24px 28px;
     --border: solid 1px #2A2A3E;
@@ -162,7 +163,12 @@ body.app-active {
 }
 
 .app-layout:has(.sidesheet.open) {
-    grid-template-columns: 1fr 440px;
+    grid-template-columns: 1fr var(--sidesheet-width);
+}
+
+.app-layout:has(.sidesheet.open) .scroll-controls {
+    right: calc(18px + var(--sidesheet-width));
+    transition: right 0.3s ease;
 }
 
 .entries-with-timeline {
@@ -315,6 +321,7 @@ body.app-active {
     flex-direction: row;
     gap: 8px;
     z-index: 100;
+    transition: right 0.3s ease;
 }
 
 .scroll-btn {
@@ -516,6 +523,33 @@ h1 {
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.diff-item-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.diff-discard-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border: none;
+    background: transparent;
+    color: var(--muted-text-color);
+    cursor: pointer;
+    border-radius: var(--border-radius);
+}
+
+.diff-discard-btn:hover {
+    color: var(--color-orange-red);
+}
+
+.diff-discard-btn .icon {
+    width: 14px;
+    height: 14px;
 }
 
 .diff-select-circle {
@@ -996,6 +1030,9 @@ h3.diff-section-title {
     justify-content: space-between;
     align-items: center;
     padding: var(--box-padding);
+    padding-right: 4px;
+    padding-top: 12px;
+    padding-bottom: 12px;
     border-bottom: var(--border);
 }
 
@@ -1038,6 +1075,11 @@ h3.diff-section-title {
 #addEntryContainer .entry-content textarea,
 #editEntryContainer .entry-content textarea {
     line-height: 1.8;
+}
+
+.tray-header-actions .card-kebab-btn {
+    margin: 0;
+    transform: translateY(2px);
 }
 
 .tray-footer {
@@ -1251,7 +1293,7 @@ h3.diff-section-title {
 }
 
 .sidesheet-panel {
-    width: 440px;
+    width: var(--sidesheet-width);
     height: 100%;
     max-height: 100vh;
     min-height: 0;
@@ -1882,8 +1924,13 @@ body.reorder-mode .card.card--reorderable .card-grip-btn {
     text-align: left;
 }
 
-.entry-actions-item:hover {
+.entry-actions-item:hover:not(:disabled) {
     background: #1E1E36;
+}
+
+.entry-actions-item:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 .entry-actions-divider {

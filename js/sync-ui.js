@@ -56,6 +56,33 @@
         }
     }
 
+    function getPendingArcOps() {
+        return (typeof pendingArcOps !== 'undefined' && Array.isArray(pendingArcOps)) ? pendingArcOps : [];
+    }
+
+    function getCoveredChangeIds() {
+        const covered = new Set();
+        getPendingArcOps().forEach(op => {
+            (op.memberIds || []).forEach(id => covered.add(id));
+        });
+        return covered;
+    }
+
+    function expandSelectedForPublish() {
+        const expanded = new Set();
+        const ops = getPendingArcOps();
+        selectedChanges.forEach(id => {
+            if (id.startsWith('op:')) {
+                const opId = id.slice(3);
+                const op = ops.find(o => o.id === opId);
+                (op?.memberIds || []).forEach(m => expanded.add(m));
+            } else {
+                expanded.add(id);
+            }
+        });
+        return expanded;
+    }
+
     /**
      * Renders the diff between local and remote states
      */
@@ -74,16 +101,45 @@
         // For simplicity, we'll reset selection to "all" whenever the diff is re-rendered from scratch
         selectedChanges.clear();
 
+        const coveredIds = getCoveredChangeIds();
+        const ops = getPendingArcOps();
         let html = '';
+        let entryHtml = '';
+        let arcHtml = '';
 
-        // Render Entries Diff
-        if (currentDiff.entries.added.length > 0 || currentDiff.entries.modified.length > 0 || currentDiff.entries.deleted.length > 0) {
-            html += '<h3 class="diff-section-title">Lore Entries</h3>';
-
-            currentDiff.entries.added.forEach(e => {
-                const id = `entry:${e.Number}`;
+        // Summarized arc-boundary operations (hide their member entry/arc rows below)
+        if (ops.length > 0) {
+            html += '<h3 class="diff-section-title">Arc edits</h3>';
+            ops.forEach(op => {
+                const id = `op:${op.id}`;
                 selectedChanges.add(id);
+                const safeOpId = String(op.id).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
                 html += `
+                <div class="diff-item" data-change-id="${id}">
+                    <div class="diff-item-header">
+                        <div class="diff-item-identity">
+                            <div class="diff-select-circle selected" onclick="toggleChangeSelection('${id}')"></div>
+                            <span>${escapeHtml(op.title || 'Arc edit')}</span>
+                        </div>
+                        <div class="diff-item-header-actions">
+                            <button type="button" class="diff-discard-btn" title="Discard this arc edit"
+                                aria-label="Discard this arc edit" onclick="discardPendingArcOp('${safeOpId}')">
+                                <svg class="icon" aria-hidden="true"><use href="img/sprites/regular.svg#trash"></use></svg>
+                            </button>
+                            <span class="diff-type-badge diff-type-modified">arc edit</span>
+                        </div>
+                    </div>
+                    <div class="diff-content">${escapeHtml(op.summary || '')}</div>
+                </div>`;
+            });
+        }
+
+        // Render Entries Diff (skip rows covered by arc ops)
+        currentDiff.entries.added.forEach(e => {
+            const id = `entry:${e.Number}`;
+            if (coveredIds.has(id)) return;
+            selectedChanges.add(id);
+            entryHtml += `
                 <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header">
                         <div class="diff-item-identity">
@@ -94,12 +150,13 @@
                     </div>
                     <div class="diff-content">${escapeHtml(e.Description)}</div>
                 </div>`;
-            });
+        });
 
-            currentDiff.entries.modified.forEach(m => {
-                const id = `entry:${m.new.Number}`;
-                selectedChanges.add(id);
-                html += `
+        currentDiff.entries.modified.forEach(m => {
+            const id = `entry:${m.new.Number}`;
+            if (coveredIds.has(id)) return;
+            selectedChanges.add(id);
+            entryHtml += `
                 <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header">
                         <div class="diff-item-identity">
@@ -115,12 +172,13 @@
                         ` : '<div class="diff-change-line"><em>Tags updated</em></div>'}
                     </div>
                 </div>`;
-            });
+        });
 
-            currentDiff.entries.deleted.forEach(e => {
-                const id = `entry:${e.Number}`;
-                selectedChanges.add(id);
-                html += `
+        currentDiff.entries.deleted.forEach(e => {
+            const id = `entry:${e.Number}`;
+            if (coveredIds.has(id)) return;
+            selectedChanges.add(id);
+            entryHtml += `
                 <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header">
                         <div class="diff-item-identity">
@@ -131,7 +189,10 @@
                     </div>
                     <div class="diff-content diff-old">${escapeHtml(e.Description)}</div>
                 </div>`;
-            });
+        });
+
+        if (entryHtml) {
+            html += '<h3 class="diff-section-title">Lore Entries</h3>' + entryHtml;
         }
 
         // Render Tags Diff
@@ -188,16 +249,15 @@
             });
         }
 
-        // Render Arcs Diff
-        if (currentDiff.arcs && (currentDiff.arcs.added.length > 0 || currentDiff.arcs.modified.length > 0 || currentDiff.arcs.deleted.length > 0)) {
-            html += '<h3 class="diff-section-title">Arcs</h3>';
-
+        // Render Arcs Diff (skip rows covered by arc ops)
+        if (currentDiff.arcs) {
             currentDiff.arcs.added.forEach(a => {
                 if (!a) return;
                 const id = `arc:${a.key}`;
+                if (coveredIds.has(id)) return;
                 selectedChanges.add(id);
                 const colorClass = `arc--badge-${a.color || 'slate'}`;
-                html += `
+                arcHtml += `
                 <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header" style="align-items: center;">
                         <div class="diff-item-identity">
@@ -213,9 +273,10 @@
             currentDiff.arcs.modified.forEach(m => {
                 if (!m || !m.new || !m.old) return;
                 const id = `arc:${m.key}`;
+                if (coveredIds.has(id)) return;
                 selectedChanges.add(id);
                 const colorClass = `arc--badge-${m.new.color || 'slate'}`;
-                html += `
+                arcHtml += `
                 <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header" style="align-items: center;">
                         <div class="diff-item-identity">
@@ -239,8 +300,9 @@
             currentDiff.arcs.deleted.forEach(a => {
                 if (!a) return;
                 const id = `arc:${a.key}`;
+                if (coveredIds.has(id)) return;
                 selectedChanges.add(id);
-                html += `
+                arcHtml += `
                 <div class="diff-item" data-change-id="${id}">
                     <div class="diff-item-header" style="align-items: center;">
                         <div class="diff-item-identity">
@@ -252,6 +314,10 @@
                     <div class="diff-content diff-old">${escapeHtml(a.name)}</div>
                 </div>`;
             });
+        }
+
+        if (arcHtml) {
+            html += '<h3 class="diff-section-title">Arcs</h3>' + arcHtml;
         }
 
         if (!html) {
@@ -307,11 +373,12 @@
         const publishBtn = document.getElementById('publishBtn');
         if (!publishBtn || !currentDiff) return;
 
-        const originalText = publishBtn.textContent;
         publishBtn.disabled = true;
         publishBtn.textContent = 'Publishing...';
 
         try {
+            const publishSet = expandSelectedForPublish();
+
             // Perform a partial merge: start with remote baseline and apply ONLY selected changes
             let entriesToPublish = JSON.parse(JSON.stringify(remoteData || []));
             let tagsToPublish = JSON.parse(JSON.stringify(remoteTags || []));
@@ -319,20 +386,20 @@
 
             // Apply selected entry changes
             currentDiff.entries.added.forEach(e => {
-                if (selectedChanges.has(`entry:${e.Number}`)) {
+                if (publishSet.has(`entry:${e.Number}`)) {
                     entriesToPublish.push(JSON.parse(JSON.stringify(e)));
                 }
             });
 
             currentDiff.entries.modified.forEach(m => {
-                if (selectedChanges.has(`entry:${m.new.Number}`)) {
+                if (publishSet.has(`entry:${m.new.Number}`)) {
                     const idx = entriesToPublish.findIndex(e => e.Number === m.new.Number);
                     if (idx !== -1) entriesToPublish[idx] = JSON.parse(JSON.stringify(m.new));
                 }
             });
 
             currentDiff.entries.deleted.forEach(e => {
-                if (selectedChanges.has(`entry:${e.Number}`)) {
+                if (publishSet.has(`entry:${e.Number}`)) {
                     const idx = entriesToPublish.findIndex(ent => ent.Number === e.Number);
                     if (idx !== -1) entriesToPublish.splice(idx, 1);
                 }
@@ -340,20 +407,20 @@
 
             // Apply selected tag changes
             currentDiff.tags.added.forEach(t => {
-                if (selectedChanges.has(`tag:${t.id}`)) {
+                if (publishSet.has(`tag:${t.id}`)) {
                     tagsToPublish.push(JSON.parse(JSON.stringify(t)));
                 }
             });
 
             currentDiff.tags.modified.forEach(m => {
-                if (selectedChanges.has(`tag:${m.new.id}`)) {
+                if (publishSet.has(`tag:${m.new.id}`)) {
                     const idx = tagsToPublish.findIndex(t => t.id === m.new.id);
                     if (idx !== -1) tagsToPublish[idx] = JSON.parse(JSON.stringify(m.new));
                 }
             });
 
             currentDiff.tags.deleted.forEach(t => {
-                if (selectedChanges.has(`tag:${t.id}`)) {
+                if (publishSet.has(`tag:${t.id}`)) {
                     const idx = tagsToPublish.findIndex(tag => tag.id === t.id);
                     if (idx !== -1) tagsToPublish.splice(idx, 1);
                 }
@@ -362,7 +429,7 @@
             // Apply selected arc changes
             if (currentDiff.arcs) {
                 currentDiff.arcs.added.forEach(a => {
-                    if (selectedChanges.has(`arc:${a.key}`)) {
+                    if (publishSet.has(`arc:${a.key}`)) {
                         arcsToPublish[a.key] = {
                             name: a.name,
                             color: a.color
@@ -371,7 +438,7 @@
                 });
 
                 currentDiff.arcs.modified.forEach(m => {
-                    if (selectedChanges.has(`arc:${m.key}`)) {
+                    if (publishSet.has(`arc:${m.key}`)) {
                         arcsToPublish[m.key] = {
                             name: m.new.name,
                             color: m.new.color
@@ -380,10 +447,20 @@
                 });
 
                 currentDiff.arcs.deleted.forEach(a => {
-                    if (selectedChanges.has(`arc:${a.key}`)) {
+                    if (publishSet.has(`arc:${a.key}`)) {
                         delete arcsToPublish[a.key];
                     }
                 });
+            }
+
+            // Drop published arc ops from the pending log (keep unselected ones)
+            const selectedOpIds = new Set(
+                Array.from(selectedChanges)
+                    .filter(id => id.startsWith('op:'))
+                    .map(id => id.slice(3))
+            );
+            if (typeof pendingArcOps !== 'undefined' && Array.isArray(pendingArcOps)) {
+                pendingArcOps = pendingArcOps.filter(op => !selectedOpIds.has(op.id));
             }
 
             if (typeof publishLoreToFirebase === 'function') {
@@ -392,6 +469,13 @@
                     tags: tagsToPublish,
                     arcs: arcsToPublish
                 });
+
+                // Re-persist draft when unpublished work remains (keeps filtered pendingArcOps in sync)
+                const stillDirty = (typeof pendingArcOps !== 'undefined' && pendingArcOps.length > 0)
+                    || (window.syncManager && window.syncManager.hasChanges(remoteData, remoteTags, allData, allTags));
+                if (stillDirty && typeof saveLoreToFirebase === 'function') {
+                    saveLoreToFirebase();
+                }
 
                 updateSyncStatus();
                 closeSyncSidesheet();
@@ -407,6 +491,29 @@
     }
 
     /**
+     * Discards a single pending arc-boundary operation and any later ops that depend on it.
+     */
+    function discardPendingArcOp(opId) {
+        if (typeof pendingArcOps === 'undefined' || !Array.isArray(pendingArcOps)) return;
+        const idx = pendingArcOps.findIndex(op => op.id === opId);
+        if (idx === -1) return;
+
+        const op = pendingArcOps[idx];
+        if (!op.revert) return;
+
+        allData = JSON.parse(JSON.stringify(op.revert.entries || []));
+        allArcs = JSON.parse(JSON.stringify(op.revert.arcs || {}));
+        // Later ops were applied on top of this one; drop them with it.
+        pendingArcOps = pendingArcOps.slice(0, idx);
+
+        if (typeof saveLoreToFirebase === 'function') saveLoreToFirebase();
+        if (typeof syncTagsFromDocument === 'function') syncTagsFromDocument();
+        if (typeof filterData === 'function') filterData();
+        updateSyncStatus();
+        renderDiff();
+    }
+
+    /**
      * Discards local changes and reverts to remote state
      */
     function discardLocalChanges() {
@@ -416,6 +523,7 @@
         allData = JSON.parse(JSON.stringify(remoteData || []));
         allTags = JSON.parse(JSON.stringify(remoteTags || []));
         allArcs = JSON.parse(JSON.stringify(remoteArcs || {}));
+        pendingArcOps = [];
 
         // Clear local draft
         if (window.syncManager) {
@@ -457,6 +565,7 @@
     window.closeSyncSidesheet = closeSyncSidesheet;
     window.publishChanges = publishChanges;
     window.discardLocalChanges = discardLocalChanges;
+    window.discardPendingArcOp = discardPendingArcOp;
     window.downloadLoreJson = downloadLoreJson;
     window.toggleChangeSelection = toggleChangeSelection;
 

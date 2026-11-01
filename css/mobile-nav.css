@@ -43,6 +43,11 @@
         z-index: 9000 !important;
     }
 
+    /* Full-bleed sidesheet covers the viewport; hide scroll controls while open */
+    .app-layout:has(.sidesheet.open) .scroll-controls {
+        display: none !important;
+    }
+
     .app-layout:has(.sidesheet.open) {
         grid-template-columns: 0 1fr !important;
     }
